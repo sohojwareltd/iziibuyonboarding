@@ -1,125 +1,70 @@
-@extends('layouts.html')
+<x-merchant.kyc>
+    <!-- Header Section -->
+    <header id="page-header" class="mb-8">
+        <h1 class="text-2xl font-semibold text-brand-dark mb-2">Board Members / General Manager</h1>
+        <p class="text-gray-600 text-sm">Provide details of individuals responsible for running the company (Directors,
+            Board Members, or General Manager).</p>
+    </header>
 
-@section('head')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Board Members / General Manager - 2iZii Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            dark: '#2D3A74',
-                            blue: '#4055A8',
-                            orange: '#FFA439',
-                            orangeDark: '#E68A00',
-                            alert: '#FF9900',
-                            bg: '#F7F8FA',
-                            success: '#28A745',
-                            text: '#2D3A74',
-                            subtext: '#6A6A6A',
-                            border: '#D1D5DB'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F7F8FA; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #A0AEC0; }
-        .toggle-checkbox:checked { right: 0; border-color: #28A745; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #28A745; }
-    </style>
-@endsection
+    <!-- Alert Banner -->
+    <div id="alert-banner"
+        class="bg-[#FFF4E5] border-l-4 border-brand-alert p-4 mb-8 rounded-r-md flex items-start shadow-sm">
+        <div class="text-brand-alert mt-0.5 mr-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="text-sm text-gray-700 leading-relaxed">
+            <span class="font-semibold">Requirement:</span> Please ensure that you list all active board members as
+            they appear in your official company registration documents. At least one entry is required.
+        </div>
+    </div>
 
-@section('body')
-<body class="text-primary h-screen flex overflow-hidden">
+    <form id="bm-form">
+        <div id="board-members-container" class="space-y-6">
 
-    <x-merchant.kyc-stepper :active="3" />
-
-    <!-- MAIN CONTENT AREA -->
-    <main id="main-content" class="flex-1 overflow-y-auto bg-brand-bg relative">
-        <div class="max-w-[1000px] mx-auto px-8 py-10 pb-32">
-            
-            <!-- Header Section -->
-            <header id="page-header" class="mb-8">
-                <h1 class="text-2xl font-semibold text-brand-dark mb-2">Board Members / General Manager</h1>
-                <p class="text-gray-600 text-sm">Provide details of individuals responsible for running the company (Directors, Board Members, or General Manager).</p>
-            </header>
-
-            <!-- Alert Banner -->
-            <div id="alert-banner" class="bg-[#FFF4E5] border-l-4 border-brand-alert p-4 mb-8 rounded-r-md flex items-start shadow-sm">
-                <div class="text-brand-alert mt-0.5 mr-3">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div class="text-sm text-gray-700 leading-relaxed">
-                    <span class="font-semibold">Requirement:</span> Please ensure that you list all active board members as they appear in your official company registration documents. At least one entry is required.
-                </div>
-            </div>
-
-            <!-- Board Member Card -->
-            <div id="board-member-card-1" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-                
-                <!-- Card Header -->
-                <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                    <h2 class="text-lg font-semibold text-brand-dark">Board Member #1</h2>
-                    <button class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer" title="Delete Board Member">
-                        <i class="fa-regular fa-trash-can text-lg"></i>
+            <div class="board-member-card bg-white border border-[#E0E0E0] rounded-xl p-6 mb-6" data-bm-index="1">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-brand-dark">Board Member #1</h3>
+                    <button type="button"
+                        class="remove-bo-btn text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors duration-200 hidden">
+                        <i class="fa-solid fa-trash text-sm"></i>
                     </button>
                 </div>
 
                 <!-- Card Body -->
                 <div class="p-6">
-                    
+
                     <!-- Section: Personal Information -->
                     <div class="mb-8">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Personal Information</h3>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Personal Information
+                        </h3>
                         <div class="grid grid-cols-2 gap-x-6 gap-y-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">First Name <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Enter first name">
+                                <x-input.text id="bm-first-name-1" label="First Name" required placeholder="Enter first name"
+                                    class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Last Name <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Enter last name">
+                                <x-input.text id="bm-last-name-1" label="Last Name" required placeholder="Enter last name"
+                                    class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth <span class="text-red-500">*</span></label>
-                                <input type="date" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm text-gray-600">
+                                <x-input.date id="bm-dob-1" label="Date of Birth" required class="h-11 px-3 text-gray-600" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nationality <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm appearance-none bg-white">
-                                        <option value="" disabled selected>Select nationality</option>
-                                        <option value="US">United States</option>
-                                        <option value="UK">United Kingdom</option>
-                                        <option value="CA">Canada</option>
-                                    </select>
-                                    <div class="absolute right-3 top-3.5 text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
+                                <x-input.select id="bm-nationality-1" label="Nationality" required placeholder="Select nationality" class="h-11 px-3">
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="CA">Canada</option>
+                                </x-input.select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address <span class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <input type="email" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="example@company.com">
+                                <label for="bm-email-1" class="block text-sm font-medium text-gray-700 mb-1.5">Email Address <span
+                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
+                                <x-input.email id="bm-email-1" placeholder="example@company.com" class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number <span class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <input type="tel" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="+1 (555) 000-0000">
+                                <label for="bm-phone-1" class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number <span
+                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
+                                <x-input.tel id="bm-phone-1" placeholder="+1 (555) 000-0000" class="h-11 px-3" />
                             </div>
                         </div>
                     </div>
@@ -129,24 +74,29 @@
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Role Information</h3>
                         <div class="grid grid-cols-2 gap-x-6 gap-y-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Position in Company <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="e.g. Director">
+                                <x-input.text id="bm-position-1" label="Position in Company" required placeholder="e.g. Director"
+                                    class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date in Role <span class="text-red-500">*</span></label>
-                                <input type="date" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm text-gray-600">
+                                <x-input.date id="bm-role-start-1" label="Start Date in Role" required class="h-11 px-3 text-gray-600" />
                             </div>
-                            
+
                             <!-- Toggle -->
                             <div class="col-span-2 mt-2">
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <div
+                                    class="flex items-center justify-between bg-gray-50 p-4 rounded-md border border-gray-200">
                                     <div>
-                                        <div class="text-sm font-medium text-brand-dark">Is this person the General Manager?</div>
-                                        <div class="text-xs text-gray-500 mt-1">Enable this if the individual holds the GM position for the entity.</div>
+                                        <div class="text-sm font-medium text-brand-dark">Is this person the General
+                                            Manager?</div>
+                                        <div class="text-xs text-gray-500 mt-1">Enable this if the individual holds the
+                                            GM position for the entity.</div>
                                     </div>
-                                    <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                        <input type="checkbox" name="toggle" id="toggle-gm" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
-                                        <label for="toggle-gm" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    <div
+                                        class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input type="checkbox" name="toggle" id="toggle-gm-1"
+                                            class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" />
+                                        <label for="toggle-gm-1"
+                                            class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                                     </div>
                                 </div>
                             </div>
@@ -155,79 +105,61 @@
 
                     <!-- Section: Identification Details -->
                     <div class="mb-8 border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Identification Details</h3>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Identification
+                            Details
+                        </h3>
                         <div class="grid grid-cols-2 gap-x-6 gap-y-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Identification Type <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm appearance-none bg-white">
-                                        <option value="" disabled selected>Select ID type</option>
-                                        <option value="passport">Passport</option>
-                                        <option value="national_id">National ID</option>
-                                        <option value="drivers_license">Driver's License</option>
-                                    </select>
-                                    <div class="absolute right-3 top-3.5 text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
+                                <x-input.select id="bm-id-type-1" label="Identification Type" required placeholder="Select ID type" class="h-11 px-3">
+                                    <option value="passport">Passport</option>
+                                    <option value="national_id">National ID</option>
+                                    <option value="drivers_license">Driver's License</option>
+                                </x-input.select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Identification Number <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Enter ID number">
+                                <x-input.text id="bm-id-number-1" label="Identification Number" required placeholder="Enter ID number"
+                                    class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">ID Expiry Date <span class="text-red-500">*</span></label>
-                                <input type="date" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm text-gray-600">
+                                <x-input.date id="bm-id-expiry-1" label="ID Expiry Date" required class="h-11 px-3 text-gray-600" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Country of Issue <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm appearance-none bg-white">
-                                        <option value="" disabled selected>Select country</option>
-                                        <option value="US">United States</option>
-                                        <option value="UK">United Kingdom</option>
-                                    </select>
-                                    <div class="absolute right-3 top-3.5 text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
+                                <x-input.select id="bm-issue-country-1" label="Country of Issue" required placeholder="Select country" class="h-11 px-3">
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                </x-input.select>
                             </div>
                         </div>
                     </div>
 
                     <!-- Section: Residential Address -->
                     <div class="mb-8 border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Residential Address</h3>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Residential Address
+                        </h3>
                         <div class="grid grid-cols-2 gap-x-6 gap-y-5">
                             <div class="col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Address Line 1 <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Street address, P.O. box">
+                                <x-input.text id="bm-address-line1-1" label="Address Line 1" required
+                                    placeholder="Street address, P.O. box" class="h-11 px-3" />
                             </div>
                             <div class="col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Address Line 2 <span class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Apartment, suite, unit, building, floor">
+                                <label for="bm-address-line2-1" class="block text-sm font-medium text-gray-700 mb-1.5">Address Line 2 <span
+                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
+                                <x-input.text id="bm-address-line2-1" placeholder="Apartment, suite, unit, building, floor"
+                                    class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">City <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Enter city">
+                                <x-input.text id="bm-city-1" label="City" required placeholder="Enter city" class="h-11 px-3" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Postal Code <span class="text-red-500">*</span></label>
-                                <input type="text" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm" placeholder="Enter postal code">
+                                <x-input.text id="bm-postal-1" label="Postal Code" required placeholder="Enter postal code"
+                                    class="h-11 px-3" />
                             </div>
                             <div class="col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Country <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select class="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm appearance-none bg-white">
-                                        <option value="" disabled selected>Select country</option>
-                                        <option value="US">United States</option>
-                                        <option value="UK">United Kingdom</option>
-                                        <option value="CA">Canada</option>
-                                    </select>
-                                    <div class="absolute right-3 top-3.5 text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
+                                <x-input.select id="bm-country-1" label="Country" required placeholder="Select country" class="h-11 px-3">
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="CA">Canada</option>
+                                </x-input.select>
                             </div>
                         </div>
                     </div>
@@ -237,19 +169,27 @@
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Document Uploads</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Identity <span class="text-red-500">*</span></label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Identity <span
+                                        class="text-red-500">*</span></label>
+                                <div
+                                    class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
                                     <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
+                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span
+                                            class="text-brand-blue font-medium">browse</span></p>
                                     <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Address <span class="text-red-500">*</span></label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Address <span
+                                        class="text-red-500">*</span></label>
+                                <div
+                                    class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
                                     <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
+                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span
+                                            class="text-brand-blue font-medium">browse</span></p>
                                     <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
                                 </div>
                             </div>
                         </div>
@@ -258,34 +198,281 @@
                 </div>
             </div>
 
-            <!-- Add Another Board Member Button -->
-            <button class="flex items-center gap-2 text-brand-orange font-medium text-sm hover:text-brand-orangeDark transition-colors">
-                <i class="fa-solid fa-plus"></i>
-                <span>Add Another Board Member</span>
-            </button>
-
         </div>
 
-        <!-- Footer Button Bar -->
-        <footer id="footer" class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-gray-200 px-10 py-4 z-30">
-            <div class="max-w-[1000px] mx-auto flex items-center justify-between">
-                <a href="{{ route('merchant.kyc.beneficialOwners') }}" class="text-brand-dark text-sm font-medium hover:underline flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left text-xs"></i>
+        <div class="text-center mb-8 mt-4">
+            <button type="button" id="add-bo-btn"
+                class="inline-flex items-center gap-2 px-8 py-2.5 border border-brand-accent text-brand-accent bg-white hover:bg-blue-50 font-medium rounded-lg transition-colors duration-200">
+                <i class="fa-solid fa-plus text-sm"></i>
+                <span>Add Another Board Member</span>
+            </button>
+        </div>
+
+        <footer id="footer"
+            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+                <a href="{{ route('merchant.kyc.beneficialOwners') }}"
+                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
+
                 <div class="flex items-center gap-4">
-                    <button class="h-11 px-6 border-2 border-brand-orange text-brand-orange font-medium rounded-md hover:bg-orange-50 transition-colors text-sm">
-                        Save Draft
+                    <button onclick="saveDraft()"
+                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fa-regular fa-floppy-disk text-sm"></i>
+                        <span>Save as Draft</span>
                     </button>
-                    <a href="{{ route('merchant.kyc.contactPerson') }}" class="h-11 px-6 bg-brand-orange text-white font-medium rounded-md hover:bg-brand-orangeDark transition-colors text-sm flex items-center gap-2">
+
+                    <a href="{{ route('merchant.kyc.contactPerson') }}"
+                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
                         <span>Continue to Contact Person</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
                     </a>
                 </div>
             </div>
         </footer>
-    </main>
 
-</body>
-@endsection
+    </form>
 
+    <div id="toast-container" class="fixed top-6 right-6 z-50"></div>
+
+    <div id="confirmation-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="modal bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-yellow-500 mb-4"></i>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Remove Board Member</h3>
+                <p class="text-sm text-gray-600 mb-6">Are you sure you want to remove this board member? This
+                    action cannot be undone.</p>
+                <div class="flex gap-3 justify-center">
+                    <button onclick="cancelRemove()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-lg font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="confirmRemove()"
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @push('js')
+        <script>
+            let bmCount = 1;
+            let bmToRemove = null;
+
+            window.addEventListener('load', function() {
+                setupUploadZones();
+                updateRemoveButtons();
+                setupOwnershipValidation();
+            });
+
+            function setupUploadZones() {
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.upload-zone')) {
+                        const zone = e.target.closest('.upload-zone');
+                        const input = zone.querySelector('input[type="file"]');
+                        input.click();
+                    }
+                });
+
+                document.addEventListener('change', function(e) {
+                    if (e.target.type === 'file' && e.target.files.length > 0) {
+                        const zone = e.target.closest('.upload-zone');
+                        const fileName = e.target.files[0].name;
+                        zone.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-file-pdf text-2xl text-brand-orange"></i>
+                                    <div class="text-left">
+                                        <p class="text-sm font-medium text-gray-900">${fileName}</p>
+                                        <p class="text-xs text-gray-500">Uploaded successfully</p>
+                                    </div>
+                                </div>
+                                <button onclick="removeFile(this)" class="text-red-500 hover:text-red-700">
+                                    <i class="fa-solid fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        `;
+                        zone.classList.add('bg-green-50', 'border-green-300');
+                    }
+                });
+            }
+
+            function setupOwnershipValidation() {
+                document.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('ownership-percentage')) {
+                        validateOwnershipTotal();
+                    }
+                });
+            }
+
+            function validateOwnershipTotal() {
+                const percentageInputs = document.querySelectorAll('.ownership-percentage');
+                let total = 0;
+
+                percentageInputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                });
+
+                percentageInputs.forEach(input => {
+                    if (total > 100) {
+                        input.classList.add('error-field');
+                    } else {
+                        input.classList.remove('error-field');
+                    }
+                });
+            }
+
+            document.getElementById('add-bo-btn').addEventListener('click', function() {
+                bmCount++;
+                const container = document.getElementById('board-members-container');
+                const newBMCard = createBOCard(bmCount);
+                container.appendChild(newBMCard);
+                updateRemoveButtons();
+                setupUploadZones();
+                newBMCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+
+            function createBOCard(index) {
+                const template = document.querySelector('.board-member-card');
+                const clone = template.cloneNode(true);
+
+                clone.setAttribute('data-bm-index', index);
+                clone.querySelector('h3').textContent = `Board Member #${index}`;
+
+                const resetUploadZone = (zone) => {
+                    zone.classList.remove('bg-green-50', 'border-green-300');
+                    zone.innerHTML = `
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
+                        <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                        <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                    `;
+                };
+
+                const inputs = clone.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const oldId = input.id;
+                    if (oldId) {
+                        const base = oldId.replace(/-\d+$/, '');
+                        const newId = `${base}-${index}`;
+                        input.id = newId;
+                        const relatedLabel = clone.querySelector(`label[for="${oldId}"]`);
+                        if (relatedLabel) relatedLabel.setAttribute('for', newId);
+                    }
+
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    } else if (input.type === 'file') {
+                        input.value = '';
+                    } else {
+                        input.value = '';
+                    }
+
+                    input.classList.remove('error-field');
+                });
+
+                const selects = clone.querySelectorAll('select');
+                selects.forEach(select => {
+                    const oldId = select.id;
+                    if (oldId) {
+                        const base = oldId.replace(/-\d+$/, '');
+                        const newId = `${base}-${index}`;
+                        select.id = newId;
+                        const relatedLabel = clone.querySelector(`label[for="${oldId}"]`);
+                        if (relatedLabel) relatedLabel.setAttribute('for', newId);
+                    }
+                    select.selectedIndex = 0;
+                    select.classList.remove('error-field');
+                });
+
+                clone.querySelectorAll('.upload-zone').forEach(resetUploadZone);
+
+                return clone;
+            }
+
+            function updateRemoveButtons() {
+                const cards = document.querySelectorAll('.board-member-card');
+                const removeButtons = document.querySelectorAll('.remove-bo-btn');
+
+                removeButtons.forEach((btn) => {
+                    if (cards.length > 1) {
+                        btn.classList.remove('hidden');
+                        btn.onclick = function() {
+                            bmToRemove = btn.closest('.board-member-card');
+                            document.getElementById('confirmation-modal').classList.remove('hidden');
+                        };
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                });
+            }
+
+            function confirmRemove() {
+                if (bmToRemove) {
+                    bmToRemove.remove();
+                    bmToRemove = null;
+                    document.getElementById('confirmation-modal').classList.add('hidden');
+                    updateRemoveButtons();
+                    renumberBMCards();
+                }
+            }
+
+            function cancelRemove() {
+                bmToRemove = null;
+                document.getElementById('confirmation-modal').classList.add('hidden');
+            }
+
+            function renumberBMCards() {
+                const cards = document.querySelectorAll('.board-member-card');
+                cards.forEach((card, index) => {
+                    card.querySelector('h3').textContent = `Board Member #${index + 1}`;
+                    card.setAttribute('data-bm-index', index + 1);
+                });
+            }
+
+            function removeFile(btn) {
+                const zone = btn.closest('.upload-zone');
+                zone.innerHTML = `
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
+                    <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                `;
+                zone.classList.remove('bg-green-50', 'border-green-300');
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className =
+                    `toast bg-white border-l-4 ${type === 'success' ? 'border-green-500' : 'border-red-500'} rounded-lg shadow-lg p-4 mb-3`;
+                toast.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid ${type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-circle text-red-500'} text-xl"></i>
+                        <p class="text-sm font-medium text-gray-900">${message}</p>
+                    </div>
+                `;
+
+                document.getElementById('toast-container').appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            function saveDraft() {
+                showToast('Your progress has been saved.', 'success');
+            }
+        </script>
+    @endpush
+</x-merchant.kyc>
