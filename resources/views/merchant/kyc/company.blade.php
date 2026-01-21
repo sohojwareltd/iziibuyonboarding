@@ -1,0 +1,334 @@
+@extends('layouts.html')
+
+@section('head')
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Information</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#2D3A74',
+                            accent: '#4055A8',
+                            orange: '#FF7C00',
+                            orangeHover: '#E56D00',
+                            bg: '#F7F8FA',
+                            border: '#E5E7EB',
+                            inputBorder: '#D1D5DB',
+                            textSubtle: '#595959',
+                            textMuted: '#9A9A9A',
+                            error: '#E74C3C'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { font-family: 'Inter', sans-serif; }
+        .step-active {
+            background: rgba(45,58,116,0.08);
+            border-left: 4px solid #FF7C00;
+        }
+        .upload-zone {
+            border: 2px dashed #D1D5DB;
+            transition: all 0.2s;
+        }
+        .upload-zone:hover {
+            border-color: #4055A8;
+            background: rgba(64,85,168,0.02);
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4055A8;
+            box-shadow: 0 0 0 3px rgba(64,85,168,0.1);
+        }
+        .error-field {
+            border-color: #E74C3C;
+        }
+        .toast {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+@endsection
+
+@section('body')
+    <body class="h-screen overflow-hidden bg-brand-bg flex antialiased">
+
+        <x-merchant.kyc-stepper :active="1" />
+
+        <main id="main-content" class="flex-1 h-full overflow-y-auto pb-24">
+            <div class="max-w-[900px] mx-auto bg-white p-12 min-h-full">
+
+                <div id="page-header" class="mb-8">
+                    <h1 class="text-[28px] font-bold text-brand-dark mb-2">Company Information</h1>
+                    <p class="text-[15px] text-[#6A6A6A]">Provide the primary legal and registration details for your business.</p>
+                </div>
+
+                <form id="kyc-form">
+
+                    <section id="section-registered-details" class="mb-10">
+                        <h2 class="text-xl font-semibold text-brand-dark mb-6">Registered Company Details</h2>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Legal Company Name <span class="text-brand-error">*</span></label>
+                                <input type="text" placeholder="Enter official registered name" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Trade Name <span class="text-gray-400 text-xs">(Optional)</span></label>
+                                <input type="text" placeholder="Trading name / Doing business as" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Company Registration Number <span class="text-brand-error">*</span></label>
+                                <input type="text" placeholder="OrgNr / CVR / BRN / VAT ID" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date of Incorporation <span class="text-brand-error">*</span></label>
+                                <input type="date" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Country of Registration <span class="text-brand-error">*</span></label>
+                                <select disabled class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm bg-gray-50 cursor-not-allowed" required>
+                                    <option>Norway</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Type <span class="text-brand-error">*</span></label>
+                                <select class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                                    <option value="">Select business type</option>
+                                    <option>Private Limited</option>
+                                    <option>OPC</option>
+                                    <option>Partnership</option>
+                                    <option>Sole Proprietorship</option>
+                                    <option>NGO / Non-profit</option>
+                                    <option>Public Limited</option>
+                                    <option>Others</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-address" class="mb-10">
+                        <h2 class="text-xl font-semibold text-brand-dark mb-6">Registered Address</h2>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address Line 1 <span class="text-brand-error">*</span></label>
+                                <input type="text" placeholder="Building / Street name" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address Line 2 <span class="text-gray-400 text-xs">(Optional)</span></label>
+                                <input type="text" placeholder="Apartment, suite, unit, etc." class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">City <span class="text-brand-error">*</span></label>
+                                <input type="text" placeholder="City name" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code <span class="text-brand-error">*</span></label>
+                                <input type="text" placeholder="Postal code" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Country <span class="text-brand-error">*</span></label>
+                                <select disabled class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm bg-gray-50 cursor-not-allowed" required>
+                                    <option>Norway</option>
+                                </select>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Location Details <span class="text-gray-400 text-xs">(Optional)</span></label>
+                                <textarea rows="3" placeholder="Any additional location information" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm resize-none"></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-classification" class="mb-10">
+                        <h2 class="text-xl font-semibold text-brand-dark mb-6">Business Classification</h2>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Industry / MCC Code <span class="text-brand-error">*</span></label>
+                                <select class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                                    <option value="">Select industry category</option>
+                                    <option>Retail (5311)</option>
+                                    <option>Restaurant (5812)</option>
+                                    <option>Professional Services (8999)</option>
+                                    <option>Healthcare (8099)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Description of Business Activities <span class="text-brand-error">*</span></label>
+                                <textarea rows="3" placeholder="Provide a brief description of your products or services" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm resize-none" required></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Expected Monthly Transaction Volume <span class="text-brand-error">*</span></label>
+                                <select class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required>
+                                    <option value="">Select volume range</option>
+                                    <option>< 50,000 NOK</option>
+                                    <option>50,000–250,000 NOK</option>
+                                    <option>250,000–1,000,000 NOK</option>
+                                    <option>> 1,000,000 NOK</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Website URL <span class="text-gray-400 text-xs">(Optional)</span></label>
+                                <input type="url" placeholder="https://yourbusiness.com" class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-documents" class="mb-10">
+                        <h2 class="text-xl font-semibold text-brand-dark mb-6">Company Verification Documents</h2>
+
+                        <div class="space-y-4">
+                            <div class="upload-zone bg-white rounded-xl p-6 text-center cursor-pointer">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-sm font-medium text-gray-700 mb-1">Certificate of Incorporation <span class="text-brand-error">*</span></p>
+                                <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
+                                <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+
+                            <div class="upload-zone bg-white rounded-xl p-6 text-center cursor-pointer">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-sm font-medium text-gray-700 mb-1">Registration Extract / Business License <span class="text-brand-error">*</span></p>
+                                <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
+                                <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+
+                            <div class="upload-zone bg-white rounded-xl p-6 text-center cursor-pointer">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-sm font-medium text-gray-700 mb-1">VAT / Tax Registration Document <span class="text-gray-400 text-xs">(If applicable)</span></p>
+                                <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
+                                <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                    </section>
+
+                </form>
+            </div>
+
+            <footer id="footer" class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
+                <div class="max-w-[900px] mx-auto flex items-center justify-between">
+                    <button onclick="goBack()" class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                        <span>Back</span>
+                    </button>
+
+                    <div class="flex items-center gap-4">
+                        <button onclick="saveDraft()" class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                            <i class="fa-regular fa-floppy-disk text-sm"></i>
+                            <span>Save as Draft</span>
+                        </button>
+
+                        <a href="{{ route('merchant.kyc.beneficialOwners') }}" class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
+                            <span>Continue to Beneficial Owners</span>
+                            <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+
+        <div id="toast-container" class="fixed top-6 right-6 z-50"></div>
+
+        <script>
+            window.addEventListener('load', function() {
+                const uploadZones = document.querySelectorAll('.upload-zone');
+                uploadZones.forEach(zone => {
+                    const input = zone.querySelector('input[type="file"]');
+                    zone.addEventListener('click', () => input.click());
+
+                    input.addEventListener('change', function() {
+                        if(this.files.length > 0) {
+                            const fileName = this.files[0].name;
+                            zone.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-file-pdf text-2xl text-brand-orange"></i>
+                                        <div class="text-left">
+                                            <p class="text-sm font-medium text-gray-900">${fileName}</p>
+                                            <p class="text-xs text-gray-500">Uploaded successfully</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="removeFile(this)" class="text-red-500 hover:text-red-700">
+                                        <i class="fa-solid fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            `;
+                            zone.classList.add('bg-green-50', 'border-green-300');
+                        }
+                    });
+                });
+            });
+
+            function goBack() {
+                window.history.back();
+            }
+
+            function saveDraft() {
+                showToast('Your progress has been saved.', 'success');
+            }
+
+            function showToast(message, type) {
+                const container = document.getElementById('toast-container');
+                const bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
+                const borderColor = type === 'success' ? 'border-green-500' : 'border-red-500';
+                const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${bgColor} border-l-4 ${borderColor} p-4 rounded-lg shadow-lg mb-3 flex items-center gap-3`;
+                toast.innerHTML = `
+                    <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} ${textColor}"></i>
+                    <p class="text-sm font-medium ${textColor}">${message}</p>
+                `;
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+
+            function removeFile(btn) {
+                const zone = btn.closest('.upload-zone');
+                zone.classList.remove('bg-green-50', 'border-green-300');
+                zone.innerHTML = `
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Upload Document</p>
+                    <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
+                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                `;
+            }
+        </script>
+    </body>
+@endsection
+

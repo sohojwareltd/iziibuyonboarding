@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start New Onboarding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#2D3A74',
+                            cta: '#FF7C00',
+                            ctaHover: '#E56D00',
+                            secondary: '#4055A8',
+                            neutral: '#F7F8FA',
+                            text: '#6A6A6A',
+                            textLight: '#9A9A9A',
+                            border: '#D1D5DB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { display: none;}
+        .nav-item-active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 20px;
+        }
+        .nav-item {
+            padding-left: 24px;
+        }
+        .nav-item-sub {
+            padding-left: 44px;
+        }
+        .nav-item-sub-active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 40px;
+        }
+        .pill-selected {
+            background: #FF7C00;
+            color: white;
+            border-color: #FF7C00;
+        }
+        .pill-unselected {
+            background: white;
+            color: #6B7280;
+            border-color: #D1D5DB;
+        }
+    </style>
+</head>
+<body class="bg-brand-neutral">
+
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <nav id="sidebar" class="fixed left-0 top-0 w-[260px] h-full bg-brand-primary flex flex-col z-50">
+        <!-- Logo Area -->
+        <div class="p-6 pb-8">
+            <svg width="150" height="38" viewBox="0 0 150 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="2iZii Logo">
+                <path d="M19 9.5C19 4.25329 23.2533 0 28.5 0H9.5C4.25329 0 0 4.25329 0 9.5V28.5C0 33.7467 4.25329 38 9.5 38H28.5C23.2533 38 19 33.7467 19 28.5V9.5Z" fill="white"/>
+                <circle cx="28.5" cy="9.5" r="3.8" fill="#FF7C00"/>
+                <text x="38" y="26.6" fill="white" font-family="Inter" font-weight="bold" font-size="22">2iZii</text>
+            </svg>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="flex-1 px-0">
+            <!-- MAIN Section -->
+            <div class="mb-6">
+                <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">MAIN</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-chart-line w-5 mr-3"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item-active text-white text-sm py-3 block font-semibold transition-colors">
+                            <i class="fa-solid fa-user-plus w-5 mr-3"></i>Merchant Onboarding
+                        </a>
+                        <ul class="mt-1">
+                            <li>
+                                <a href="#" class="nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors">
+                                    Start New Onboarding
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    Onboarding Requests
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-handshake w-5 mr-3"></i>Partners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-cog w-5 mr-3"></i>Masters
+                        </a>
+                        <ul class="mt-1">
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    Solution Master
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    Acquirer Master
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    Payment Method Master
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    KYC Field Configuration
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                    Document Types
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- SYSTEM Section -->
+            <div>
+                <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">SYSTEM</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-gear w-5 mr-3"></i>Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-clipboard-list w-5 mr-3"></i>Audit Logs
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-users w-5 mr-3"></i>User Management
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TOP HEADER BAR -->
+    <header id="header" class="fixed top-0 left-[260px] right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8 z-40">
+        <div class="flex items-center gap-6">
+            <!-- Notification Bell -->
+            <button class="text-brand-text hover:text-brand-primary transition-colors relative">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            
+            <!-- Admin Profile -->
+            <div class="flex items-center gap-3 cursor-pointer group">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Admin Avatar" class="w-8 h-8 rounded-full object-cover">
+                <i class="fa-solid fa-chevron-down text-xs text-brand-text group-hover:text-brand-primary transition-colors"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="main-content" class="ml-[260px] pt-16 pb-24 min-h-screen bg-brand-neutral">
+        <div class="p-8">
+            
+            <!-- Page Title -->
+            <h1 id="page-title" class="text-[28px] font-bold text-brand-primary mb-6 text-center">Start New Onboarding</h1>
+
+            <!-- Form Container -->
+            <div id="form-container" class="max-w-[960px] mx-auto bg-white rounded-2xl p-8 shadow-sm">
+                
+                <!-- Section A: Partner & Merchant Information -->
+                <section id="partner-merchant-section" class="mb-8">
+                    <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Partner & Merchant Information</h2>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Partner</label>
+                            <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
+                                <option value="">Choose Partner</option>
+                                <option value="digitax">Digitax</option>
+                                <option value="2izii-direct">2iZii Direct</option>
+                                <option value="taxi-group">Taxi Group</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Legal Name</label>
+                            <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="Enter registered name of the merchant">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                            <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
+                                <option value="">Select Country</option>
+                                <option value="norway">Norway</option>
+                                <option value="sweden">Sweden</option>
+                                <option value="denmark">Denmark</option>
+                                <option value="finland">Finland</option>
+                                <option value="iceland">Iceland</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Email Address</label>
+                            <input type="email" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="merchant@example.com">
+                        </div>
+                        
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Phone Number (Optional)</label>
+                            <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="+47 ...">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section B: Product & Acquirer Configuration -->
+                <section id="product-acquirer-section" class="mb-8">
+                    <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Product & Acquirer Configuration</h2>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Solution</label>
+                            <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
+                                <option value="">Choose Solution</option>
+                                <option value="ecommerce">E-commerce Gateway</option>
+                                <option value="pos">POS Integration</option>
+                                <option value="mobile">Mobile Payments</option>
+                                <option value="international">International Gateway</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Primary Acquirer</label>
+                            <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
+                                <option value="">Auto-filled from Solution</option>
+                                <option value="elavon">Elavon</option>
+                                <option value="surfboard">Surfboard</option>
+                                <option value="adyen">Adyen</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Enabled Payment Methods</label>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="pill-selected px-4 py-2 rounded-full border text-sm font-medium transition-colors">
+                                Card
+                            </button>
+                            <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
+                                Vipps
+                            </button>
+                            <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
+                                MobilePay
+                            </button>
+                            <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
+                                Bank Transfer
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Additional Acquirers (Multi-select)</label>
+                        <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
+                            <option value="">Select additional acquirers</option>
+                            <option value="stripe">Stripe</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="worldpay">WorldPay</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-brand-cta p-3 rounded">
+                        <p class="text-xs text-gray-600">KYC requirements will expand based on selected acquirers.</p>
+                    </div>
+                </section>
+
+                <!-- Section C: Onboarding Link Generation -->
+                <section id="link-generation-section">
+                    <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Onboarding Link Generation</h2>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Preview of Generated Link</label>
+                        <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg bg-gray-50" placeholder="https://onboarding.2izii.com/start/MOB-XXXXXX" disabled>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button class="bg-brand-secondary hover:bg-brand-primary text-white font-medium px-6 py-3 rounded-lg w-[180px] h-11 transition-colors">
+                            Generate Link
+                        </button>
+                        <button class="bg-white border border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-white font-medium px-6 py-3 rounded-lg w-[150px] h-11 transition-colors">
+                            Copy Link
+                        </button>
+                        <button class="bg-brand-cta hover:bg-brand-ctaHover text-white font-medium px-6 py-3 rounded-lg w-[220px] h-11 flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-envelope text-sm"></i>
+                            Send Email to Merchant
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Fixed Bottom Action Bar -->
+    <div id="bottom-action-bar" class="fixed bottom-0 left-[260px] right-0 bg-white border-t border-gray-200 px-8 py-4 flex justify-end gap-4 shadow-lg z-30">
+        <button class="bg-white border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white font-medium px-6 py-3 rounded-lg w-[130px] h-11 transition-colors">
+            Cancel
+        </button>
+        <button class="bg-white border border-brand-cta text-brand-cta hover:bg-brand-cta hover:text-white font-medium px-6 py-3 rounded-lg w-[140px] h-11 transition-colors">
+            Save Draft
+        </button>
+        <button class="bg-brand-primary hover:bg-brand-secondary text-white font-medium px-6 py-3 rounded-lg w-[220px] h-11 transition-colors">
+            Proceed to KYC Overview
+        </button>
+    </div>
+
+    <script>
+        // Payment method pill toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const pills = document.querySelectorAll('.pill-unselected, .pill-selected');
+            
+            pills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    if (this.classList.contains('pill-selected')) {
+                        this.classList.remove('pill-selected');
+                        this.classList.add('pill-unselected');
+                    } else {
+                        this.classList.remove('pill-unselected');
+                        this.classList.add('pill-selected');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

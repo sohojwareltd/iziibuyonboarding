@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#2D3A74',
+                            cta: '#FF7C00',
+                            ctaHover: '#E56D00',
+                            secondary: '#4055A8',
+                            neutral: '#F7F8FA',
+                            text: '#6A6A6A',
+                            textLight: '#9A9A9A',
+                            border: '#D1D5DB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { display: none;}
+        .nav-item-active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 20px;
+        }
+        .nav-item {
+            padding-left: 24px;
+        }
+    </style>
+</head>
+<body class="bg-brand-neutral">
+
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <nav id="sidebar" class="fixed left-0 top-0 w-[260px] h-full bg-brand-primary flex flex-col z-50">
+        <!-- Logo Area -->
+        <div class="p-6 pb-8">
+            <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="2iZii Logo">
+                <path d="M20 10C20 4.47715 24.4772 0 30 0H10C4.47715 0 0 4.47715 0 10V30C0 35.5228 4.47715 40 10 40H30C24.4772 40 20 35.5228 20 30V10Z" fill="white"/>
+                <circle cx="30" cy="10" r="4" fill="#FF7C00"/>
+                <text x="40" y="28" fill="white" font-family="Inter" font-weight="bold" font-size="24">2iZii</text>
+            </svg>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="flex-1 px-0">
+            <!-- MAIN Section -->
+            <div class="mb-6">
+                <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">MAIN</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-chart-line w-5 mr-3"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item-active text-white text-sm py-3 block font-semibold transition-colors">
+                            <i class="fa-solid fa-user-plus w-5 mr-3"></i>Merchant Onboarding
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-handshake w-5 mr-3"></i>Partners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-cog w-5 mr-3"></i>Masters
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors pl-12">
+                            Solution Master
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors pl-12">
+                            Acquirer Master
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors pl-12">
+                            Payment Method Master
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors pl-12">
+                            KYC Field Configuration
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors pl-12">
+                            Document Types
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- SYSTEM Section -->
+            <div>
+                <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">SYSTEM</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-gear w-5 mr-3"></i>Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-clipboard-list w-5 mr-3"></i>Audit Logs
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-users w-5 mr-3"></i>User Management
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TOP HEADER BAR -->
+    <header id="header" class="fixed top-0 left-[260px] right-0 h-16 bg-white shadow-sm border-b border-[#EDEDED] flex items-center justify-end px-8 z-40">
+        <div class="flex items-center gap-6">
+            <!-- Notification Bell -->
+            <button class="text-brand-text hover:text-brand-primary transition-colors relative">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            
+            <!-- Admin Profile -->
+            <div class="flex items-center gap-3 cursor-pointer group">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Admin Avatar" class="w-8 h-8 rounded-full object-cover">
+                <i class="fa-solid fa-chevron-down text-xs text-brand-text group-hover:text-brand-primary transition-colors"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
+        <div class="p-8">
+            
+            <!-- Page Title -->
+            <h1 id="page-title" class="text-[28px] font-bold text-brand-primary mb-6">Merchant Onboarding</h1>
+
+            <!-- Summary Cards Section -->
+            <section id="summary-cards" class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-brand-text mb-1">New Requests Today</p>
+                            <p class="text-[26px] font-bold text-brand-primary">12</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-green-500 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-brand-text mb-1">In Progress</p>
+                            <p class="text-[26px] font-bold text-brand-primary">34</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-green-500 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-brand-text mb-1">Submitted to Acquirers</p>
+                            <p class="text-[26px] font-bold text-brand-primary">18</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-green-500 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-brand-text mb-1">Approved Merchants</p>
+                            <p class="text-[26px] font-bold text-brand-primary">102</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-green-500 text-sm"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Primary CTA Panel -->
+            <section id="cta-panel" class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h2 class="text-[22px] font-semibold text-brand-primary mb-2">Start a New Merchant Onboarding</h2>
+                        <p class="text-sm text-[#595959] mb-5">Create an onboarding request and send it to the merchant to begin the KYC process.</p>
+                        <button class="bg-brand-cta hover:bg-brand-ctaHover text-white font-medium px-6 py-3 rounded-lg w-[260px] h-12 flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-plus text-sm"></i>
+                            Start New Onboarding
+                        </button>
+                    </div>
+                    <div class="ml-8">
+                        <i class="fa-solid fa-user-plus text-6xl text-brand-primary/10"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Onboardings Table -->
+            <section id="recent-onboardings" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-brand-primary">Recent Onboarding Requests</h3>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solution</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acquirer(s)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TechFlow Solutions</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">FinancePartner</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">E-commerce Gateway</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Stripe, PayPal</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Submitted</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Digital Commerce Ltd</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">PaymentHub</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mobile Payments</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Square</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Started</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4 hours ago</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Retail Express Inc</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MerchantGateway</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">POS Integration</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adyen</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1 day ago</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Global Trade Co</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">FinancePartner</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">International Gateway</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WorldPay, Stripe</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending More Info</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 days ago</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>
