@@ -1,58 +1,59 @@
-@push('css')
-    <style>
-        ::-webkit-scrollbar {
-            display: none;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .step-active {
-            background: rgba(45, 58, 116, 0.08);
-            border-left: 4px solid #FF7C00;
-        }
-
-        .upload-zone {
-            border: 2px dashed #D1D5DB;
-            transition: all 0.2s;
-        }
-
-        .upload-zone:hover {
-            border-color: #4055A8;
-            background: rgba(64, 85, 168, 0.02);
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #4055A8;
-            box-shadow: 0 0 0 3px rgba(64, 85, 168, 0.1);
-        }
-
-        .error-field {
-            border-color: #E74C3C;
-        }
-
-        .toast {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-    </style>
-@endpush
 <x-merchant.kyc>
+    @push('css')
+        <style>
+            ::-webkit-scrollbar {
+                display: none;
+            }
+    
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+    
+            .step-active {
+                background: rgba(45, 58, 116, 0.08);
+                border-left: 4px solid #FF7C00;
+            }
+    
+            .upload-zone {
+                border: 2px dashed #D1D5DB;
+                transition: all 0.2s;
+            }
+    
+            .upload-zone:hover {
+                border-color: #4055A8;
+                background: rgba(64, 85, 168, 0.02);
+            }
+    
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: none;
+                border-color: #4055A8;
+                box-shadow: 0 0 0 3px rgba(64, 85, 168, 0.1);
+            }
+    
+            .error-field {
+                border-color: #E74C3C;
+            }
+    
+            .toast {
+                animation: slideIn 0.3s ease-out;
+            }
+    
+            @keyframes slideIn {
+                from {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                }
+    
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        </style>
+    @endpush
+    
     <div id="page-header" class="mb-8">
         <h1 class="text-[28px] font-bold text-brand-dark mb-2">Company Information</h1>
         <p class="text-[15px] text-[#6A6A6A]">Provide the primary legal and registration details for your
