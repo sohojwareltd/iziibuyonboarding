@@ -68,7 +68,7 @@
 @section('body')
     <body class="bg-brand-neutral">
 
-        <x-admin.sidebar active="merchant-onboarding" subactive="start" />
+        <x-admin.sidebar active="merchant-onboarding" />
 
         <header id="header" class="fixed top-0 left-[260px] right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8 z-40">
             <div class="flex items-center gap-6">
