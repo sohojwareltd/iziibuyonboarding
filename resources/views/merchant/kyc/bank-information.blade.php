@@ -245,7 +245,7 @@
                         </div>
                         <div
                             class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle-intl" id="toggle-intl"
+                            <input type="checkbox" name="supports_international" id="toggle-intl" value="1"
                                 class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-primary transition-all duration-300"
                                 checked />
                             <label for="toggle-intl"
@@ -260,7 +260,7 @@
                         </div>
                         <div
                             class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle-biz" id="toggle-biz"
+                            <input type="checkbox" name="business_operations_only" id="toggle-biz" value="1"
                                 class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-primary transition-all duration-300"
                                 checked />
                             <label for="toggle-biz"
