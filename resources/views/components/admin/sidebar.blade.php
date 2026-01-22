@@ -5,6 +5,8 @@
 @php
     $isOnboardingActive = request()->routeIs('admin.onboarding.*');
     $isOnboardingExpanded = $isOnboardingActive;
+    $isMastersActive = request()->routeIs('admin.masters.*');
+    $isMastersExpanded = $isMastersActive;
 @endphp
 
 <style>
@@ -77,41 +79,58 @@
                 </li>
                 <li>
                     <div class="sidebar-menu-item">
-                        <div class="flex items-center">
-                            <a href="#" 
-                               class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors flex items-center flex-1 px-6">
+                        <div class="flex items-center {{ $isMastersActive ? 'nav-item-active' : '' }}">
+                            <a href="{{ route('admin.masters.solution-master') }}" 
+                               class="{{ $isMastersActive ? 'text-white text-sm py-3 block font-semibold transition-colors' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }} flex items-center flex-1 px-6">
                                 <i class="fa-solid fa-cog w-5 mr-3"></i>
                                 <span>Masters</span>
                             </a>
                             <button type="button" 
                                     class="sidebar-toggle-btn px-4 py-3 text-white/70 hover:text-white hover:bg-white/10 transition-colors focus:outline-none sidebar-toggle"
                                     aria-label="Toggle submenu">
-                                <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 sidebar-chevron"></i>
+                                <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 sidebar-chevron {{ $isMastersExpanded ? 'rotate-180' : '' }}"></i>
                             </button>
                         </div>
-                        <ul class="sidebar-submenu overflow-hidden transition-all duration-300 max-h-0 opacity-0">
+                        <ul class="sidebar-submenu overflow-hidden transition-all duration-300 {{ $isMastersExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0' }}">
                             <li>
-                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                <a href="{{ route('admin.masters.solution-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.solution-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Solution Master
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                <a href="{{ route('admin.masters.acquirer-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.acquirer-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Acquirer Master
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                <a href="{{ route('admin.masters.payment-method-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.payment-method-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Payment Method Master
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                <a href="{{ route('admin.masters.price-list-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.price-list-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    Price List Master
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.masters.kyc-field-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.kyc-field-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     KYC Field Configuration
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors">
+                                <a href="{{ route('admin.masters.acquirer-field-mapping') }}" 
+                                   class="{{ request()->routeIs('admin.masters.acquirer-field-mapping') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    Acquirer Field Mapping
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.masters.document-type-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.document-type-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Document Types
                                 </a>
                             </li>

@@ -70,156 +70,398 @@
 
         <x-admin.sidebar active="merchant-onboarding" />
 
-        <header id="header" class="fixed top-0 left-[260px] right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8 z-40">
-            <div class="flex items-center gap-6">
-                <!-- Notification Bell -->
-                <button class="text-brand-text hover:text-brand-primary transition-colors relative">
-                    <i class="fa-regular fa-bell text-lg"></i>
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-
-                <!-- Admin Profile -->
-                <div class="flex items-center gap-3 cursor-pointer group">
-                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Admin Avatar" class="w-8 h-8 rounded-full object-cover">
-                    <i class="fa-solid fa-chevron-down text-xs text-brand-text group-hover:text-brand-primary transition-colors"></i>
-                </div>
-            </div>
-        </header>
+        <x-admin.topbar :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => '#'],
+            ['label' => 'Merchant Onboarding', 'url' => route('admin.onboarding.index')],
+            ['label' => 'Start New Onboarding', 'url' => route('admin.onboarding.start')],
+        ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 pb-24 min-h-screen bg-brand-neutral">
-            <div class="p-8">
-
-                <!-- Page Title -->
-                <h1 id="page-title" class="text-[28px] font-bold text-brand-primary mb-6 text-center">Start New Onboarding</h1>
+        <main id="main-content" class="ml-[260px] pt-16 pb-20 min-h-screen bg-brand-neutral">
+            <div class=" mx-auto px-20 py-8">
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold text-brand-primary mb-1">Start New Onboarding</h1>
+                    <p class="text-sm text-gray-500">Configure onboarding by selecting solution, partner, acquirers, payment methods, pricing, and merchant details.</p>
+                </div>
 
                 <!-- Form Container -->
-                <div id="form-container" class="max-w-[960px] mx-auto bg-white rounded-2xl p-8 shadow-sm">
+                <div id="form-container" class="space-y-6">
 
-                    <!-- Section A: Partner & Merchant Information -->
-                    <section id="partner-merchant-section" class="mb-8">
-                        <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Partner & Merchant Information</h2>
+                    <!-- Section 1: Core Configuration -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">1. Core Configuration</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">Required Step</span>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-2 gap-8">
+                                <!-- Solution Field -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Solution <span class="text-red-500">*</span>
+                                        </label>
+                                        <select class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
+                                            <option>POS Terminal Integration</option>
+                                            <option>E-commerce Gateway</option>
+                                            <option>Mobile Payments</option>
+                                        </select>
+                                    </div>
+                                    <!-- Solution Info Card -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4 space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-brand-primary uppercase">Selected: POS Terminal</span>
+                                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">Active</span>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 text-xs">
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Complexity</div>
+                                                <div class="font-medium text-gray-900">Medium (HW Required)</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Default Price</div>
+                                                <div class="font-medium text-gray-900">Standard Retail v2</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Supported</div>
+                                                <div class="flex gap-1">
+                                                    <span class="text-xs">🇬🇧</span>
+                                                    <span class="text-xs">🇩🇪</span>
+                                                    <span class="text-xs">🇳🇴</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Partner</label>
-                                <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
-                                    <option value="">Choose Partner</option>
-                                    <option value="digitax">Digitax</option>
-                                    <option value="2izii-direct">2iZii Direct</option>
-                                    <option value="taxi-group">Taxi Group</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Legal Name</label>
-                                <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="Enter registered name of the merchant">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                                <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
-                                    <option value="">Select Country</option>
-                                    <option value="norway">Norway</option>
-                                    <option value="sweden">Sweden</option>
-                                    <option value="denmark">Denmark</option>
-                                    <option value="finland">Finland</option>
-                                    <option value="iceland">Iceland</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Email Address</label>
-                                <input type="email" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="merchant@example.com">
-                            </div>
-
-                            <div class="col-span-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Merchant Phone Number (Optional)</label>
-                                <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none" placeholder="+47 ...">
+                                <!-- Partner Field -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Partner <span class="text-red-500">*</span>
+                                        </label>
+                                        <select class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
+                                            <option>OnePOS Systems Ltd.</option>
+                                            <option>Digitax</option>
+                                            <option>2iZii Direct</option>
+                                        </select>
+                                    </div>
+                                    <!-- Partner Info Card -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4 space-y-4">
+                                        <div class="grid grid-cols-2 gap-4 text-xs">
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Partner Type</div>
+                                                <div class="font-medium text-gray-900">Channel Partner</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Commission Plan</div>
+                                                <div class="font-medium text-gray-900">Kickback Tier 1 (0.2%)</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Status</div>
+                                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Active</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Referral ID</div>
+                                                <div class="font-mono font-medium text-gray-900">PART-8821</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Section B: Product & Acquirer Configuration -->
-                    <section id="product-acquirer-section" class="mb-8">
-                        <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Product & Acquirer Configuration</h2>
-
-                        <div class="grid grid-cols-2 gap-6 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Solution</label>
-                                <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
-                                    <option value="">Choose Solution</option>
-                                    <option value="ecommerce">E-commerce Gateway</option>
-                                    <option value="pos">POS Integration</option>
-                                    <option value="mobile">Mobile Payments</option>
-                                    <option value="international">International Gateway</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Primary Acquirer</label>
-                                <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
-                                    <option value="">Auto-filled from Solution</option>
-                                    <option value="elavon">Elavon</option>
-                                    <option value="surfboard">Surfboard</option>
-                                    <option value="adyen">Adyen</option>
-                                </select>
-                            </div>
+                    <!-- Section 2: Merchant Details -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">2. Merchant Details</h2>
                         </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Enabled Payment Methods</label>
-                            <div class="flex flex-wrap gap-3">
-                                <button class="pill-selected px-4 py-2 rounded-full border text-sm font-medium transition-colors">
-                                    Card
-                                </button>
-                                <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
-                                    Vipps
-                                </button>
-                                <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
-                                    MobilePay
-                                </button>
-                                <button class="pill-unselected px-4 py-2 rounded-full border text-sm font-medium transition-colors hover:border-brand-cta">
-                                    Bank Transfer
-                                </button>
+                        <div class="p-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Legal Business Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="e.g. Acme Trading Ltd">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Trading Name</label>
+                                    <input type="text" class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="e.g. Acme Coffee">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Registration Number / Org No</label>
+                                    <input type="text" class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="e.g. 12345678">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Business Website</label>
+                                    <div class="flex">
+                                        <div class="bg-gray-50 border border-r-0 border-gray-300 rounded-l-md px-3 flex items-center text-sm text-gray-600">https://</div>
+                                        <input type="text" class="flex-1 h-[39px] px-4 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="www.example.com">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Merchant Contact Email <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                        <input type="email" class="w-full h-[39px] pl-10 pr-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="contact@merchant.com">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Merchant Phone Number</label>
+                                    <input type="tel" class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary" placeholder="+44 7700 900000">
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Additional Acquirers (Multi-select)</label>
-                            <select class="w-full h-12 px-4 border border-brand-border rounded-lg focus:border-brand-secondary focus:outline-none">
-                                <option value="">Select additional acquirers</option>
-                                <option value="stripe">Stripe</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="worldpay">WorldPay</option>
-                            </select>
-                        </div>
-
-                        <div class="bg-yellow-50 border-l-4 border-brand-cta p-3 rounded">
-                            <p class="text-xs text-gray-600">KYC requirements will expand based on selected acquirers.</p>
                         </div>
                     </section>
 
-                    <!-- Section C: Onboarding Link Generation -->
-                    <section id="link-generation-section">
-                        <h2 class="text-[20px] font-semibold text-brand-primary mb-4">Onboarding Link Generation</h2>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Preview of Generated Link</label>
-                            <input type="text" class="w-full h-12 px-4 border border-brand-border rounded-lg bg-gray-50" placeholder="https://onboarding.2izii.com/start/MOB-XXXXXX" disabled>
+                    <!-- Section 3: Operations & Acquirers -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">3. Operations & Acquirers</h2>
                         </div>
+                        <div class="p-6 space-y-8">
+                            <div class="grid grid-cols-2 gap-8">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Country of Operation <span class="text-red-500">*</span>
+                                    </label>
+                                    <select class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
+                                        <option>🇬🇧 United Kingdom</option>
+                                        <option>🇳🇴 Norway</option>
+                                        <option>🇸🇪 Sweden</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">Filtered based on selected solution.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Methods</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" data-payment-method="visa" class="bg-brand-primary text-white px-3 py-1.5 rounded-full text-sm font-medium border-2 border-brand-primary flex items-center gap-1.5">
+                                            <i class="fa-brands fa-cc-visa text-sm"></i>
+                                            Visa
+                                        </button>
+                                        <button type="button" data-payment-method="mastercard" class="bg-brand-primary text-white px-3 py-1.5 rounded-full text-sm font-medium border-2 border-brand-primary flex items-center gap-1.5">
+                                            <i class="fa-brands fa-cc-mastercard text-sm"></i>
+                                            Mastercard
+                                        </button>
+                                        <button type="button" data-payment-method="apple-pay" class="bg-white text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 flex items-center gap-1.5">
+                                            <i class="fa-brands fa-cc-apple-pay text-sm"></i>
+                                            Apple Pay
+                                        </button>
+                                        <button type="button" data-payment-method="google-pay" class="bg-white text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 flex items-center gap-1.5">
+                                            <i class="fa-brands fa-google-pay text-sm"></i>
+                                            Google Pay
+                                        </button>
+                                        <button type="button" data-payment-method="vipps" class="bg-gray-100 text-gray-400 px-3 py-1.5 rounded-full text-sm font-medium">
+                                            Vipps
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="flex gap-4">
-                            <button class="bg-brand-secondary hover:bg-brand-primary text-white font-medium px-6 py-3 rounded-lg w-[180px] h-11 transition-colors">
-                                Generate Link
+                            <div class="border-t border-gray-200 pt-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-3">
+                                    Select Acquirer(s) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <!-- Elavon Card -->
+                                    <div data-acquirer-card="elavon" class="bg-blue-50 border-2 border-brand-secondary rounded-lg p-4 flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <h3 class="font-bold text-sm text-gray-900">Elavon (Email Submission)</h3>
+                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Primary</span>
+                                            </div>
+                                            <p class="text-sm text-gray-600">SLA: 24-48 hours. Requires full KYB doc set.</p>
+                                        </div>
+                                        <div class="ml-3">
+                                            <input type="checkbox" data-acquirer="elavon" checked class="w-5 h-5 rounded text-brand-secondary focus:ring-brand-secondary">
+                                        </div>
+                                    </div>
+                                    <!-- Surfboard Card -->
+                                    <div data-acquirer-card="surfboard" class="bg-white border border-gray-200 rounded-lg p-4 flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <h3 class="font-medium text-sm text-gray-900">Surfboard (API)</h3>
+                                                <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded">Instant</span>
+                                            </div>
+                                            <p class="text-sm text-gray-600">SLA: Instant. Hybrid flow required.</p>
+                                        </div>
+                                        <div class="ml-3">
+                                            <input type="checkbox" data-acquirer="surfboard" class="w-5 h-5 rounded border-gray-300 text-brand-secondary focus:ring-brand-secondary">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Elavon Requirements -->
+                                <div data-elavon-requirements class="bg-gray-50 border border-gray-200 rounded-md p-4 mt-4">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <i class="fa-solid fa-info-circle text-brand-secondary"></i>
+                                        <h4 class="font-semibold text-sm text-gray-700">Elavon Requirements</h4>
+                                    </div>
+                                    <ul class="text-xs text-gray-600 space-y-1.5 ml-6 list-disc">
+                                        <li>Company Info, UBOs (>25%), Board Members</li>
+                                        <li>Bank Account Verification Letter (dated < 3 months)</li>
+                                        <li>Passport Copies for all UBOs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 4: Pricing & Fees -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide mb-1">4. Pricing & Fees</h2>
+                                <p class="text-xs text-gray-500">Assign pricing or customize fees for this onboarding.</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Select Price List <span class="text-red-500">*</span>
+                                </label>
+                                <select class="w-full max-w-md h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
+                                    <option>Default Solution Price List (Standard)</option>
+                                    <option>Custom Price List</option>
+                                </select>
+                            </div>
+                            <!-- Pricing Table -->
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Payment Method</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Transaction</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">% Fee (MDR)</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Fixed Fee</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Min Fee</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Max Fee</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-3 flex items-center gap-2">
+                                                <i class="fa-brands fa-cc-visa text-sm"></i>
+                                                <span class="font-medium">Visa Debit</span>
+                                            </td>
+                                            <td class="px-3 py-3 text-gray-600">Card Present</td>
+                                            <td class="px-3 py-3 font-mono">0.75%</td>
+                                            <td class="px-3 py-3 font-mono">£0.05</td>
+                                            <td class="px-3 py-3 font-mono">£0.10</td>
+                                            <td class="px-3 py-3 font-mono">-</td>
+                                        </tr>
+                                        <tr class="bg-white">
+                                            <td class="px-6 py-3 flex items-center gap-2">
+                                                <i class="fa-brands fa-cc-mastercard text-sm"></i>
+                                                <span class="font-medium">Mastercard</span>
+                                            </td>
+                                            <td class="px-3 py-3 text-gray-600">Card Present</td>
+                                            <td class="px-3 py-3 font-mono">0.80%</td>
+                                            <td class="px-3 py-3 font-mono">£0.05</td>
+                                            <td class="px-3 py-3 font-mono">£0.10</td>
+                                            <td class="px-3 py-3 font-mono">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-3 flex items-center gap-2">
+                                                <i class="fa-brands fa-cc-apple-pay text-sm"></i>
+                                                <span class="font-medium">Apple Pay</span>
+                                            </td>
+                                            <td class="px-3 py-3 text-gray-600">Contactless</td>
+                                            <td class="px-3 py-3 font-mono">1.20%</td>
+                                            <td class="px-3 py-3 font-mono">£0.10</td>
+                                            <td class="px-3 py-3 font-mono">£0.15</td>
+                                            <td class="px-3 py-3 font-mono">-</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="flex items-center gap-2 text-brand-secondary text-sm font-medium">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                                Customize Pricing for this Merchant
                             </button>
-                            <button class="bg-white border border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-white font-medium px-6 py-3 rounded-lg w-[150px] h-11 transition-colors">
-                                Copy Link
-                            </button>
-                            <button class="bg-brand-cta hover:bg-brand-ctaHover text-white font-medium px-6 py-3 rounded-lg w-[220px] h-11 flex items-center justify-center gap-2 transition-colors">
-                                <i class="fa-solid fa-envelope text-sm"></i>
-                                Send Email to Merchant
-                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Section 5: Internal Tags & Notes -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">5. Internal Tags & Notes</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Internal Tags</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <span data-tag class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2">
+                                        High-Risk
+                                        <button type="button" data-tag-remove class="hover:text-purple-900"><i class="fa-solid fa-xmark text-xs"></i></button>
+                                    </span>
+                                    <span data-tag class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2">
+                                        Fast-Track
+                                        <button type="button" data-tag-remove class="hover:text-green-900"><i class="fa-solid fa-xmark text-xs"></i></button>
+                                    </span>
+                                    <button type="button" class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                        Add Tag
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Internal Notes</label>
+                                <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary resize-none" placeholder="Add internal notes visible only to 2iZii team..."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 6: System Information -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">6. System Information</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-4 gap-6">
+                                <div>
+                                    <div class="text-xs text-gray-500 mb-1">Request ID</div>
+                                    <div class="font-mono text-sm text-gray-900">MOB-DRAFT</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 mb-1">Status</div>
+                                    <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded">Draft</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 mb-1">Created On</div>
+                                    <div class="font-medium text-sm text-gray-900">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 mb-1">Created By</div>
+                                    <div class="font-medium text-sm text-gray-900">Admin User</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 7: KYC Link Preview -->
+                    <section class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">7. KYC Link Preview</h2>
+                        </div>
+                        <div class="p-6 space-y-2">
+                            <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <i class="fa-solid fa-link text-gray-400"></i>
+                                    <span class="font-mono text-sm text-gray-600">https://2izii.com/kyc/xxxxxxxxxxxxxxxx</span>
+                                </div>
+                                <button class="bg-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 hover:bg-gray-300">
+                                    <i class="fa-regular fa-copy text-xs"></i>
+                                    Copy Link
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <i class="fa-solid fa-info-circle"></i>
+                                <span>Link will be activated after you save and send the onboarding request.</span>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -227,32 +469,78 @@
         </main>
 
         <!-- Fixed Bottom Action Bar -->
-        <div id="bottom-action-bar" class="fixed bottom-0 left-[260px] right-0 bg-white border-t border-gray-200 px-8 py-4 flex justify-end gap-4 shadow-lg z-30">
-            <button class="bg-white border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white font-medium px-6 py-3 rounded-lg w-[130px] h-11 transition-colors">
-                Cancel
-            </button>
-            <button class="bg-white border border-brand-cta text-brand-cta hover:bg-brand-cta hover:text-white font-medium px-6 py-3 rounded-lg w-[140px] h-11 transition-colors">
-                Save Draft
-            </button>
-            <a href="{{ route('merchant.kyc.welcome') }}" class="bg-brand-primary hover:bg-brand-secondary text-white font-medium px-6 py-3 rounded-lg w-[220px] h-11 transition-colors text-center">
-                Proceed to KYC Overview
-            </a>
-        </div>
+        <footer class="fixed bottom-0 left-[260px] right-0 bg-white border-t border-gray-200 px-20 py-4 flex justify-between items-center z-30">
+            <div class="max-w-[1024px] w-full mx-auto flex justify-between items-center">
+                <button class="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                    Cancel
+                </button>
+                <div class="flex items-center gap-3">
+                    <button class="border-2 border-brand-cta text-brand-cta hover:bg-brand-cta hover:text-white font-medium px-6 py-3 rounded-md text-sm transition-colors">
+                        Save as Draft
+                    </button>
+                    <button class="bg-brand-cta hover:bg-orange-500 text-white font-medium px-5 py-3 rounded-md text-sm shadow-sm transition-colors">
+                        Save & Send KYC Link
+                    </button>
+                </div>
+            </div>
+        </footer>
 
         <script>
-            // Payment method pill toggle functionality
+            // Payment method toggle functionality
             document.addEventListener('DOMContentLoaded', function() {
-                const pills = document.querySelectorAll('.pill-unselected, .pill-selected');
-
-                pills.forEach(pill => {
-                    pill.addEventListener('click', function() {
-                        if (this.classList.contains('pill-selected')) {
-                            this.classList.remove('pill-selected');
-                            this.classList.add('pill-unselected');
+                // Payment method buttons
+                const paymentButtons = document.querySelectorAll('[data-payment-method]');
+                paymentButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.classList.contains('bg-brand-primary')) {
+                            this.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary');
+                            this.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
                         } else {
-                            this.classList.remove('pill-unselected');
-                            this.classList.add('pill-selected');
+                            this.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+                            this.classList.add('bg-brand-primary', 'text-white', 'border-brand-primary');
                         }
+                    });
+                });
+
+                // Acquirer checkbox toggle
+                const acquirerCheckboxes = document.querySelectorAll('[data-acquirer]');
+                const elavonRequirements = document.querySelector('[data-elavon-requirements]');
+                
+                acquirerCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const card = this.closest('[data-acquirer-card]');
+                        if (this.checked) {
+                            card.classList.remove('bg-white', 'border-gray-200');
+                            card.classList.add('bg-blue-50', 'border-2', 'border-brand-secondary');
+                        } else {
+                            card.classList.remove('bg-blue-50', 'border-2', 'border-brand-secondary');
+                            card.classList.add('bg-white', 'border-gray-200');
+                        }
+                        
+                        // Show/hide Elavon requirements
+                        if (elavonRequirements) {
+                            const elavonCheckbox = document.querySelector('[data-acquirer="elavon"]');
+                            if (elavonCheckbox && elavonCheckbox.checked) {
+                                elavonRequirements.classList.remove('hidden');
+                            } else {
+                                elavonRequirements.classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+                
+                // Initial check for Elavon requirements visibility
+                if (elavonRequirements) {
+                    const elavonCheckbox = document.querySelector('[data-acquirer="elavon"]');
+                    if (elavonCheckbox && !elavonCheckbox.checked) {
+                        elavonRequirements.classList.add('hidden');
+                    }
+                }
+
+                // Tag removal
+                document.querySelectorAll('[data-tag-remove]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        this.closest('[data-tag]').remove();
                     });
                 });
             });

@@ -52,7 +52,10 @@
 
         <x-admin.sidebar active="merchant-onboarding" />
 
-        <x-admin.topbar />
+        <x-admin.topbar :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => '#'],
+            ['label' => 'Merchant Onboarding', 'url' => route('admin.onboarding.index')],
+        ]" />
 
         <!-- MAIN CONTENT AREA -->
         <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">

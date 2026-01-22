@@ -54,7 +54,7 @@
         .nav-item {
             padding-left: 24px;
         }
-        .tab-btn.active { border-bottom: 3px solid #FF7C00; color: #2D3A74; font-weight: 600; }
+        .tab-btn.active { border-bottom: 2px solid #4055A8; color: #2D3A74; font-weight: 600; }
     </style>
 @endsection
 
@@ -63,152 +63,95 @@
 
         <x-admin.sidebar active="merchant-onboarding" />
 
-        <x-admin.topbar />
+        <x-admin.topbar :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => '#'],
+            ['label' => 'Merchant Onboarding', 'url' => route('admin.onboarding.index')],
+            ['label' => 'Onboarding Details', 'url' => route('admin.onboarding.track')],
+        ]" />
 
         <!-- MAIN CONTENT WRAPPER -->
         <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral flex flex-col">
             <!-- SCROLLABLE CONTENT AREA -->
-            <div class="flex-1 overflow-hidden flex bg-bgLight relative">
+            <div class="flex-1 overflow-y-auto bg-brand-neutral p-8">
+                <div class="max-w-[1280px] mx-auto space-y-6">
+                    <!-- Page Header Section -->
+                    <div class="space-y-3">
+                        <h1 class="text-2xl font-bold text-brand-primary">Onboarding Details — Nordic Retail Group AS</h1>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">ID: MOB-839201</span>
+                            <span class="bg-blue-50 border border-blue-200 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">🇳🇴 Norway</span>
+                            <span class="bg-purple-50 border border-purple-200 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">POS, E-commerce</span>
+                            <span class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                                <i class="fa-solid fa-clock text-xs"></i>
+                                Awaiting Acquirer Review
+                            </span>
+                        </div>
+                    </div>
 
-                <!-- LEFT COLUMN: MAIN DETAILS (70%) -->
-                <div class="flex-1 overflow-y-auto p-8 pb-24">
-
-                    <!-- 3A. ONBOARDING SUMMARY BLOCK -->
-                    <section id="summary-block" class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h1 class="text-2xl font-bold text-primary mb-1">TechNova Solutions Ltd.</h1>
-                                <div class="flex items-center gap-3 text-sm text-gray-500">
-                                    <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium">ID: MOB-48217</span>
-                                    <span>•</span>
-                                    <span><i class="fa-solid fa-earth-americas mr-1"></i> United Arab Emirates</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-accent border border-blue-100">
-                                    <span class="w-2 h-2 rounded-full bg-accent mr-2 animate-pulse"></span>
-                                    Under Review
-                                </span>
-                                <div class="text-xs text-gray-400">Created: Oct 24, 2023</div>
+                    <!-- Payment Solution Matrix -->
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                            <h2 class="text-base font-semibold text-brand-primary">Payment Solution Matrix</h2>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>Read-only view</span>
                             </div>
                         </div>
-
-                        <div class="grid grid-cols-4 gap-6 border-t border-gray-100 pt-6">
-                            <div>
-                                <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Solution</div>
-                                <div class="font-medium text-gray-800">E-Com Gateway</div>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Partner</div>
-                                <div class="font-medium text-gray-800">Global Payments Inc.</div>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Created By</div>
-                                <div class="flex items-center gap-2">
-                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-5 h-5 rounded-full">
-                                    <span class="text-sm text-gray-800">John Broker</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Risk Level</div>
-                                <div class="font-medium text-orange-600"><i class="fa-solid fa-shield-halved mr-1"></i> Medium</div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 3B. ACQUIRER STATUS OVERVIEW -->
-                    <section id="acquirer-status" class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-[22px] font-bold text-primary">ACQUIRER STATUS OVERVIEW</h2>
-                            <div class="bg-[#E6F4FF] text-accent px-3 py-1.5 rounded-full text-xs font-medium flex items-center border border-[#D8E2FF]">
-                                <span class="w-1.5 h-1.5 bg-accent rounded-full mr-2 animate-pulse"></span>
-                                Live Status
-                            </div>
-                        </div>
-
-                        <div class="bg-matrixBg border border-matrixBorder rounded-xl p-5 shadow-sm overflow-hidden">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="text-xs font-semibold text-gray-500 uppercase border-b border-gray-200">
-                                        <th class="pb-3 pl-2">Acquirer</th>
-                                        <th class="pb-3">Status</th>
-                                        <th class="pb-3">MID</th>
-                                        <th class="pb-3 w-1/4">Comments</th>
-                                        <th class="pb-3">Last Updated</th>
-                                        <th class="pb-3 text-right pr-2">Actions</th>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Acquirer</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Mode</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Reference ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Last Update</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-sm">
-                                    <!-- Row 1 -->
-                                    <tr class="border-b border-gray-200/60 last:border-0 group hover:bg-white/50 transition-colors">
-                                        <td class="py-4 pl-2">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100 text-xs font-bold text-indigo-600">
-                                                    N
-                                                </div>
-                                                <span class="font-medium text-gray-800">Network Intl</span>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">EL</div>
+                                                <span class="font-medium text-gray-900">Elavon</span>
                                             </div>
                                         </td>
-                                        <td class="py-4">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                        <td class="px-6 py-5">
+                                            <span class="bg-blue-50 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">Email</span>
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
+                                                <i class="fa-solid fa-exclamation-circle text-xs"></i>
+                                                More Info Required
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-5 text-gray-600">MID-9928371</td>
+                                        <td class="px-6 py-5 text-gray-600">Oct 24, 14:30</td>
+                                        <td class="px-6 py-5 text-right">
+                                            <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-8 h-8 bg-indigo-100 rounded flex items-center justify-center text-xs font-bold text-indigo-600">SB</div>
+                                                <span class="font-medium text-gray-900">Surfboard</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <span class="bg-purple-50 text-purple-800 px-2 py-1 rounded-full text-xs font-semibold">API</span>
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
+                                                <i class="fa-solid fa-check-circle text-xs"></i>
                                                 Approved
                                             </span>
                                         </td>
-                                        <td class="py-4 font-mono text-gray-600">982374102</td>
-                                        <td class="py-4 text-gray-500 text-xs">Approved with standard limit.</td>
-                                        <td class="py-4 text-gray-500 text-xs">Today, 10:30 AM</td>
-                                        <td class="py-4 text-right pr-2">
-                                            <button class="text-accent hover:text-primary text-xs font-medium border border-accent/30 hover:border-primary rounded px-3 py-1.5 transition-colors bg-white">
-                                                View MID
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- Row 2 -->
-                                    <tr class="border-b border-gray-200/60 last:border-0 group hover:bg-white/50 transition-colors">
-                                        <td class="py-4 pl-2">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100 text-xs font-bold text-blue-600">
-                                                    M
-                                                </div>
-                                                <span class="font-medium text-gray-800">Mashreq Bank</span>
-                                            </div>
-                                        </td>
-                                        <td class="py-4">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                Need Info
-                                            </span>
-                                        </td>
-                                        <td class="py-4 text-gray-400">—</td>
-                                        <td class="py-4 text-gray-500 text-xs">Trade license expired. Please update.</td>
-                                        <td class="py-4 text-gray-500 text-xs">Yesterday, 4:15 PM</td>
-                                        <td class="py-4 text-right pr-2">
-                                            <button class="bg-cta text-white hover:bg-orange-600 text-xs font-medium rounded px-3 py-1.5 transition-colors shadow-sm">
-                                                Request Info
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- Row 3 -->
-                                    <tr class="group hover:bg-white/50 transition-colors">
-                                        <td class="py-4 pl-2">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100 text-xs font-bold text-red-600">
-                                                    A
-                                                </div>
-                                                <span class="font-medium text-gray-800">ADCB</span>
-                                            </div>
-                                        </td>
-                                        <td class="py-4">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                                                Pending
-                                            </span>
-                                        </td>
-                                        <td class="py-4 text-gray-400">—</td>
-                                        <td class="py-4 text-gray-500 text-xs italic">Ready for submission</td>
-                                        <td class="py-4 text-gray-500 text-xs">—</td>
-                                        <td class="py-4 text-right pr-2">
-                                            <button class="text-accent hover:text-primary text-xs font-medium border border-accent/30 hover:border-primary rounded px-3 py-1.5 transition-colors bg-white">
-                                                Submit
-                                            </button>
+                                        <td class="px-6 py-5 text-gray-600">APP-772819</td>
+                                        <td class="px-6 py-5 text-gray-600">Oct 23, 09:15</td>
+                                        <td class="px-6 py-5 text-right">
+                                            <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -216,176 +159,241 @@
                         </div>
                     </section>
 
-                    <!-- 4. SEPARATOR -->
-                    <div class="border-t border-gray-300 my-8"></div>
-
-                    <!-- 5. KYC DETAILS SECTIONS -->
-                    <section id="kyc-details">
-                        <h2 class="text-xl font-bold text-primary mb-4">KYC DETAILS</h2>
-
-                        <!-- Tab Navigation -->
-                        <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
-                            <button onclick="switchTab('company')" id="tab-company" class="tab-btn active px-4 py-3 text-sm font-medium text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Company Information</button>
-                            <button onclick="switchTab('owners')" id="tab-owners" class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Beneficial Owners</button>
-                            <button onclick="switchTab('docs')" id="tab-docs" class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Documents</button>
-                            <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Activity Log</button>
-                        </div>
-
-                        <!-- TAB CONTENT: COMPANY INFO -->
-                        <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-lg font-semibold text-gray-800">General Information</h3>
-                                <button class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
-                                    <i class="fa-solid fa-pen mr-2"></i> Edit Section
+                    <!-- Export KYC Data -->
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-semibold text-brand-primary mb-1">Export KYC Data</h3>
+                                <p class="text-sm text-gray-500">Download the full onboarding package or specific components.</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button class="bg-brand-cta text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-orange-500 transition-colors">
+                                    <i class="fa-solid fa-download text-xs"></i>
+                                    Full Package (ZIP)
                                 </button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-x-12 gap-y-8">
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Legal Name</label>
-                                    <div class="text-gray-900 font-medium">TechNova Solutions L.L.C</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Trade Name</label>
-                                    <div class="text-gray-900 font-medium">TechNova</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registration Number</label>
-                                    <div class="text-gray-900 font-medium">CN-3829102</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Date of Incorporation</label>
-                                    <div class="text-gray-900 font-medium">15 Jan 2020</div>
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registered Address</label>
-                                    <div class="text-gray-900 font-medium">Office 204, Building 5, Dubai Internet City, Dubai, UAE</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Website URL</label>
-                                    <a href="#" class="text-accent hover:underline font-medium">https://technova.ae</a>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Tax Registration (TRN)</label>
-                                    <div class="text-gray-900 font-medium">100293847561234</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TAB CONTENT: DOCUMENTS (Hidden by default) -->
-                        <div id="content-docs" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-lg font-semibold text-gray-800">Uploaded Documents</h3>
-                                <button class="bg-primary text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-opacity-90 transition-colors">
-                                    <i class="fa-solid fa-upload mr-2"></i> Upload New
+                                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-xs"></i>
+                                    Summary PDF
                                 </button>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-6">
-                                <!-- Doc Card 1 -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded flex items-center justify-center text-xl">
-                                            <i class="fa-solid fa-file-pdf"></i>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                    </div>
-                                    <div class="text-sm font-medium text-gray-800 truncate mb-1">Trade_License.pdf</div>
-                                    <div class="text-xs text-gray-500">Uploaded: Oct 24, 2023</div>
-                                </div>
-                                <!-- Doc Card 2 -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded flex items-center justify-center text-xl">
-                                            <i class="fa-solid fa-file-pdf"></i>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                    </div>
-                                    <div class="text-sm font-medium text-gray-800 truncate mb-1">Bank_Statement.pdf</div>
-                                    <div class="text-xs text-gray-500">Uploaded: Oct 23, 2023</div>
-                                </div>
-                                <!-- Doc Card 3 -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="w-10 h-10 bg-green-50 text-green-500 rounded flex items-center justify-center text-xl">
-                                            <i class="fa-solid fa-file-pdf"></i>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                    </div>
-                                    <div class="text-sm font-medium text-gray-800 truncate mb-1">Passport_Copy.pdf</div>
-                                    <div class="text-xs text-gray-500">Uploaded: Oct 22, 2023</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TAB CONTENT: OWNERS (Hidden by default) -->
-                        <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-6">Beneficial Owners</h3>
-                            <div class="space-y-4">
-                                <div class="border border-gray-200 rounded-lg p-4">
-                                    <div class="font-medium text-gray-800 mb-2">Ahmed Al Mansouri</div>
-                                    <div class="text-sm text-gray-600">Ownership: 60% • Nationality: UAE</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TAB CONTENT: ACTIVITY LOG (Hidden by default) -->
-                        <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-6">Activity Timeline</h3>
-                            <div class="space-y-4">
-                                <div class="flex gap-4">
-                                    <div class="w-2 h-2 bg-accent rounded-full mt-2"></div>
-                                    <div class="flex-1">
-                                        <div class="text-sm font-medium text-gray-800">KYC Submitted</div>
-                                        <div class="text-xs text-gray-500">Oct 24, 2023 - 2:30 PM</div>
-                                    </div>
-                                </div>
+                                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                                    <i class="fa-solid fa-code text-xs"></i>
+                                    JSON Payload
+                                </button>
                             </div>
                         </div>
                     </section>
 
-                </div>
+                    <!-- Main Content Area with Tabs -->
+                    <div class="flex gap-6">
+                        <!-- Left Column: Tabbed Content -->
+                        <div class="flex-1">
+                            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                                <!-- Tab Navigation -->
+                                <div class="border-b border-gray-200 flex">
+                                    <button onclick="switchTab('company')" id="tab-company" class="tab-btn active px-4 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-secondary">Company Info</button>
+                                    <button onclick="switchTab('owners')" id="tab-owners" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Beneficial Owners</button>
+                                    <button onclick="switchTab('docs')" id="tab-docs" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Documents</button>
+                                    <button onclick="switchTab('bank')" id="tab-bank" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Bank Info</button>
+                                    <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Activity Log</button>
+                                </div>
 
-                <!-- RIGHT COLUMN: COMMUNICATION PANEL (30%) -->
-                <aside id="communication-panel" class="w-[360px] bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
-                    <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-primary">Communications</h3>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-6 space-y-4">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-start gap-3">
-                                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-8 h-8 rounded-full">
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium text-gray-800">Admin User</div>
-                                    <div class="text-xs text-gray-500 mb-2">Today, 10:45 AM</div>
-                                    <div class="text-sm text-gray-700">Please upload updated trade license.</div>
+                                <!-- Tab Content: Company Info -->
+                                <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <h3 class="text-lg font-semibold text-gray-800">General Information</h3>
+                                        <button class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
+                                            <i class="fa-solid fa-pen mr-2"></i> Edit Section
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Legal Name</label>
+                                            <div class="text-gray-900 font-medium">TechNova Solutions L.L.C</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Trade Name</label>
+                                            <div class="text-gray-900 font-medium">TechNova</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registration Number</label>
+                                            <div class="text-gray-900 font-medium">CN-3829102</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Date of Incorporation</label>
+                                            <div class="text-gray-900 font-medium">15 Jan 2020</div>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registered Address</label>
+                                            <div class="text-gray-900 font-medium">Office 204, Building 5, Dubai Internet City, Dubai, UAE</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Website URL</label>
+                                            <a href="#" class="text-accent hover:underline font-medium">https://technova.ae</a>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Tax Registration (TRN)</label>
+                                            <div class="text-gray-900 font-medium">100293847561234</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Content: Documents -->
+                                <div id="content-docs" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <h3 class="text-lg font-semibold text-gray-800">Uploaded Documents</h3>
+                                        <button class="bg-primary text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-opacity-90 transition-colors">
+                                            <i class="fa-solid fa-upload mr-2"></i> Upload New
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-3 gap-6">
+                                        <!-- Doc Card 1 -->
+                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="w-10 h-10 bg-red-50 text-red-500 rounded flex items-center justify-center text-xl">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </div>
+                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
+                                            </div>
+                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Trade_License.pdf</div>
+                                            <div class="text-xs text-gray-500">Uploaded: Oct 24, 2023</div>
+                                        </div>
+                                        <!-- Doc Card 2 -->
+                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded flex items-center justify-center text-xl">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </div>
+                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
+                                            </div>
+                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Bank_Statement.pdf</div>
+                                            <div class="text-xs text-gray-500">Uploaded: Oct 23, 2023</div>
+                                        </div>
+                                        <!-- Doc Card 3 -->
+                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="w-10 h-10 bg-green-50 text-green-500 rounded flex items-center justify-center text-xl">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </div>
+                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
+                                            </div>
+                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Passport_Copy.pdf</div>
+                                            <div class="text-xs text-gray-500">Uploaded: Oct 22, 2023</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Content: Beneficial Owners -->
+                                <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Beneficial Owners</h3>
+                                    <div class="space-y-4">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="font-medium text-gray-800 mb-2">Ahmed Al Mansouri</div>
+                                            <div class="text-sm text-gray-600">Ownership: 60% • Nationality: UAE</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Content: Bank Info -->
+                                <div id="content-bank" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Bank Information</h3>
+                                    <p class="text-gray-500">Bank information content will be displayed here.</p>
+                                </div>
+
+                                <!-- Tab Content: Activity Log -->
+                                <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Activity Timeline</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex gap-4">
+                                            <div class="w-2 h-2 bg-accent rounded-full mt-2"></div>
+                                            <div class="flex-1">
+                                                <div class="text-sm font-medium text-gray-800">KYC Submitted</div>
+                                                <div class="text-xs text-gray-500">Oct 24, 2023 - 2:30 PM</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="p-4 border-t border-gray-200">
-                        <textarea class="w-full border border-gray-300 rounded-lg p-3 text-sm resize-none" rows="3" placeholder="Type message..."></textarea>
-                        <button class="w-full bg-cta text-white rounded-lg py-2 mt-2 text-sm font-medium hover:bg-orange-600">Send</button>
-                    </div>
-                </aside>
 
-            </div>
+                        <!-- Right Sidebar -->
+                        <aside class="w-80 space-y-6">
+                            <!-- Onboarding Summary -->
+                            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
+                                <h3 class="text-sm font-semibold text-brand-primary mb-4">Onboarding Summary</h3>
+                                
+                                <!-- KYC Completion -->
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-gray-500">KYC Completion</span>
+                                        <span class="text-xs font-medium text-brand-secondary">85%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 rounded-full h-2">
+                                        <div class="bg-brand-secondary h-2 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                </div>
 
-            <!-- 7. BOTTOM FIXED ACTION BAR -->
-            <footer id="action-bar" class="fixed bottom-0 right-0 w-[calc(100%-260px)] h-20 bg-white border-t border-gray-200 flex items-center justify-end px-12 gap-4 z-10">
-                <button class="px-6 py-2.5 border border-accent text-accent rounded-lg font-medium hover:bg-accent/5 transition-colors">
-                    Request More Information
-                </button>
-                <button class="px-6 py-2.5 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors">
-                    Resend KYC Link
-                </button>
-                <button class="px-6 py-2.5 bg-success text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                    Approve Onboarding
-                </button>
-                <button class="px-6 py-2.5 bg-danger text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
-                    Reject Onboarding
-                </button>
-            </footer>
+                                <!-- Acquirer Notes -->
+                                <div class="mb-4">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Acquirer Notes</label>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded px-3 py-2.5 text-xs text-yellow-800">
+                                        <i class="fa-solid fa-exclamation-circle mr-1.5"></i>
+                                        Missing bank statement for last 3<br>
+                                        months. Please request update.
+                                    </div>
+                                </div>
+
+                                <!-- Merchant Contact -->
+                                <div class="mb-4">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Merchant Contact</label>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-6 h-6 rounded-full">
+                                        <span class="text-sm font-medium text-brand-primary">Jan Johansen</span>
+                                    </div>
+                                    <div class="pl-8 space-y-1">
+                                        <p class="text-xs text-gray-500">jan.johansen@nordicretail.no</p>
+                                        <p class="text-xs text-gray-500">+47 99 88 77 66</p>
+                                    </div>
+                                </div>
+
+                                <!-- Internal Tags -->
+                                <div class="border-t border-gray-100 pt-4">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Internal Tags</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">High Volume</span>
+                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">Retail</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity -->
+                            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
+                                <h3 class="text-sm font-semibold text-brand-primary mb-4">Recent Activity</h3>
+                                <div class="border-l-2 border-gray-100 pl-4 space-y-6">
+                                    <div class="relative">
+                                        <div class="absolute -left-[21px] w-3 h-3 bg-yellow-400 rounded-full border-4 border-white"></div>
+                                        <div class="text-xs text-gray-500 mb-1">Today, 10:30 AM</div>
+                                        <div class="text-sm font-medium text-brand-primary">Elavon requested more info</div>
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute -left-[21px] w-3 h-3 bg-green-500 rounded-full border-4 border-white"></div>
+                                        <div class="text-xs text-gray-500 mb-1">Yesterday, 14:15 PM</div>
+                                        <div class="text-sm font-medium text-brand-primary">Surfboard approved API app</div>
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute -left-[21px] w-3 h-3 bg-brand-secondary rounded-full border-4 border-white"></div>
+                                        <div class="text-xs text-gray-500 mb-1">Oct 22, 16:45 PM</div>
+                                        <div class="text-sm font-medium text-brand-primary">KYC submitted to acquirers</div>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 pt-4 mt-4">
+                                    <a href="#" class="text-brand-secondary text-xs font-medium">View full activity log →</a>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
 
         </main>
 
@@ -394,12 +402,27 @@
                 const tabs = document.querySelectorAll('.tab-btn');
                 const contents = document.querySelectorAll('.tab-content');
 
-                tabs.forEach(tab => tab.classList.remove('active'));
+                tabs.forEach(tab => {
+                    tab.classList.remove('active', 'font-semibold', 'text-brand-primary', 'border-brand-secondary');
+                    tab.classList.add('font-normal', 'text-gray-500');
+                    tab.style.borderBottom = 'none';
+                });
                 contents.forEach(content => content.classList.add('hidden'));
+                contents.forEach(content => content.classList.remove('block'));
 
-                document.getElementById('tab-' + tabName).classList.add('active');
-                document.getElementById('content-' + tabName).classList.remove('hidden');
-                document.getElementById('content-' + tabName).classList.add('block');
+                const activeTab = document.getElementById('tab-' + tabName);
+                const activeContent = document.getElementById('content-' + tabName);
+                
+                if (activeTab) {
+                    activeTab.classList.add('active', 'font-semibold', 'text-brand-primary');
+                    activeTab.classList.remove('font-normal', 'text-gray-500');
+                    activeTab.style.borderBottom = '2px solid #4055A8';
+                }
+                
+                if (activeContent) {
+                    activeContent.classList.remove('hidden');
+                    activeContent.classList.add('block');
+                }
             }
         </script>
 

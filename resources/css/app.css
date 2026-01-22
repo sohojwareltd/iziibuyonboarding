@@ -6,6 +6,127 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* Brand Colors */
+    --color-brand-primary: #2D3A74;
+    --color-brand-cta: #FF7C00;
+    --color-brand-cta-hover: #E56D00;
+    --color-brand-secondary: #4055A8;
+    --color-brand-neutral: #F7F8FA;
+    --color-brand-text: #6A6A6A;
+    --color-brand-text-light: #9A9A9A;
+    --color-brand-border: #D1D5DB;
+    --color-brand-dark: #2D3A74;
+    --color-brand-accent: #FFA439;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Navigation Styles */
+.nav-item-active {
+    background: rgba(255, 255, 255, 0.15);
+    border-left: 4px solid #FF7C00;
+    padding-left: 20px;
+}
+
+.nav-item {
+    padding-left: 24px;
+}
+
+.nav-item-sub {
+    padding-left: 44px;
+}
+
+.nav-item-sub-active {
+    background: rgba(255, 255, 255, 0.15);
+    border-left: 4px solid #FF7C00;
+    padding-left: 40px;
+}
+
+/* Drawer Styles */
+.drawer-open {
+    transform: translateX(0);
+}
+
+.drawer-closed {
+    transform: translateX(100%);
+}
+
+/* Select Dropdown Styles */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+
+/* Form Input Styles */
+.form-input {
+    width: 100%;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.25rem;
+    padding: 0.625rem 0.8125rem;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    border-color: #2D3A74;
+    box-shadow: 0 0 0 1px #2D3A74;
+}
+
+.form-input:disabled {
+    background-color: #f7f8fa;
+    color: #1e293b;
+}
+
+/* Assignment Level Button Styles */
+.assignment-level-btn {
+    border: 1px solid #d4d4d4;
+    padding: 0.5rem 0.8125rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.assignment-level-btn.active {
+    background: rgba(64, 85, 168, 0.1);
+    border: 2px solid #4055a8;
+    color: #4055a8;
+}
+
+.assignment-level-btn:hover:not(.active) {
+    background: #f7f8fa;
 }
