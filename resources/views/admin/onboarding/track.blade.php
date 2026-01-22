@@ -10,6 +10,16 @@
             theme: {
                 extend: {
                     colors: {
+                        brand: {
+                            primary: '#2D3A74',
+                            cta: '#FF7C00',
+                            ctaHover: '#E56D00',
+                            secondary: '#4055A8',
+                            neutral: '#F7F8FA',
+                            text: '#6A6A6A',
+                            textLight: '#9A9A9A',
+                            border: '#D1D5DB'
+                        },
                         primary: '#2D3A74',
                         accent: '#4055A8',
                         cta: '#FF7C00',
@@ -28,108 +38,40 @@
         window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-item.active { border-left: 4px solid #FF7C00; background: rgba(255,255,255,0.15); font-weight: 600; }
+        .nav-item-active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 20px;
+        }
+        .nav-item {
+            padding-left: 24px;
+        }
         .tab-btn.active { border-bottom: 3px solid #FF7C00; color: #2D3A74; font-weight: 600; }
     </style>
 @endsection
 
 @section('body')
-    <body class="bg-bgLight h-screen flex overflow-hidden text-gray-800">
+    <body class="bg-brand-neutral">
 
-        <!-- 1. LEFT NAVIGATION SIDEBAR -->
-        <aside id="sidebar" class="w-[260px] bg-primary flex-shrink-0 flex flex-col h-full text-white overflow-y-auto z-20">
-            <div class="p-6">
-                <!-- Logo Placeholder using text for simplicity as per instructions, but user requested logo -->
-                <div class="w-[150px] mb-2">
-                    <div class="text-2xl font-bold tracking-tight italic">2iZii</div>
-                    <div class="text-[10px] uppercase tracking-widest opacity-70">Admin Portal</div>
-                </div>
-            </div>
+        <x-admin.sidebar active="merchant-onboarding" />
 
-            <nav class="flex-1 py-2">
-                <div class="px-6 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Main Menu</div>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-gauge w-6 opacity-80"></i> Dashboard
-                </a>
-                <a href="{{ route('admin.onboarding.index') }}" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-clipboard-list w-6 opacity-80"></i> Merchant Onboarding
-                </a>
-
-                <!-- Nested Submenu Simulation -->
-                <div class="bg-black/20 py-1">
-                    <a href="#" class="flex items-center pl-14 pr-6 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5">All Requests</a>
-                    <a href="{{ route('admin.onboarding.track') }}" class="sidebar-item active flex items-center pl-14 pr-6 py-2 text-sm hover:bg-white/5">Onboarding Details</a>
-                </div>
-
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-handshake w-6 opacity-80"></i> Partners
-                </a>
-
-                <div class="px-6 py-2 mt-6 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Configuration</div>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-database w-6 opacity-80"></i> Masters
-                </a>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-building-columns w-6 opacity-80"></i> Acquirer Master
-                </a>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-file-contract w-6 opacity-80"></i> Document Types
-                </a>
-
-                <div class="px-6 py-2 mt-6 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">System</div>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-users-gear w-6 opacity-80"></i> User Management
-                </a>
-                <a href="#" class="sidebar-item flex items-center px-6 py-3 text-sm hover:bg-white/10 transition-colors border-l-4 border-transparent">
-                    <i class="fa-solid fa-gear w-6 opacity-80"></i> Settings
-                </a>
-            </nav>
-
-            <div class="p-4 border-t border-white/10">
-                <div class="flex items-center gap-3">
-                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-8 h-8 rounded-full border border-white/20" alt="User">
-                    <div class="text-xs">
-                        <div class="font-semibold">Admin User</div>
-                        <div class="opacity-60">Super Admin</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        <x-admin.topbar />
 
         <!-- MAIN CONTENT WRAPPER -->
-        <div class="flex-1 flex flex-col h-full relative">
-
-            <!-- 2. TOP HEADER BAR -->
-            <header id="header" class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-10 flex-shrink-0">
-                <div class="flex items-center text-sm text-gray-500">
-                    <span class="hover:text-primary cursor-pointer">Merchant Onboarding</span>
-                    <i class="fa-solid fa-chevron-right text-[10px] mx-3"></i>
-                    <span class="text-primary font-semibold">Onboarding Details</span>
-                </div>
-                <div class="flex items-center gap-6">
-                    <button class="relative text-gray-400 hover:text-primary transition-colors">
-                        <i class="fa-regular fa-bell text-xl"></i>
-                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-cta rounded-full"></span>
-                    </button>
-                    <div class="h-8 w-[1px] bg-gray-200"></div>
-                    <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition-colors">
-                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-8 h-8 rounded-full object-cover border border-gray-200">
-                        <i class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-            </header>
-
+        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral flex flex-col">
             <!-- SCROLLABLE CONTENT AREA -->
-            <main id="main-content" class="flex-1 overflow-hidden flex bg-bgLight">
+            <div class="flex-1 overflow-hidden flex bg-bgLight relative">
 
                 <!-- LEFT COLUMN: MAIN DETAILS (70%) -->
-                <div class="flex-1 overflow-y-auto p-8 pb-32">
+                <div class="flex-1 overflow-y-auto p-8 pb-24">
 
                     <!-- 3A. ONBOARDING SUMMARY BLOCK -->
                     <section id="summary-block" class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
@@ -427,10 +369,10 @@
                     </div>
                 </aside>
 
-            </main>
+            </div>
 
             <!-- 7. BOTTOM FIXED ACTION BAR -->
-            <footer id="action-bar" class="h-20 bg-white border-t border-gray-200 flex items-center justify-end px-12 gap-4 flex-shrink-0 z-10">
+            <footer id="action-bar" class="fixed bottom-0 right-0 w-[calc(100%-260px)] h-20 bg-white border-t border-gray-200 flex items-center justify-end px-12 gap-4 z-10">
                 <button class="px-6 py-2.5 border border-accent text-accent rounded-lg font-medium hover:bg-accent/5 transition-colors">
                     Request More Information
                 </button>
@@ -445,7 +387,7 @@
                 </button>
             </footer>
 
-        </div>
+        </main>
 
         <script>
             function switchTab(tabName) {
