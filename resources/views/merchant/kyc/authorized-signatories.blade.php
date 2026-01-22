@@ -48,13 +48,14 @@
     </div>
 
     <form id="authorized-signatories-form">
+        <div id="authorized-signatories-container">
         <!-- SIGNATORY CARD 1 -->
-        <section id="signatory-card-1" class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+        <section id="signatory-card-1" class="authorized-signatory-card bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
 
             <!-- Card Header -->
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 pb-4 border-b border-gray-100">
                 <h2 class="text-lg font-semibold text-slate-800">Authorized Signatory #1</h2>
-                <button class="text-slate-400 hover:text-red-500 transition-colors" title="Remove Signatory">
+                <button class="remove-signatory-btn text-slate-400 hover:text-red-500 transition-colors" title="Remove Signatory" type="button">
                     <i class="fa-regular fa-trash-can text-lg"></i>
                 </button>
             </div>
@@ -64,58 +65,46 @@
                 <h3
                     class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
                     Personal Information</h3>
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <!-- First Name -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">First Name*</label>
-                        <input type="text"
+                        <x-input.text label="First Name" id="first_name" name="first_name" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. John">
+                            placeholder="e.g. John" />
                     </div>
                     <!-- Last Name -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Last Name*</label>
-                        <input type="text"
+                        <x-input.text label="Last Name" id="last_name" name="last_name" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. Doe">
+                            placeholder="e.g. Doe" />
                     </div>
                     <!-- Email -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Email Address*</label>
-                        <input type="email"
+                        <x-input.email label="Email Address" id="email" name="email" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="john.doe@company.com">
+                            placeholder="john.doe@company.com" />
                     </div>
                     <!-- Phone -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone Number*</label>
-                        <input type="tel"
+                        <x-input.tel label="Phone Number" id="phone" name="phone" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="+1 234 567 8900">
+                            placeholder="+1 234 567 8900" />
                     </div>
                     <!-- DOB -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Date of Birth*</label>
-                        <div class="relative">
-                            <input type="date"
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600">
-                        </div>
+                        <x-input.date label="Date of Birth" id="dob" name="dob" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
                     </div>
                     <!-- Nationality -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Nationality*</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select nationality</option>
-                                <option value="US">United States</option>
-                                <option value="GB">United Kingdom</option>
-                                <option value="CA">Canada</option>
-                            </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
+                        <x-input.select label="Nationality" id="nationality" name="nationality" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
+                            <option value="US">United States</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="CA">Canada</option>
+                        </x-input.select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
                         </div>
                     </div>
                 </div>
@@ -126,62 +115,40 @@
                 <h3
                     class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
                     Role & Authorization Details</h3>
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <!-- Role -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Role in Company*</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select role</option>
-                                <option>Director</option>
-                                <option>Legal Representative</option>
-                                <option>Managing Director</option>
-                                <option>Owner</option>
-                                <option>Other</option>
-                            </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
+                        <x-input.select label="Role in Company" id="role" name="role" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
+                            <option>Director</option>
+                            <option>Legal Representative</option>
+                            <option>Managing Director</option>
+                            <option>Owner</option>
+                            <option>Other</option>
+                        </x-input.select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
                         </div>
                     </div>
 
                     <!-- Start Date -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Start Date in Role*</label>
-                        <input type="date"
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600">
+                        <x-input.date label="Start Date in Role" id="start_date" name="start_date" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
                     </div>
 
                     <!-- Authorization Type -->
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-slate-700 mb-2">Authorization Type*</label>
                         <div class="flex flex-wrap gap-4">
-                            <label
-                                class="flex items-center space-x-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-slate-50 transition-colors">
-                                <input type="checkbox"
-                                    class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4">
-                                <span class="text-sm text-slate-700">Sole Signatory</span>
-                            </label>
-                            <label
-                                class="flex items-center space-x-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-slate-50 transition-colors">
-                                <input type="checkbox"
-                                    class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4">
-                                <span class="text-sm text-slate-700">Joint Signatory</span>
-                            </label>
-                            <label
-                                class="flex items-center space-x-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-slate-50 transition-colors">
-                                <input type="checkbox"
-                                    class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4">
-                                <span class="text-sm text-slate-700">Limited Authority</span>
-                            </label>
-                            <label
-                                class="flex items-center space-x-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-slate-50 transition-colors">
-                                <input type="checkbox"
-                                    class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4">
-                                <span class="text-sm text-slate-700">Power of Attorney</span>
-                            </label>
+                            <x-input.checkbox id="auth_sole" name="auth_sole" label="Sole Signatory"
+                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
+                            <x-input.checkbox id="auth_joint" name="auth_joint" label="Joint Signatory"
+                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
+                            <x-input.checkbox id="auth_limited" name="auth_limited" label="Limited Authority"
+                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
+                            <x-input.checkbox id="auth_poa" name="auth_poa" label="Power of Attorney"
+                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
                         </div>
                     </div>
 
@@ -195,7 +162,7 @@
                                 Beneficial Owners section.</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" value="" class="sr-only peer">
+                            <input type="checkbox" name="is_beneficial_owner" value="1" class="sr-only peer" />
                             <div
                                 class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
                             </div>
@@ -209,54 +176,41 @@
                 <h3
                     class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
                     Identification Details</h3>
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <!-- ID Type -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Identification Type*</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select ID Type</option>
-                                <option>Passport</option>
-                                <option>National ID Card</option>
-                                <option>Driver's License</option>
-                            </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
+                        <x-input.select label="Identification Type" id="id_type" name="id_type" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
+                            <option>Passport</option>
+                            <option>National ID Card</option>
+                            <option>Driver's License</option>
+                        </x-input.select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
                         </div>
                     </div>
                     <!-- ID Number -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Identification
-                            Number*</label>
-                        <input type="text"
+                        <x-input.text label="Identification Number" id="id_number" name="id_number" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="ID Number">
+                            placeholder="ID Number" />
                     </div>
                     <!-- Expiry -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">ID Expiry Date*</label>
-                        <input type="date"
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600">
+                        <x-input.date label="ID Expiry Date" id="id_expiry" name="id_expiry" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
                     </div>
                     <!-- Country of Issue -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Country of Issue*</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select Country</option>
-                                <option>United States</option>
-                                <option>United Kingdom</option>
-                                <option>France</option>
-                                <option>Germany</option>
-                            </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
+                        <x-input.select label="Country of Issue" id="id_country" name="id_country" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
+                            <option>United States</option>
+                            <option>United Kingdom</option>
+                            <option>France</option>
+                            <option>Germany</option>
+                        </x-input.select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
                         </div>
                     </div>
                 </div>
@@ -267,50 +221,41 @@
                 <h3
                     class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
                     Residential Address</h3>
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <!-- Address 1 -->
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Address Line 1*</label>
-                        <input type="text"
+                        <x-input.text label="Address Line 1" id="address_line1" name="address_line1" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="Street address, P.O. box">
+                            placeholder="Street address, P.O. box" />
                     </div>
                     <!-- Address 2 -->
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Address Line 2</label>
-                        <input type="text"
+                        <x-input.text label="Address Line 2" id="address_line2" name="address_line2"
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="Apartment, suite, unit, building, floor, etc.">
+                            placeholder="Apartment, suite, unit, building, floor, etc." />
                     </div>
                     <!-- City -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">City*</label>
-                        <input type="text"
+                        <x-input.text label="City" id="city" name="city" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. New York">
+                            placeholder="e.g. New York" />
                     </div>
                     <!-- Postal Code -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Postal Code*</label>
-                        <input type="text"
+                        <x-input.text label="Postal Code" id="postal_code" name="postal_code" required
                             class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. 10001">
+                            placeholder="e.g. 10001" />
                     </div>
                     <!-- Country -->
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Country*</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select Country</option>
-                                <option>United States</option>
-                                <option>United Kingdom</option>
-                                <option>Canada</option>
-                            </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
+                        <x-input.select label="Country" id="country" name="country" required
+                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
+                            <option>United States</option>
+                            <option>United Kingdom</option>
+                            <option>Canada</option>
+                        </x-input.select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
                         </div>
                     </div>
                 </div>
@@ -323,13 +268,13 @@
                     Document Uploads</h3>
 
                 <!-- Upload Area -->
-                <div
-                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-slate-50/50">
+                <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-slate-50/50">
                     <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
                     <p class="text-sm font-medium text-slate-700 mb-1">Click to upload or drag and drop</p>
                     <p class="text-xs text-slate-500">ID Document, Proof of Address, Authorization Document,
                         Signature Specimen</p>
                     <p class="text-xs text-slate-400 mt-2">PDF, PNG, JPG up to 10MB</p>
+                    <input type="file" class="hidden" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <!-- Uploaded Files Preview (Example) -->
@@ -350,35 +295,36 @@
             </div>
 
         </section>
+        </div>
 
         <div class="text-center mb-8 mt-4">
-            <button type="button" id="add-bo-btn"
+            <button type="button" id="add-authorized-signatory-btn"
                 class="inline-flex items-center gap-2 px-8 py-2.5 border border-brand-accent text-brand-accent bg-white hover:bg-blue-50 font-medium rounded-lg transition-colors duration-200">
                 <i class="fa-solid fa-plus text-sm"></i>
-                <span>Add Another Board Member</span>
+                <span>Add Another Authorized Signatory</span>
             </button>
         </div>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.bankInformation') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <a href="{{ route('merchant.kyc.review') }}"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <span>Continue to Review and Submit</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
+                        <span>Review & Submit</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </a>
                 </div>
             </div>
@@ -413,8 +359,8 @@
 
     @push('js')
         <script>
-            let bmCount = 1;
-            let bmToRemove = null;
+            let signatoryCount = 1;
+            let signatoryToRemove = null;
 
             window.addEventListener('load', function() {
                 setupUploadZones();
@@ -480,32 +426,33 @@
                 });
             }
 
-            document.getElementById('add-bo-btn').addEventListener('click', function() {
-                bmCount++;
-                const container = document.getElementById('board-members-container');
-                const newBMCard = createBOCard(bmCount);
-                container.appendChild(newBMCard);
+            document.getElementById('add-authorized-signatory-btn').addEventListener('click', function() {
+                const container = document.getElementById('authorized-signatories-container');
+                const cardCount = container.querySelectorAll('.authorized-signatory-card').length + 1;
+                const newCard = createSignatoryCard(cardCount);
+                container.appendChild(newCard);
                 updateRemoveButtons();
                 setupUploadZones();
-                newBMCard.scrollIntoView({
+                newCard.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
             });
 
-            function createBOCard(index) {
-                const template = document.querySelector('.board-member-card');
+            function createSignatoryCard(index) {
+                const template = document.querySelector('.authorized-signatory-card');
                 const clone = template.cloneNode(true);
 
-                clone.setAttribute('data-bm-index', index);
-                clone.querySelector('h3').textContent = `Board Member #${index}`;
+                clone.id = `signatory-card-${index}`;
+                clone.querySelector('h2').textContent = `Authorized Signatory #${index}`;
 
                 const resetUploadZone = (zone) => {
                     zone.classList.remove('bg-green-50', 'border-green-300');
                     zone.innerHTML = `
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                        <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
-                        <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
+                        <p class="text-sm font-medium text-slate-700 mb-1">Click to upload or drag and drop</p>
+                        <p class="text-xs text-slate-500">ID Document, Proof of Address, Authorization Document, Signature Specimen</p>
+                        <p class="text-xs text-slate-400 mt-2">PDF, PNG, JPG up to 10MB</p>
                         <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
                     `;
                 };
@@ -552,14 +499,15 @@
             }
 
             function updateRemoveButtons() {
-                const cards = document.querySelectorAll('.board-member-card');
-                const removeButtons = document.querySelectorAll('.remove-bo-btn');
+                const cards = document.querySelectorAll('.authorized-signatory-card');
+                const removeButtons = document.querySelectorAll('.remove-signatory-btn');
 
                 removeButtons.forEach((btn) => {
                     if (cards.length > 1) {
                         btn.classList.remove('hidden');
-                        btn.onclick = function() {
-                            bmToRemove = btn.closest('.board-member-card');
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            signatoryToRemove = btn.closest('.authorized-signatory-card');
                             document.getElementById('confirmation-modal').classList.remove('hidden');
                         };
                     } else {
@@ -569,25 +517,25 @@
             }
 
             function confirmRemove() {
-                if (bmToRemove) {
-                    bmToRemove.remove();
-                    bmToRemove = null;
+                if (signatoryToRemove) {
+                    signatoryToRemove.remove();
+                    signatoryToRemove = null;
                     document.getElementById('confirmation-modal').classList.add('hidden');
                     updateRemoveButtons();
-                    renumberBMCards();
+                    renumberSignatoryCards();
                 }
             }
 
             function cancelRemove() {
-                bmToRemove = null;
+                signatoryToRemove = null;
                 document.getElementById('confirmation-modal').classList.add('hidden');
             }
 
-            function renumberBMCards() {
-                const cards = document.querySelectorAll('.board-member-card');
+            function renumberSignatoryCards() {
+                const cards = document.querySelectorAll('.authorized-signatory-card');
                 cards.forEach((card, index) => {
-                    card.querySelector('h3').textContent = `Board Member #${index + 1}`;
-                    card.setAttribute('data-bm-index', index + 1);
+                    card.id = `signatory-card-${index + 1}`;
+                    card.querySelector('h2').textContent = `Authorized Signatory #${index + 1}`;
                 });
             }
 

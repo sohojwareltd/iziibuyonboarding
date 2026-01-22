@@ -73,7 +73,7 @@
     @endpush
 
     <div id="page-header" class="mb-8">
-        <h1 class="text-[28px] font-bold text-brand-dark mb-2">Beneficial Owners</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-brand-dark mb-2">Beneficial Owners</h1>
         <p class="text-[15px] text-[#6A6A6A]">Provide details of individuals who hold 25% or more ownership in
             the business.</p>
     </div>
@@ -88,7 +88,7 @@
     <form id="bo-form">
         <div id="beneficial-owners-container">
 
-            <div class="beneficial-owner-card bg-white border border-[#E0E0E0] rounded-xl p-6 mb-6" data-bo-index="1">
+            <div class="beneficial-owner-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6" data-bo-index="1">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-brand-dark">Beneficial Owner #1</h3>
                     <button type="button"
@@ -101,7 +101,7 @@
 
                     <div class="personal-info">
                         <h4 class="text-base font-medium text-brand-dark mb-4">Personal Information</h4>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <x-input.text 
                                     label="First Name" 
@@ -165,7 +165,7 @@
 
                     <div class="identification-info">
                         <h4 class="text-base font-medium text-brand-dark mb-4">Identification Details</h4>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <x-input.select 
                                     label="Identification Type" 
@@ -213,7 +213,7 @@
 
                     <div class="ownership-info">
                         <h4 class="text-base font-medium text-brand-dark mb-4">Ownership Details</h4>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <x-input.number 
                                     label="Ownership Percentage" 
@@ -311,25 +311,25 @@
         </div>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.company') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <a href="{{ route('merchant.kyc.boardMembers') }}"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <span>Continue to Board Members</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
+                        <span>Continue</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </a>
                 </div>
             </div>
@@ -443,7 +443,7 @@
     
             function createBOCard(index) {
                 const cardHTML = `
-                    <div class="beneficial-owner-card bg-white border border-[#E0E0E0] rounded-xl p-6 mb-6" data-bo-index="${index}">
+                    <div class="beneficial-owner-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6" data-bo-index="${index}">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-lg font-semibold text-brand-dark">Beneficial Owner #${index}</h3>
                             <button type="button" class="remove-bo-btn text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors duration-200">
@@ -453,7 +453,7 @@
                         <div class="space-y-8">
                             <div class="personal-info">
                                 <h4 class="text-base font-medium text-brand-dark mb-4">Personal Information</h4>
-                                <div class="grid grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
                                         <div class="relative">
@@ -503,7 +503,7 @@
     
                             <div class="identification-info">
                                 <h4 class="text-base font-medium text-brand-dark mb-4">Identification Details</h4>
-                                <div class="grid grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Identification Type <span class="text-red-500">*</span></label>
                                         <div class="relative">
@@ -546,7 +546,7 @@
     
                             <div class="ownership-info">
                                 <h4 class="text-base font-medium text-brand-dark mb-4">Ownership Details</h4>
-                                <div class="grid grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Ownership Percentage <span class="text-red-500">*</span></label>
                                         <div class="relative">

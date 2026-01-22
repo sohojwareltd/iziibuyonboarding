@@ -1,7 +1,7 @@
 <x-merchant.kyc>
     <!-- Header Section -->
     <header id="page-header" class="mb-8">
-        <h1 class="text-2xl font-semibold text-brand-dark mb-2">Board Members / General Manager</h1>
+        <h1 class="text-xl sm:text-2xl font-semibold text-brand-dark mb-2">Board Members / General Manager</h1>
         <p class="text-gray-600 text-sm">Provide details of individuals responsible for running the company (Directors,
             Board Members, or General Manager).</p>
     </header>
@@ -21,7 +21,7 @@
     <form id="bm-form">
         <div id="board-members-container" class="space-y-6">
 
-            <div class="board-member-card bg-white border border-[#E0E0E0] rounded-xl p-6 mb-6" data-bm-index="1">
+            <div class="board-member-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6" data-bm-index="1">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-brand-dark">Board Member #1</h3>
                     <button type="button"
@@ -31,13 +31,13 @@
                 </div>
 
                 <!-- Card Body -->
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
 
                     <!-- Section: Personal Information -->
                     <div class="mb-8">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Personal Information
                         </h3>
-                        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
                             <div>
                                 <x-input.text id="bm-first-name-1" label="First Name" required placeholder="Enter first name"
                                     class="h-11 px-3" />
@@ -72,7 +72,7 @@
                     <!-- Section: Role Information -->
                     <div class="mb-8 border-t border-gray-100 pt-6">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Role Information</h3>
-                        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
                             <div>
                                 <x-input.text id="bm-position-1" label="Position in Company" required placeholder="e.g. Director"
                                     class="h-11 px-3" />
@@ -108,7 +108,7 @@
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Identification
                             Details
                         </h3>
-                        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
                             <div>
                                 <x-input.select id="bm-id-type-1" label="Identification Type" required placeholder="Select ID type" class="h-11 px-3">
                                     <option value="passport">Passport</option>
@@ -136,7 +136,7 @@
                     <div class="mb-8 border-t border-gray-100 pt-6">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Residential Address
                         </h3>
-                        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
                             <div class="col-span-2">
                                 <x-input.text id="bm-address-line1-1" label="Address Line 1" required
                                     placeholder="Street address, P.O. box" class="h-11 px-3" />
@@ -209,25 +209,25 @@
         </div>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.beneficialOwners') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <a href="{{ route('merchant.kyc.contactPerson') }}"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <span>Continue to Contact Person</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
+                        <span>Continue</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </a>
                 </div>
             </div>
