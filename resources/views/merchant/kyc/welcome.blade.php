@@ -1,215 +1,156 @@
-@extends('layouts.html')
+@extends('layouts.merchant')
 
-@section('head')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merchant Onboarding | 2iZii</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#2D3A74',
-                            accent: '#4055A8',
-                            orange: '#FF7C00',
-                            orangeHover: '#E56D00',
-                            bg: '#F7F8FA',
-                            border: '#E5E7EB',
-                            textSubtle: '#595959',
-                            textMuted: '#9A9A9A'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+@section('title', 'Welcome to Your Merchant Onboarding - 2iZii')
+
+@push('head')
     <style>
-        ::-webkit-scrollbar { display: none; }
-        body { font-family: 'Inter', sans-serif; }
         .brand-gradient {
-            background: linear-gradient(135deg, #2D3A74 0%, #4055A8 100%);
+            background: linear-gradient(114.228deg, #2D3A74 0%, #4055A8 100%);
         }
         .glass-effect {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .decorative-circle {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        .decorative-circle-small {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
         }
     </style>
-@endsection
+@endpush
 
 @section('body')
-    <body class="h-screen overflow-hidden bg-white flex flex-row antialiased">
-
-        <!-- LEFT BRAND PANEL (40%) -->
-        <section id="brand-panel" class="w-2/5 h-full brand-gradient relative flex flex-col justify-between shrink-0 hidden lg:flex text-white">
-            <!-- Logo Area -->
-            <div class="p-10">
-                <!-- Simulated 2iZii Logo White -->
-                <div class="flex items-center gap-2">
-                     <div class="text-2xl font-bold tracking-tight text-white">2iZii</div>
-                     <div class="h-2 w-2 rounded-full bg-[#FF7C00] mt-1"></div>
-                </div>
+    <div class="min-h-screen bg-white flex flex-col lg:flex-row">
+        <!-- LEFT BRAND PANEL -->
+        <section class="w-full lg:w-[648px] min-h-[400px] lg:h-screen brand-gradient relative flex flex-col justify-between p-6 md:p-12 text-white overflow-hidden">
+            <!-- Decorative Background Circles -->
+            <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
+                <div class="absolute -left-16 -top-36 w-[500px] h-[500px] decorative-circle"></div>
+                <div class="absolute -bottom-36 -right-16 w-[600px] h-[600px] decorative-circle"></div>
+                <div class="absolute left-[130px] top-[576px] w-[200px] h-[200px] decorative-circle-small"></div>
             </div>
 
-            <!-- Center Illustration Area -->
-            <div class="flex-1 flex flex-col items-center justify-center px-12 text-center relative z-10">
-                <div class="mb-8 opacity-20">
-                    <!-- Abstract Fintech Illustration via FontAwesome Icons layered -->
-                    <div class="relative w-64 h-64 flex items-center justify-center">
-                        <i class="fa-solid fa-shield-halved text-9xl absolute text-white opacity-30"></i>
-                        <i class="fa-solid fa-check text-5xl absolute text-white top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
-                        <i class="fa-solid fa-fingerprint text-6xl absolute text-white top-10 right-10 opacity-50"></i>
-                        <i class="fa-solid fa-credit-card text-6xl absolute text-white bottom-10 left-10 opacity-50"></i>
+            <!-- Logo Area -->
+            <div class="relative z-10 flex items-center gap-3">
+                <div class="glass-effect rounded-lg p-1 flex items-center justify-center w-10 h-10">
+                    <i class="fa-solid fa-file-lines text-white text-lg"></i>
+                </div>
+                <div class="text-2xl font-bold tracking-tight text-white">2iZii</div>
+            </div>
+
+            <!-- Center Content -->
+            <div class="relative z-10 flex-1 flex flex-col items-center justify-center px-5 md:px-8 text-center max-w-[512px] mx-auto">
+                <!-- Illustration -->
+                <div class="mb-10 opacity-90">
+                    <div class="w-48 h-48 md:w-64 md:h-64 mx-auto relative">
+                        <img src="http://localhost:3845/assets/a4f4263e1386eea4fc73bc146ef6b55e49d89168.png" 
+                             alt="Secure Verification" 
+                             class="w-full h-full object-contain">
                     </div>
                 </div>
 
-                <h2 class="text-[26px] font-semibold leading-tight text-white/90 mb-2">
-                    Secure, Fast & Compliant Merchant Onboarding.
-                </h2>
-                <p class="text-white/60 text-sm mt-4 max-w-md mx-auto">
-                    Streamlined verification process to get your business ready for payments in minutes.
-                </p>
-            </div>
-
-            <!-- Background Decoration -->
-            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div class="absolute top-[20%] -left-[10%] w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
-                <div class="absolute bottom-[10%] -right-[10%] w-80 h-80 bg-[#FF7C00] opacity-[0.05] rounded-full blur-3xl"></div>
+                <!-- Main Heading -->
+                <div class="space-y-4 mb-4">
+                    <h1 class="text-2xl md:text-3xl lg:text-[36px] font-bold leading-tight text-white">
+                        Secure, Fast & Compliant<br>
+                        Merchant Verification.
+                    </h1>
+                    <p class="text-base md:text-lg text-white/80 font-light leading-relaxed max-w-md mx-auto">
+                        Complete a short digital verification to activate your payment services.
+                    </p>
+                </div>
             </div>
 
             <!-- Footer -->
-            <div class="p-6 text-xs text-white/60">
+            <div class="relative z-10 text-sm text-white/40">
                 © 2025 2iZii. All rights reserved.
             </div>
         </section>
 
-        <!-- RIGHT KYC CONTENT PANEL (60%) -->
-        <main id="kyc-content-panel" class="w-full lg:w-3/5 h-full bg-white overflow-y-auto flex flex-col items-center justify-center relative">
-
-            <!-- Main Content Container -->
-            <div class="w-full max-w-[600px] px-8 py-12 flex flex-col h-full justify-center">
-
-                <!-- HEADER CONTENT -->
-                <div id="header-content" class="text-center mb-8">
-                    <h1 class="text-[28px] font-bold text-brand-dark mb-2.5">
-                        Welcome to Your Merchant Onboarding
-                    </h1>
-                    <p class="text-base text-brand-textSubtle">
-                        Let’s get your business verified for payments.
+        <!-- RIGHT CONTENT PANEL -->
+        <main class="w-full lg:w-[792px] min-h-screen bg-white flex items-center justify-center p-6 md:p-12 lg:p-16">
+            <div class="w-full max-w-[480px] space-y-8">
+                <!-- Header -->
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[#2d3a74] leading-tight">
+                        Welcome to Your Merchant<br>
+                        Onboarding
+                    </h2>
+                    <p class="text-base md:text-lg text-[#6a6a6a]">
+                        Let's get your business verified for accepting payments.
                     </p>
                 </div>
 
-                <!-- MERCHANT & ONBOARDING SUMMARY PANEL -->
-                <div id="summary-card" class="bg-[#F7F8FA] rounded-xl border border-brand-border p-6 mb-7 shadow-sm">
-
-                    <!-- Grid for Details -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 mb-6">
-                        <!-- Merchant Name -->
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-[#555] mb-1">Merchant:</label>
-                            <div class="text-lg font-semibold text-brand-dark flex items-center gap-2">
-                                <i class="fa-solid fa-store text-brand-accent text-sm"></i>
-                                Global Retail Solutions Ltd.
+                <!-- Info Cards -->
+                <div class="bg-white border border-[#f3f4f6] rounded-xl shadow-sm overflow-hidden">
+                    <!-- Merchant Card -->
+                    <div class="border-b border-[#f3f4f6] p-5">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-[#eff6ff] rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-store text-[#4055a8] text-base"></i>
                             </div>
-                        </div>
-
-                        <!-- Solution -->
-                        <div>
-                            <label class="block text-xs font-medium text-[#555] mb-1 uppercase tracking-wide">Solution Selected</label>
-                            <div class="text-sm font-medium text-gray-800">OnePOS Integrated</div>
-                        </div>
-
-                        <!-- Partner -->
-                        <div>
-                            <label class="block text-xs font-medium text-[#555] mb-1 uppercase tracking-wide">Referred By</label>
-                            <div class="text-sm font-medium text-gray-800">Digitax Systems</div>
-                        </div>
-
-                        <!-- Acquirers -->
-                        <div class="col-span-2 pt-2 border-t border-gray-200">
-                            <label class="block text-xs font-medium text-[#555] mb-2 uppercase tracking-wide">Your Payment Providers</label>
-                            <div class="flex flex-wrap gap-2">
-                                <!-- Elavon Badge -->
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-brand-dark border border-gray-300">
-                                    <i class="fa-solid fa-building-columns mr-1.5"></i> Elavon
-                                </span>
-                                <!-- Surfboard Badge -->
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#EEF3FF] text-brand-accent border border-blue-100">
-                                    <i class="fa-solid fa-water mr-1.5"></i> Surfboard
-                                </span>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-medium text-[#9a9a9a] uppercase tracking-wider mb-1">
+                                    Merchant
+                                </div>
+                                <div class="text-base font-semibold text-[#2d3a74] truncate">
+                                    Global Retail Solutions Ltd.
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Info Strip -->
-                    <div class="bg-[#FFF6E8] border-l-4 border-brand-orange p-3 rounded-r-md flex items-start gap-3">
-                        <i class="fa-solid fa-circle-info text-[#8A6C1A] mt-0.5 text-xs"></i>
-                        <p class="text-xs text-[#8A6C1A] leading-relaxed">
-                            This information was pre-configured by your 2iZii representative.
-                        </p>
+                    <!-- Solution Selected Card -->
+                    <div class="border-b border-[#f3f4f6] p-5">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-[#eef2ff] rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-mobile-screen-button text-[#6366f1] text-base"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-medium text-[#9a9a9a] uppercase tracking-wider mb-1">
+                                    Solution Selected
+                                </div>
+                                <div class="text-base font-semibold text-[#2d3a74]">
+                                    OnePOS Integrated
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- LINK VALIDATION STATE (Hidden by default, toggleable via JS for demo) -->
-                <div id="error-state" class="hidden bg-white rounded-xl border border-red-100 p-8 text-center shadow-sm mb-8">
-                    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl"></i>
+                <!-- Payment Partners -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-medium text-[#9a9a9a]">
+                        Your Payment Partners
+                    </label>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
+                            <i class="fa-solid fa-building text-[#374151] text-sm"></i>
+                            <span class="text-sm font-medium text-[#374151]">Elavon</span>
+                        </div>
+                        <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
+                            <i class="fa-solid fa-water text-[#374151] text-sm"></i>
+                            <span class="text-sm font-medium text-[#374151]">Surfboard</span>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Link Expired or Invalid</h3>
-                    <p class="text-gray-600 mb-6">Your onboarding link has expired or is no longer valid. Please contact your 2iZii representative for a new invitation.</p>
-                    <button class="inline-flex items-center justify-center px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200">
-                        Contact Support
-                    </button>
                 </div>
 
-                <!-- START KYC CTA -->
-                <div id="action-area" class="space-y-4">
-                    <a href="{{ route('merchant.kyc.company') }}" class="group w-full h-[50px] bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold text-base rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-[0.99]">
+                <!-- Spacer -->
+                <div class="h-14"></div>
+
+                <!-- CTA Button -->
+                <div class="space-y-4">
+                    <a href="{{ route('merchant.kyc.company') }}" 
+                       class="w-full bg-[#FF7C00] hover:bg-[#E56D00] text-white font-semibold text-base py-3 px-8 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2 group">
                         <span>Start Your KYC Application</span>
                         <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                     </a>
-
-                    <!-- Information Note -->
-                    <div class="text-center space-y-1">
-                        <p class="text-[13px] text-[#6A6A6A]">
-                            <i class="fa-regular fa-clock mr-1 text-gray-400"></i> This process will take approximately 5–10 minutes to complete.
-                        </p>
-                        <p class="text-[13px] text-[#6A6A6A]">
-                            You can save progress at any time and return later.
-                        </p>
-                    </div>
                 </div>
-
-                <!-- FOOTER (RIGHT PANEL) -->
-                <div class="mt-10 pt-6 border-t border-gray-100 text-center">
-                    <p class="text-xs text-brand-textMuted flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-lock text-[10px]"></i>
-                        Your information is securely encrypted and handled per EU AML requirements.
-                    </p>
-                </div>
-
             </div>
         </main>
-
-        <script>
-            // Optional: Logic to show error state based on URL param (simulation)
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('error') === 'true') {
-                document.getElementById('summary-card').style.display = 'none';
-                document.getElementById('header-content').style.display = 'none';
-                document.getElementById('action-area').style.display = 'none';
-                document.getElementById('error-state').classList.remove('hidden');
-            }
-        </script>
-    </body>
+    </div>
 @endsection
-

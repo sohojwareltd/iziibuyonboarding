@@ -22,6 +22,13 @@
     --color-brand-accent: #FFA439;
 }
 
+/* Brand Color Utilities */
+.bg-brand-primary { background-color: var(--color-brand-primary); }
+.text-brand-primary { color: var(--color-brand-primary); }
+.bg-brand-cta { background-color: var(--color-brand-cta); }
+.hover\:bg-brand-ctaHover:hover { background-color: var(--color-brand-cta-hover); }
+.text-brand-text { color: var(--color-brand-text); }
+
 /* Base Styles */
 body {
     font-family: 'Inter', sans-serif;
@@ -129,4 +136,25 @@ select {
 
 .assignment-level-btn:hover:not(.active) {
     background: #f7f8fa;
+}
+
+/* Merchant Welcome Page Styles */
+.brand-gradient {
+    background: linear-gradient(114.228deg, #2D3A74 0%, #4055A8 100%);
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.decorative-circle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+}
+
+.decorative-circle-small {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
 }

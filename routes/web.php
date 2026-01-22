@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('merchant.kyc.welcome');
 });
 
 Route::prefix('admin')
