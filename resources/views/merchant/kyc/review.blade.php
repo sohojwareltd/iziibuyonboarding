@@ -50,20 +50,20 @@
 
             <!-- Card 1: Company Information -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Company Information</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | TechFlow Solutions
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Company Information</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | TechFlow Solutions
                             Ltd.</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.company') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.company') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Company
                                 Name</label>
@@ -96,20 +96,20 @@
 
             <!-- Card 2: Beneficial Owners -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Beneficial Owners</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | 2 Owners
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Beneficial Owners</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | 2 Owners
                             Listed</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.beneficialOwners') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.beneficialOwners') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 space-y-6">
+                    <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 pt-12 sm:pt-6">
                         <div class="bg-gray-50 p-4 rounded border border-gray-100">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                                 <div>
@@ -164,19 +164,19 @@
 
             <!-- Card 3: Contact Person -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Contact Person</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | John Doe</span>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Contact Person</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | John Doe</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.contactPerson') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.contactPerson') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full
                                 Name</label>
@@ -201,20 +201,20 @@
 
             <!-- Card 4: Purpose & Sales -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Purpose & Sales</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | Software
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Purpose & Sales</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | Software
                             Development</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.purposeOfService') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.purposeOfService') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
                         <div class="col-span-2">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Business
                                 Activities</label>
@@ -240,20 +240,20 @@
 
             <!-- Card 5: Bank Information -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Bank Information</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | Bank of
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Bank Information</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | Bank of
                             Cyprus</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bank
                                 Name</label>
@@ -274,20 +274,20 @@
 
             <!-- Card 6: Documents Uploaded -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                     onclick="toggleAccordion(this)">
-                    <div class="flex items-center gap-4">
-                        <h3 class="font-semibold text-primary text-lg">Documents Uploaded</h3>
-                        <span class="text-sm text-gray-400 font-normal hidden sm:block"> | 5 Files</span>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                        <h3 class="font-semibold text-primary text-base sm:text-lg">Documents Uploaded</h3>
+                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | 5 Files</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon"></i>
+                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-6 right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.authorizedSignatories') }}">
-                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation') }}">
+                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
-                    <div class="p-6 mt-[50px]">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="p-4 sm:p-6 mt-8 sm:mt-0">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                             <div
                                 class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
                                 <div class="text-red-500 text-2xl mr-3"><i class="fa-solid fa-file-pdf"></i>
@@ -377,26 +377,26 @@
         </section>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.authorizedSignatories') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium text-xs sm:text-sm rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <button id="submit-btn" type="submit"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
+                        class="flex-1 sm:flex-none px-3 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                         disabled>
-                        <span>Submit Form</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        <span>Submit</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </button>
                 </div>
             </div>

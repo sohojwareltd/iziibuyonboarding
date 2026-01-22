@@ -43,12 +43,20 @@
     @stack('css')
 </head>
 
-<body class="h-screen overflow-hidden bg-brand-bg flex antialiased">
+<body class="h-screen overflow-hidden bg-brand-bg flex antialiased flex-col md:flex-row">
+
+    {{-- <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" class="md:hidden fixed top-4 left-4 z-50 bg-white p-2.5 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+        <i class="fa-solid fa-bars text-brand-dark text-lg"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity"></div> --}}
 
     <x-merchant.kyc-stepper  />
 
-    <main id="main-content" class="flex-1 h-full overflow-y-auto pb-24">
-        <div class="max-w-[900px] mx-auto bg-white p-12 min-h-full">
+    <main id="main-content" class="flex-1 h-full overflow-y-auto pb-32 sm:pb-24 w-full">
+        <div class="max-w-[900px] mx-auto bg-white p-4 sm:p-6 md:p-12 min-h-full">
 
             {{ $slot }}
         </div>
@@ -56,9 +64,26 @@
 
     </main>
 
-    <div id="toast-container" class="fixed top-6 right-6 z-50"></div>
+    <div id="toast-container" class="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:top-6 z-50"></div>
 
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const sidebar = document.getElementById('kyc-sidebar');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('translate-x-0');
+            sidebar.classList.toggle('-translate-x-full');
+            mobileOverlay.classList.toggle('hidden');
+        });
+
+        mobileOverlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            mobileOverlay.classList.add('hidden');
+        });
+
         window.addEventListener('load', function() {
             const uploadZones = document.querySelectorAll('.upload-zone');
             uploadZones.forEach(zone => {

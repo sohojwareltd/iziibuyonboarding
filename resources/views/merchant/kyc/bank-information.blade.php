@@ -69,7 +69,7 @@
                 <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-6 border-b pb-2">A. Account
                     Details</h3>
 
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <div class="col-span-1">
                         <x-input.text label="Bank Name" id="bank_name" name="bank_name" required
                             class="w-full h-11 px-3 rounded border border-gray-300 focus:border-focus focus:ring-1 focus:ring-focus outline-none text-sm text-gray-900 transition-colors"
@@ -138,7 +138,7 @@
                 <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-6 border-b pb-2">B. Bank
                     Address</h3>
 
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <div class="col-span-1">
                         <x-input.text label="Bank Address Line 1" id="bank_address_line1" name="bank_address_line1"
                             required
@@ -180,7 +180,7 @@
                 <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-6 border-b pb-2">C.
                     Authorization</h3>
 
-                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Bank Account Ownership
                             <span class="text-gray-400 font-normal">(Optional)</span></label>
@@ -273,25 +273,25 @@
         </div>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.salesChannels') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <a href="{{ route('merchant.kyc.authorizedSignatories') }}"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <span>Continue to Authorized Signatories</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
+                        <span>Continue</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </a>
                 </div>
             </div>

@@ -179,25 +179,25 @@
         </section>
 
         <footer id="footer"
-            class="fixed bottom-0 right-0 w-[calc(100%-260px)] bg-white border-t border-brand-border px-12 py-4 z-30">
-            <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
+            <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <a href="{{ route('merchant.kyc.contactPerson') }}"
-                    class="px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <button onclick="saveDraft()"
-                        class="px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <i class="fa-regular fa-floppy-disk text-sm"></i>
-                        <span>Save as Draft</span>
+                        class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
+                        <span>Draft</span>
                     </button>
 
                     <a href="{{ route('merchant.kyc.salesChannels') }}"
-                        class="px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2">
-                        <span>Continue to Sales Channel</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
+                        <span>Continue</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </a>
                 </div>
             </div>

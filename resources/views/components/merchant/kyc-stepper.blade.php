@@ -34,9 +34,12 @@
     }
 @endphp
 
-<aside id="kyc-sidebar" class="w-[260px] bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 z-20 shadow-sm">
-    <div class="p-6 border-b border-gray-100 flex items-center gap-3">
-         <div class="text-primary text-xl font-bold tracking-tight">2iZii <span class="font-light text-slate-400">Admin</span></div>
+<aside id="kyc-sidebar" class="fixed md:relative -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex w-[280px] md:w-[260px] bg-white border-r border-gray-200 flex-col h-full overflow-y-auto shrink-0 z-50 md:z-20 shadow-2xl md:shadow-sm">
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div class="text-primary text-xl font-bold tracking-tight">2iZii <span class="font-light text-slate-400">Admin</span></div>
+        <button id="mobile-close-btn" class="md:hidden text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
     </div>
     
     <nav class="flex-1 py-6">
