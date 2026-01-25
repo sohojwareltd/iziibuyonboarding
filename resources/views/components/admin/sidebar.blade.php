@@ -18,17 +18,24 @@
         border-left: 4px solid #FF7C00;
         padding-left: 40px;
     }
+    /* Mobile off-canvas helpers */
+    #sidebar.sidebar-open {
+        transform: translateX(0);
+    }
 </style>
 
 <!-- LEFT NAVIGATION SIDEBAR -->
-<nav id="sidebar" class="fixed left-0 top-0 w-[260px] h-full bg-brand-primary flex flex-col z-50">
+<nav id="sidebar" class="fixed left-0 top-0 w-[260px] h-full bg-brand-primary flex flex-col z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 md:shadow-none shadow-xl">
     <!-- Logo Area -->
-    <div class="p-6 pb-8">
+    <div class="p-6 pb-8 flex items-center justify-between">
         <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="2iZii Logo">
             <path d="M20 10C20 4.47715 24.4772 0 30 0H10C4.47715 0 0 4.47715 0 10V30C0 35.5228 4.47715 40 10 40H30C24.4772 40 20 35.5228 20 30V10Z" fill="white"/>
             <circle cx="30" cy="10" r="4" fill="#FF7C00"/>
             <text x="40" y="28" fill="white" font-family="Inter" font-weight="bold" font-size="24">2iZii</text>
         </svg>
+        <button type="button" class="md:hidden text-white/70 hover:text-white transition-colors" aria-label="Close menu" data-sidebar-close>
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -164,8 +171,27 @@
     </div>
 </nav>
 
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"></div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        const openSidebar = () => {
+            sidebar.classList.add('sidebar-open');
+            sidebar.classList.remove('-translate-x-full');
+            overlay?.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        };
+
+        const closeSidebar = () => {
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('-translate-x-full');
+            overlay?.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        };
+
         // Handle all collapsible menu toggles (both Merchant Onboarding and Masters)
         document.querySelectorAll('.sidebar-toggle-btn').forEach(toggleBtn => {
             toggleBtn.addEventListener('click', function(e) {
@@ -186,6 +212,40 @@
                     chevron.classList.remove('rotate-180');
                 }
             });
+        });
+
+        // Mobile open/close controls
+        document.querySelectorAll('[data-sidebar-toggle]').forEach(toggleBtn => {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sidebar.classList.contains('sidebar-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-sidebar-close]').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeSidebar();
+            });
+        });
+
+        overlay?.addEventListener('click', closeSidebar);
+
+        // Reset state on resize so desktop view is always visible
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.remove('sidebar-open');
+                overlay?.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else if (!sidebar.classList.contains('sidebar-open')) {
+                sidebar.classList.add('-translate-x-full');
+            }
         });
     });
 </script>

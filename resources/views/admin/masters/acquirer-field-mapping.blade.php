@@ -155,8 +155,8 @@
         ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-            <div class="p-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+            <div class="p-4 md:p-8">
              
 
                 <!-- Page Content -->
@@ -169,8 +169,8 @@
                         </div>
 
                         <!-- Configuration Controls -->
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 flex items-end gap-4">
-                            <div class="w-64">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
+                            <div class="w-full sm:w-64">
                                 <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Acquirer</label>
                                 <select class="form-input">
                                     <option value="">Select Acquirer...</option>
@@ -179,7 +179,7 @@
                                     <option value="stripe">Stripe</option>
                                 </select>
                             </div>
-                            <div class="w-64">
+                            <div class="w-full sm:w-64">
                                 <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Country</label>
                                 <select class="form-input">
                                     <option value="">Select Country...</option>
@@ -188,22 +188,22 @@
                                     <option value="no">Norway</option>
                                 </select>
                             </div>
-                            <button class="bg-brand-primary text-white px-4 py-2.5 rounded-lg shadow-sm hover:bg-brand-secondary transition-colors flex items-center gap-2 h-[38px]">
+                            <button class="w-full sm:w-auto bg-brand-primary text-white px-4 py-2.5 rounded-lg shadow-sm hover:bg-brand-secondary transition-colors flex items-center justify-center gap-2 h-[38px]">
                                 <i class="fa-solid fa-rotate text-sm"></i>
                                 <span class="font-medium text-sm">Load Mapping</span>
                             </button>
-                            <div class="flex-1 text-right text-xs text-gray-400">
+                            <div class="w-full sm:flex-1 text-center sm:text-right text-xs text-gray-400">
                                 <div>Last updated: Oct 24, 14:30 • v1.2.4</div>
                             </div>
                         </div>
 
                         <!-- Main Content: Field Mapping and Preview -->
-                        <div class="flex gap-6">
+                        <div class="flex flex-col lg:flex-row gap-6">
                             <!-- Left Panel: Field Mapping Configuration -->
                             <div class="flex-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                                 <!-- Action Bar -->
-                                <div class="bg-gray-50 border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex flex-wrap items-center gap-3">
                                         <button class="text-sm font-medium text-brand-primary flex items-center gap-1">
                                             Bulk Actions
                                             <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -218,7 +218,7 @@
                                             Hide All
                                         </button>
                                     </div>
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex flex-wrap items-center gap-3">
                                         <button class="text-sm text-gray-600 hover:text-brand-primary flex items-center gap-1">
                                             <i class="fa-solid fa-upload text-xs"></i>
                                             Import JSON
@@ -231,7 +231,8 @@
                                 </div>
 
                                 <!-- Table Headers -->
-                                <div class="bg-gray-50 border-b border-gray-200 px-6 py-3 flex items-center gap-4">
+                                <div class="overflow-x-auto">
+                                <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-3 flex items-center gap-4 min-w-[800px]">
                                     <div class="w-10"></div>
                                     <div class="flex-1">
                                         <div class="text-xs font-bold text-gray-500 uppercase">Field Name</div>
@@ -248,7 +249,7 @@
                                 </div>
 
                                 <!-- Field Sections -->
-                                <div class="divide-y divide-gray-100">
+                                <div class="divide-y divide-gray-100 min-w-[800px]">
                                     <!-- Company Information Section -->
                                     <div class="field-section">
                                         <div class="section-header bg-gray-50 border-b border-gray-200 px-6 py-2.5 flex items-center justify-between cursor-pointer" onclick="toggleSection(this)">
@@ -260,7 +261,7 @@
                                         </div>
                                         <div class="section-content">
                                             <!-- Legal Name -->
-                                            <div class="px-6 py-3 flex items-center gap-4 border-b border-gray-100 hover:bg-gray-50">
+                                            <div class="px-4 md:px-6 py-3 flex items-center gap-4 border-b border-gray-100 hover:bg-gray-50">
                                                 <div class="w-10 flex items-center justify-center">
                                                     <i class="fa-solid fa-grip-vertical text-gray-400 cursor-move"></i>
                                                 </div>
@@ -412,10 +413,11 @@
                                         </div>
                                     </div>
                                 </div>
+                                </div>
                             </div>
 
                             <!-- Right Panel: Live Preview -->
-                            <div class="w-80 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div class="w-full lg:w-80 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                                 <!-- Preview Header -->
                                 <div class="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center justify-between">
                                     <div class="text-xs font-bold text-gray-500 uppercase">Live Preview</div>
@@ -457,9 +459,9 @@
         </main>
 
         <!-- Bottom Footer -->
-        <div class="fixed bottom-0 left-[260px] right-0 bg-white border-t border-gray-200 shadow-lg px-8 py-4 flex items-center justify-between z-40">
-            <button class="text-brand-primary font-medium hover:text-brand-secondary">Cancel</button>
-            <div class="flex gap-3">
+        <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white border-t border-gray-200 shadow-lg px-4 md:px-8 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-40">
+            <button class="text-brand-primary font-medium hover:text-brand-secondary text-center">Cancel</button>
+            <div class="flex flex-col sm:flex-row gap-3">
                 <button class="border-2 border-brand-accent text-brand-accent px-6 py-3 rounded-lg font-medium hover:bg-orange-50 transition-colors">
                     Save Draft
                 </button>

@@ -3,10 +3,13 @@
 ])
 <!-- TOP HEADER BAR -->
 <header id="header"
-    class="fixed top-0 left-[260px] right-0 h-16 bg-white shadow-sm border-b border-[#EDEDED] flex items-center @if ($breadcrumbs) justify-between @else justify-end @endif px-8 z-40">
+    class="fixed top-0 left-0 md:left-[260px] right-0 h-16 bg-white shadow-sm border-b border-[#EDEDED] flex items-center @if ($breadcrumbs) justify-between @else justify-end @endif px-4 md:px-8 z-40">
 
     @if ($breadcrumbs)
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex items-center gap-3 text-sm">
+            <button class="md:hidden text-brand-primary" aria-label="Open menu" data-sidebar-toggle>
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
             @foreach ($breadcrumbs as $breadcrumb)
                 @if (!$loop->last)
                     <a href="{{ $breadcrumb['url'] }}"

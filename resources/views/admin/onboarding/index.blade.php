@@ -58,14 +58,14 @@
         ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-            <div class="p-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+            <div class="p-4 md:p-8">
 
                 <!-- Page Title -->
                 <h1 id="page-title" class="text-[28px] font-bold text-brand-primary mb-6">Merchant Onboarding</h1>
 
                 <!-- Summary Cards Section -->
-                <section id="summary-cards" class="grid grid-cols-4 gap-6 mb-8">
+                <section id="summary-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
                     <div class="bg-white rounded-xl p-5 shadow-sm">
                         <div class="flex justify-between items-start">
                             <div>
@@ -108,18 +108,18 @@
                 </section>
 
                 <!-- Primary CTA Panel -->
-                <section id="cta-panel" class="bg-white rounded-2xl p-8 shadow-lg mb-8">
-                    <div class="flex items-center justify-between">
+                <section id="cta-panel" class="bg-white rounded-2xl p-6 md:p-8 shadow-lg mb-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div class="flex-1">
                             <h2 class="text-[22px] font-semibold text-brand-primary mb-2">Start a New Merchant Onboarding</h2>
                             <p class="text-sm text-[#595959] mb-5">Create an onboarding request and send it to the merchant to begin the KYC process.</p>
-                            <a href="{{ route('admin.onboarding.start') }}" class="bg-brand-cta hover:bg-brand-ctaHover text-white font-medium px-6 py-3 rounded-lg w-[260px] h-12 flex items-center justify-center gap-2 transition-colors">
+                            <a href="{{ route('admin.onboarding.start') }}" class="bg-brand-cta hover:bg-brand-ctaHover text-white font-medium px-6 py-3 rounded-lg w-full sm:w-[260px] h-12 flex items-center justify-center gap-2 transition-colors">
                                 <i class="fa-solid fa-plus text-sm"></i>
                                 Start New Onboarding
                             </a>
                         </div>
-                        <div class="ml-8">
-                            <i class="fa-solid fa-user-plus text-6xl text-brand-primary/10"></i>
+                        <div class="md:ml-8 flex md:block justify-center">
+                            <i class="fa-solid fa-user-plus text-5xl md:text-6xl text-brand-primary/10"></i>
                         </div>
                     </div>
                 </section>

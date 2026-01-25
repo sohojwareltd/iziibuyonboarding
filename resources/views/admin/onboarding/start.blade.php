@@ -77,8 +77,8 @@
         ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 pb-20 min-h-screen bg-brand-neutral">
-            <div class=" mx-auto px-20 py-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 pb-20 min-h-screen bg-brand-neutral">
+            <div class="mx-auto px-4 sm:px-6 lg:px-20 py-8">
                 <!-- Page Header -->
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-brand-primary mb-1">Start New Onboarding</h1>
@@ -95,7 +95,7 @@
                             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">Required Step</span>
                         </div>
                         <div class="p-6">
-                            <div class="grid grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <!-- Solution Field -->
                                 <div class="space-y-4">
                                     <div>
@@ -179,7 +179,7 @@
                             <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">2. Merchant Details</h2>
                         </div>
                         <div class="p-6">
-                            <div class="grid grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
                                         Legal Business Name <span class="text-red-500">*</span>
@@ -224,7 +224,7 @@
                             <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">3. Operations & Acquirers</h2>
                         </div>
                         <div class="p-6 space-y-8">
-                            <div class="grid grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
                                         Country of Operation <span class="text-red-500">*</span>
@@ -266,7 +266,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-3">
                                     Select Acquirer(s) <span class="text-red-500">*</span>
                                 </label>
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Elavon Card -->
                                     <div data-acquirer-card="elavon" class="bg-blue-50 border-2 border-brand-secondary rounded-lg p-4 flex items-start justify-between">
                                         <div class="flex-1">
@@ -330,53 +330,55 @@
                             </div>
                             <!-- Pricing Table -->
                             <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Payment Method</th>
-                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Transaction</th>
-                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">% Fee (MDR)</th>
-                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Fixed Fee</th>
-                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Min Fee</th>
-                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Max Fee</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-6 py-3 flex items-center gap-2">
-                                                <i class="fa-brands fa-cc-visa text-sm"></i>
-                                                <span class="font-medium">Visa Debit</span>
-                                            </td>
-                                            <td class="px-3 py-3 text-gray-600">Card Present</td>
-                                            <td class="px-3 py-3 font-mono">0.75%</td>
-                                            <td class="px-3 py-3 font-mono">£0.05</td>
-                                            <td class="px-3 py-3 font-mono">£0.10</td>
-                                            <td class="px-3 py-3 font-mono">-</td>
-                                        </tr>
-                                        <tr class="bg-white">
-                                            <td class="px-6 py-3 flex items-center gap-2">
-                                                <i class="fa-brands fa-cc-mastercard text-sm"></i>
-                                                <span class="font-medium">Mastercard</span>
-                                            </td>
-                                            <td class="px-3 py-3 text-gray-600">Card Present</td>
-                                            <td class="px-3 py-3 font-mono">0.80%</td>
-                                            <td class="px-3 py-3 font-mono">£0.05</td>
-                                            <td class="px-3 py-3 font-mono">£0.10</td>
-                                            <td class="px-3 py-3 font-mono">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-3 flex items-center gap-2">
-                                                <i class="fa-brands fa-cc-apple-pay text-sm"></i>
-                                                <span class="font-medium">Apple Pay</span>
-                                            </td>
-                                            <td class="px-3 py-3 text-gray-600">Contactless</td>
-                                            <td class="px-3 py-3 font-mono">1.20%</td>
-                                            <td class="px-3 py-3 font-mono">£0.10</td>
-                                            <td class="px-3 py-3 font-mono">£0.15</td>
-                                            <td class="px-3 py-3 font-mono">-</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm min-w-[640px]">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Payment Method</th>
+                                                <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Transaction</th>
+                                                <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">% Fee (MDR)</th>
+                                                <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Fixed Fee</th>
+                                                <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Min Fee</th>
+                                                <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Max Fee</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-3 flex items-center gap-2">
+                                                    <i class="fa-brands fa-cc-visa text-sm"></i>
+                                                    <span class="font-medium">Visa Debit</span>
+                                                </td>
+                                                <td class="px-3 py-3 text-gray-600">Card Present</td>
+                                                <td class="px-3 py-3 font-mono">0.75%</td>
+                                                <td class="px-3 py-3 font-mono">£0.05</td>
+                                                <td class="px-3 py-3 font-mono">£0.10</td>
+                                                <td class="px-3 py-3 font-mono">-</td>
+                                            </tr>
+                                            <tr class="bg-white">
+                                                <td class="px-6 py-3 flex items-center gap-2">
+                                                    <i class="fa-brands fa-cc-mastercard text-sm"></i>
+                                                    <span class="font-medium">Mastercard</span>
+                                                </td>
+                                                <td class="px-3 py-3 text-gray-600">Card Present</td>
+                                                <td class="px-3 py-3 font-mono">0.80%</td>
+                                                <td class="px-3 py-3 font-mono">£0.05</td>
+                                                <td class="px-3 py-3 font-mono">£0.10</td>
+                                                <td class="px-3 py-3 font-mono">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-3 flex items-center gap-2">
+                                                    <i class="fa-brands fa-cc-apple-pay text-sm"></i>
+                                                    <span class="font-medium">Apple Pay</span>
+                                                </td>
+                                                <td class="px-3 py-3 text-gray-600">Contactless</td>
+                                                <td class="px-3 py-3 font-mono">1.20%</td>
+                                                <td class="px-3 py-3 font-mono">£0.10</td>
+                                                <td class="px-3 py-3 font-mono">£0.15</td>
+                                                <td class="px-3 py-3 font-mono">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <button class="flex items-center gap-2 text-brand-secondary text-sm font-medium">
                                 <i class="fa-solid fa-pen text-xs"></i>
@@ -421,7 +423,7 @@
                             <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">6. System Information</h2>
                         </div>
                         <div class="p-6">
-                            <div class="grid grid-cols-4 gap-6">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                                 <div>
                                     <div class="text-xs text-gray-500 mb-1">Request ID</div>
                                     <div class="font-mono text-sm text-gray-900">MOB-DRAFT</div>
@@ -469,16 +471,16 @@
         </main>
 
         <!-- Fixed Bottom Action Bar -->
-        <footer class="fixed bottom-0 left-[260px] right-0 bg-white border-t border-gray-200 px-20 py-4 flex justify-between items-center z-30">
-            <div class="max-w-[1024px] w-full mx-auto flex justify-between items-center">
-                <button class="text-gray-600 hover:text-gray-900 text-sm font-medium">
+        <footer class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white border-t border-gray-200 px-4 md:px-20 py-4 flex justify-between items-center z-30">
+            <div class="max-w-[1024px] w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+                <button class="text-gray-600 hover:text-gray-900 text-sm font-medium w-full sm:w-auto text-center">
                     Cancel
                 </button>
-                <div class="flex items-center gap-3">
-                    <button class="border-2 border-brand-cta text-brand-cta hover:bg-brand-cta hover:text-white font-medium px-6 py-3 rounded-md text-sm transition-colors">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                    <button class="border-2 border-brand-cta text-brand-cta hover:bg-brand-cta hover:text-white font-medium px-6 py-3 rounded-md text-sm transition-colors w-full sm:w-auto">
                         Save as Draft
                     </button>
-                    <button class="bg-brand-cta hover:bg-orange-500 text-white font-medium px-5 py-3 rounded-md text-sm shadow-sm transition-colors">
+                    <button class="bg-brand-cta hover:bg-orange-500 text-white font-medium px-5 py-3 rounded-md text-sm shadow-sm transition-colors w-full sm:w-auto">
                         Save & Send KYC Link
                     </button>
                 </div>

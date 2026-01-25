@@ -162,35 +162,35 @@
         ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-            <div class="p-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+            <div class="p-4 md:p-8">
 
                 <!-- Page Content -->
-                <div class="bg-brand-neutral p-8">
+                <div class="bg-brand-neutral p-4 md:p-8">
                     <div class="max-w-[1200px] mx-auto">
                         <!-- Page Title and Add Button -->
-                        <div class="flex items-center justify-between mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                             <div>
                                 <h1 class="text-2xl font-bold text-brand-primary mb-1">Document Types Master</h1>
                                 <p class="text-sm text-gray-500">Configure allowable document types for merchant onboarding
                                     and validation.</p>
                             </div>
                             <button onclick="openDrawer()"
-                                class="bg-brand-accent text-white px-6 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
+                                class="self-start md:self-auto bg-brand-accent text-white px-6 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
                                 <i class="fa-solid fa-plus text-sm"></i>
                                 <span class="font-medium">Add Document Type</span>
                             </button>
                         </div>
 
                         <!-- Search and Filters -->
-                        <div class="bg-white border border-gray-200 rounded-t-xl p-6 flex items-center justify-between">
-                            <div class="relative w-[384px]">
+                        <div class="bg-white border border-gray-200 rounded-t-xl p-4 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="relative w-full sm:w-[384px]">
                                 <i
                                     class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                                 <input type="text" placeholder="Search document types..."
                                     class="form-input pl-10 bg-white border-gray-200">
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 self-end sm:self-auto">
                                 <button
                                     class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-filter text-sm"></i>
@@ -208,7 +208,8 @@
 
                         <!-- Table -->
                         <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200" style="min-width: 900px;">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
@@ -404,15 +405,16 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            </div>
 
                             <!-- Pagination -->
-                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-between">
-                                <div class="text-sm text-gray-500">
+                            <div class="bg-gray-50 border-t border-gray-200 px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div class="text-sm text-gray-500 text-center sm:text-left">
                                     Showing <span class="font-medium text-gray-900">1</span> to <span
                                         class="font-medium text-gray-900">3</span> of <span
                                         class="font-medium text-gray-900">3</span> entries
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex flex-wrap items-center justify-center gap-2">
                                     <button
                                         class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center gap-1">
                                         <i class="fa-solid fa-chevron-left text-xs"></i>
@@ -436,7 +438,7 @@
 
         <!-- Right Drawer for Add/Edit Document Type -->
         <div id="document-type-drawer"
-            class="fixed top-0 right-0 w-[520px] h-full bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+            class="fixed top-0 right-0 w-full max-w-[520px] h-full bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-5">
@@ -660,7 +662,7 @@
         </div>
 
         <!-- Overlay -->
-        <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeDrawer()"></div>
+        <div id="drawer-overlay" class="fixed top-0 left-0 md:left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeDrawer()"></div>
 
         <script>
             function openDrawer() {

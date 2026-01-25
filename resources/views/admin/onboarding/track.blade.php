@@ -70,9 +70,9 @@
         ]" />
 
         <!-- MAIN CONTENT WRAPPER -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral flex flex-col">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral flex flex-col">
             <!-- SCROLLABLE CONTENT AREA -->
-            <div class="flex-1 overflow-y-auto bg-brand-neutral p-8">
+            <div class="flex-1 overflow-y-auto bg-brand-neutral p-4 md:p-8">
                 <div class="max-w-[1280px] mx-auto space-y-6">
                     <!-- Page Header Section -->
                     <div class="space-y-3">
@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm min-w-full">
+                            <table class="w-full text-sm min-w-[720px]">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Acquirer</th>
@@ -161,12 +161,12 @@
 
                     <!-- Export KYC Data -->
                     <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div>
                                 <h3 class="text-base font-semibold text-brand-primary mb-1">Export KYC Data</h3>
                                 <p class="text-sm text-gray-500">Download the full onboarding package or specific components.</p>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex flex-wrap items-center gap-3">
                                 <button class="bg-brand-cta text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-orange-500 transition-colors">
                                     <i class="fa-solid fa-download text-xs"></i>
                                     Full Package (ZIP)
@@ -184,29 +184,31 @@
                     </section>
 
                     <!-- Main Content Area with Tabs -->
-                    <div class="flex gap-6">
+                    <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Left Column: Tabbed Content -->
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                                 <!-- Tab Navigation -->
-                                <div class="border-b border-gray-200 flex">
-                                    <button onclick="switchTab('company')" id="tab-company" class="tab-btn active px-4 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-secondary">Company Info</button>
-                                    <button onclick="switchTab('owners')" id="tab-owners" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Beneficial Owners</button>
-                                    <button onclick="switchTab('docs')" id="tab-docs" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Documents</button>
-                                    <button onclick="switchTab('bank')" id="tab-bank" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Bank Info</button>
-                                    <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Activity Log</button>
+                                <div class="border-b border-gray-200 overflow-x-auto">
+                                    <div class="flex min-w-max">
+                                        <button onclick="switchTab('company')" id="tab-company" class="tab-btn active px-4 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-secondary">Company Info</button>
+                                        <button onclick="switchTab('owners')" id="tab-owners" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Beneficial Owners</button>
+                                        <button onclick="switchTab('docs')" id="tab-docs" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Documents</button>
+                                        <button onclick="switchTab('bank')" id="tab-bank" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Bank Info</button>
+                                        <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Activity Log</button>
+                                    </div>
                                 </div>
 
                                 <!-- Tab Content: Company Info -->
-                                <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                                    <div class="flex justify-between items-center mb-6">
+                                <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
                                         <h3 class="text-lg font-semibold text-gray-800">General Information</h3>
                                         <button class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
                                             <i class="fa-solid fa-pen mr-2"></i> Edit Section
                                         </button>
                                     </div>
                                     
-                                    <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                                         <div>
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Legal Name</label>
                                             <div class="text-gray-900 font-medium">TechNova Solutions L.L.C</div>
@@ -239,15 +241,15 @@
                                 </div>
 
                                 <!-- Tab Content: Documents -->
-                                <div id="content-docs" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                                    <div class="flex justify-between items-center mb-6">
+                                <div id="content-docs" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
                                         <h3 class="text-lg font-semibold text-gray-800">Uploaded Documents</h3>
                                         <button class="bg-primary text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-opacity-90 transition-colors">
                                             <i class="fa-solid fa-upload mr-2"></i> Upload New
                                         </button>
                                     </div>
                                     
-                                    <div class="grid grid-cols-3 gap-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <!-- Doc Card 1 -->
                                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
                                             <div class="flex items-start justify-between mb-3">
@@ -285,7 +287,7 @@
                                 </div>
 
                                 <!-- Tab Content: Beneficial Owners -->
-                                <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Beneficial Owners</h3>
                                     <div class="space-y-4">
                                         <div class="border border-gray-200 rounded-lg p-4">
@@ -296,13 +298,13 @@
                                 </div>
 
                                 <!-- Tab Content: Bank Info -->
-                                <div id="content-bank" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                <div id="content-bank" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Bank Information</h3>
                                     <p class="text-gray-500">Bank information content will be displayed here.</p>
                                 </div>
 
                                 <!-- Tab Content: Activity Log -->
-                                <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                                <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Activity Timeline</h3>
                                     <div class="space-y-4">
                                         <div class="flex gap-4">
@@ -318,7 +320,7 @@
                         </div>
 
                         <!-- Right Sidebar -->
-                        <aside class="w-80 space-y-6">
+                        <aside class="w-full lg:w-80 space-y-6">
                             <!-- Onboarding Summary -->
                             <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
                                 <h3 class="text-sm font-semibold text-brand-primary mb-4">Onboarding Summary</h3>

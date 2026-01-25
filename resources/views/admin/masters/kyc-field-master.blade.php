@@ -153,32 +153,32 @@
         ]" />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-            <div class="p-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+            <div class="p-4 md:p-8">
             
 
                 <!-- Page Content -->
-                <div class="bg-brand-neutral p-8">
+                <div class="bg-brand-neutral p-4 md:p-8">
                     <div class="max-w-[1200px] mx-auto">
                         <!-- Page Title and Add Button -->
-                        <div class="flex items-center justify-between mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                             <div>
                                 <h1 class="text-2xl font-semibold text-brand-primary mb-1">KYC Field Master</h1>
                                 <p class="text-sm text-gray-500">Manage and configure KYC data fields for merchant onboarding.</p>
                             </div>
-                            <button onclick="openDrawer()" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
+                            <button onclick="openDrawer()" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2 self-start md:self-auto">
                                 <i class="fa-solid fa-plus text-sm"></i>
                                 <span class="font-medium">Add KYC Field</span>
                             </button>
                         </div>
 
                         <!-- Search and Filters -->
-                        <div class="bg-white border border-gray-200 rounded-t-xl p-6 flex items-center justify-between">
-                            <div class="relative w-[384px]">
+                        <div class="bg-white border border-gray-200 rounded-t-xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="relative w-full sm:w-[384px]">
                                 <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <input type="text" placeholder="Search KYC fields..." class="form-input pl-10 bg-white border-gray-200">
+                                <input type="text" placeholder="Search KYC fields..." class="form-input pl-10 bg-white border-gray-200 w-full">
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex flex-wrap items-center gap-3">
                                 <button class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-filter text-sm"></i>
                                     Filters
@@ -192,7 +192,8 @@
 
                         <!-- Table -->
                         <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-100">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-100 min-w-[900px]">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -407,14 +408,15 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                                </table>
+                            </div>
 
                             <!-- Pagination -->
-                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="text-sm text-gray-500">
                                     Showing <span class="font-medium text-gray-900">1-4</span> of <span class="font-medium text-gray-900">42</span> results
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex flex-wrap items-center gap-2">
                                     <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm opacity-50 cursor-not-allowed">Previous</button>
                                     <button class="bg-brand-primary text-white px-3 py-1.5 rounded text-sm">1</button>
                                     <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">2</button>
@@ -429,7 +431,7 @@
         </main>
 
         <!-- Right Drawer for Add/Edit KYC Field -->
-        <div id="kyc-field-drawer" class="fixed top-0 right-0 w-[580px] h-full bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+        <div id="kyc-field-drawer" class="fixed top-0 right-0 w-full max-w-[580px] h-full bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-5">
@@ -600,7 +602,7 @@
         </div>
 
         <!-- Overlay -->
-        <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeDrawer()"></div>
+        <div id="drawer-overlay" class="fixed top-0 left-0 md:left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeDrawer()"></div>
 
         <script>
             function openDrawer() {
