@@ -27,6 +27,8 @@
         'merchant.kyc.review' => 9,
     ];
 
+    $stepRoutes = array_flip($routeStepMap);
+
     // Auto-detect active step from current route if not provided
     if ($active === null) {
         $currentRoute = Route::currentRouteName();
@@ -49,9 +51,10 @@
                 @php
                     $isActive = $active === $num;
                     $isCompleted = $num < $active;
+                    $routeName = $stepRoutes[$num] ?? null;
                 @endphp
                 <li class="relative group {{ $isActive ? 'bg-orange-50/50 border-l-4 border-accent' : '' }}">
-                    <div class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }}">
+                    <a href="{{ $routeName ? route($routeName) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white">
                         <span class="flex items-center justify-center w-6 h-6 rounded-full {{ $isCompleted ? 'bg-green-100 text-success' : ($isActive ? 'bg-white border border-gray-step flex h-6 items-center justify-center mr-3 rounded-full text-gray-step text-xs w-6' : 'border border-gray-step text-gray-step bg-white') }} mr-3 text-xs">
                             @if($isCompleted)
                                 <i class="fa-solid fa-check text-xs"></i>
@@ -60,7 +63,7 @@
                             @endif
                         </span>
                         <span>{{ $label }}</span>
-                    </div>
+                    </a>
                 </li>
             @endforeach
         </ul>
