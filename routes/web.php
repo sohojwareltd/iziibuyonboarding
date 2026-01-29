@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\OnboardingController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Merchant\KycController;
 
@@ -34,6 +35,8 @@ Route::prefix('admin')
                 Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');
                 Route::get('/price-list-master', [MasterController::class, 'priceListMaster'])->name('price-list-master');
             });
+            
+        Route::resource('categories', CategoryController::class);
     });
 
 Route::prefix('merchant')
