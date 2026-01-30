@@ -2,6 +2,50 @@
 
 @section('title', 'Price List Master - 2iZii')
 
+@push('head')
+    <style>
+        /* Drawer animations */
+        #price-list-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 600px;
+            height: 100vh;
+            background: white;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        #price-list-drawer.drawer-open {
+            transform: translateX(0) !important;
+        }
+
+        #price-list-drawer.drawer-closed {
+            transform: translateX(100%) !important;
+            pointer-events: none;
+        }
+
+        /* Overlay styles */
+        #drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+
+        #drawer-overlay.hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+@endpush
+
 @section('body')
 
         <x-admin.sidebar active="masters" />
@@ -140,7 +184,7 @@
         </main>
 
         <!-- Right Drawer for Add/Edit Price List -->
-        <div id="price-list-drawer" class="fixed top-0 right-0 w-[600px] h-full bg-white shadow-2xl z-[60] drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+        <div id="price-list-drawer" class="drawer-closed overflow-y-auto">
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
@@ -380,7 +424,7 @@
         </div>
 
         <!-- Overlay -->
-        <div id="drawer-overlay" class="fixed top-0 left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-[55] hidden" onclick="closeDrawer()"></div>
+        <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300" onclick="closeDrawer()"></div>
 @endsection
 
 @push('scripts')
@@ -388,19 +432,26 @@
         let deletePriceListId = null;
 
         function openDrawer() {
-            resetForm();
-            document.getElementById('drawer-title').textContent = 'Add Price List';
-            document.getElementById('price-list-form').dataset.mode = 'create';
-            document.getElementById('price-list-drawer').classList.remove('drawer-closed');
-            document.getElementById('price-list-drawer').classList.add('drawer-open');
-            document.getElementById('drawer-overlay').classList.remove('hidden');
+            const overlay = document.getElementById('drawer-overlay');
+            overlay.classList.remove('hidden');
+            
+            setTimeout(() => {
+                resetForm();
+                document.getElementById('drawer-title').textContent = 'Add Price List';
+                document.getElementById('price-list-form').dataset.mode = 'create';
+                document.getElementById('price-list-drawer').classList.remove('drawer-closed');
+                document.getElementById('price-list-drawer').classList.add('drawer-open');
+            }, 10);
         }
 
         function closeDrawer() {
             document.getElementById('price-list-drawer').classList.remove('drawer-open');
             document.getElementById('price-list-drawer').classList.add('drawer-closed');
-            document.getElementById('drawer-overlay').classList.add('hidden');
-            resetForm();
+            
+            setTimeout(() => {
+                document.getElementById('drawer-overlay').classList.add('hidden');
+                resetForm();
+            }, 300);
         }
 
         function resetForm() {
@@ -487,22 +538,27 @@
         }
 
         function editPriceList(id) {
+            const overlay = document.getElementById('drawer-overlay');
+            overlay.classList.remove('hidden');
+            
             fetch(`{{ url('admin/masters/price-lists') }}/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        populateForm(data.data);
-                        document.getElementById('drawer-title').textContent = 'Edit Price List';
-                        document.getElementById('price-list-form').dataset.mode = 'edit';
-                        document.getElementById('price-list-form').dataset.id = id;
-                        document.getElementById('price-list-drawer').classList.remove('drawer-closed');
-                        document.getElementById('price-list-drawer').classList.add('drawer-open');
-                        document.getElementById('drawer-overlay').classList.remove('hidden');
+                        setTimeout(() => {
+                            populateForm(data.data);
+                            document.getElementById('drawer-title').textContent = 'Edit Price List';
+                            document.getElementById('price-list-form').dataset.mode = 'edit';
+                            document.getElementById('price-list-form').dataset.id = id;
+                            document.getElementById('price-list-drawer').classList.remove('drawer-closed');
+                            document.getElementById('price-list-drawer').classList.add('drawer-open');
+                        }, 10);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showNotification('Error loading price list', 'error');
+                    overlay.classList.add('hidden');
                 });
         }
 

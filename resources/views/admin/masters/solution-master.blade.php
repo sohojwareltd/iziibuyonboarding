@@ -2,6 +2,66 @@
 
 @section('title', 'Solution Master - 2iZii')
 
+@push('head')
+    <style>
+        /* Drawer animations */
+        #solution-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: white;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        #solution-drawer.drawer-open {
+            transform: translateX(0) !important;
+        }
+
+        #solution-drawer.drawer-closed {
+            transform: translateX(100%) !important;
+            pointer-events: none;
+        }
+
+        /* Overlay styles */
+        #drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+
+        #drawer-overlay.hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Form input styles */
+        .form-input { 
+            width: 100%; 
+            border: 1px solid #E5E7EB; 
+            border-radius: 0.5rem; 
+            padding: 0.625rem 0.75rem; 
+            color: #2D3A74; 
+            outline: none; 
+            transition: all 0.2s; 
+            font-size: 0.875rem;
+        }
+        .form-input:focus { 
+            border-color: #2D3A74; 
+            box-shadow: 0 0 0 1px #2D3A74; 
+        }
+    </style>
+@endpush
+
 @section('body')
 
     <x-admin.sidebar active="masters" />
@@ -176,7 +236,7 @@
 
     <!-- Right Drawer for Add/Edit Solution -->
     <div id="solution-drawer"
-        class="fixed top-0 right-0 w-[480px] h-full bg-white shadow-2xl z-[60] drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+        class="fixed top-0 right-0 w-full max-w-[480px] h-screen bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
         <div class="flex flex-col h-full">
             <!-- Drawer Header -->
             <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
@@ -377,7 +437,7 @@
 
     <!-- Delete Confirmation Modal -->
     <div id="delete-modal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[70]">
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-60">
         <div class="bg-white rounded-lg shadow-xl max-w-sm mx-4">
             <div class="p-6 text-center">
                 <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4">
@@ -405,7 +465,7 @@
     </div>
 
     <!-- Overlay -->
-    <div id="drawer-overlay" class="fixed top-0 left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-[55] hidden" onclick="closeDrawer()"></div>
+    <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300" onclick="closeDrawer()"></div>
 @endsection
 
     @push('scripts')
@@ -448,9 +508,16 @@
             }
 
             function openDrawer(resetForm = true) {
-                document.getElementById('solution-drawer').classList.remove('drawer-closed');
-                document.getElementById('solution-drawer').classList.add('drawer-open');
-                document.getElementById('drawer-overlay').classList.remove('hidden');
+                // Show overlay
+                const overlay = document.getElementById('drawer-overlay');
+                overlay.classList.remove('hidden');
+                
+                // Show drawer - use setTimeout to ensure display is set before transform
+                setTimeout(() => {
+                    const drawer = document.getElementById('solution-drawer');
+                    drawer.classList.remove('drawer-closed');
+                    drawer.classList.add('drawer-open');
+                }, 10);
 
                 if (resetForm) {
                     currentEditId = null;
@@ -465,9 +532,16 @@
             }
 
             function closeDrawer() {
-                document.getElementById('solution-drawer').classList.remove('drawer-open');
-                document.getElementById('solution-drawer').classList.add('drawer-closed');
-                document.getElementById('drawer-overlay').classList.add('hidden');
+                // Animate drawer out
+                const drawer = document.getElementById('solution-drawer');
+                drawer.classList.remove('drawer-open');
+                drawer.classList.add('drawer-closed');
+                
+                // Hide overlay after transition
+                setTimeout(() => {
+                    const overlay = document.getElementById('drawer-overlay');
+                    overlay.classList.add('hidden');
+                }, 300);
             }
 
             function editSolution(button) {

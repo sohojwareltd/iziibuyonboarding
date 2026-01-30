@@ -4,6 +4,47 @@
 
 @push('head')
     <style>
+        /* Drawer animations */
+        #payment-method-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 520px;
+            height: 100vh;
+            background: white;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        #payment-method-drawer.drawer-open {
+            transform: translateX(0) !important;
+        }
+
+        #payment-method-drawer.drawer-closed {
+            transform: translateX(100%) !important;
+            pointer-events: none;
+        }
+
+        /* Overlay styles */
+        #drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+
+        #drawer-overlay.hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Toggle Switch */
         .toggle-switch {
             position: relative;
             width: 44px;
@@ -199,7 +240,7 @@
         </main>
 
         <!-- Right Drawer for Add/Edit Payment Method -->
-        <div id="payment-method-drawer" class="fixed top-0 right-0 w-[520px] h-full bg-white shadow-2xl z-[60] drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+        <div id="payment-method-drawer" class="drawer-closed overflow-y-auto">
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-5 flex items-center justify-between">
@@ -399,7 +440,7 @@
         </div>
 
         <!-- Overlay -->
-        <div id="drawer-overlay" class="fixed top-0 left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-[55] hidden" onclick="closeDrawer()"></div>
+        <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300" onclick="closeDrawer()"></div>
 
         <!-- Delete Confirmation Modal -->
         <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex items-center justify-center p-4">
@@ -455,19 +496,26 @@
         let deletePaymentMethodId = null;
 
         function openDrawer() {
-            resetForm();
-            document.getElementById('drawer-title').textContent = 'Add Payment Method';
-            document.getElementById('payment-method-form').dataset.mode = 'create';
-            document.getElementById('payment-method-drawer').classList.remove('drawer-closed');
-            document.getElementById('payment-method-drawer').classList.add('drawer-open');
-            document.getElementById('drawer-overlay').classList.remove('hidden');
+            const overlay = document.getElementById('drawer-overlay');
+            overlay.classList.remove('hidden');
+            
+            setTimeout(() => {
+                resetForm();
+                document.getElementById('drawer-title').textContent = 'Add Payment Method';
+                document.getElementById('payment-method-form').dataset.mode = 'create';
+                document.getElementById('payment-method-drawer').classList.remove('drawer-closed');
+                document.getElementById('payment-method-drawer').classList.add('drawer-open');
+            }, 10);
         }
 
         function closeDrawer() {
             document.getElementById('payment-method-drawer').classList.remove('drawer-open');
             document.getElementById('payment-method-drawer').classList.add('drawer-closed');
-            document.getElementById('drawer-overlay').classList.add('hidden');
-            resetForm();
+            
+            setTimeout(() => {
+                document.getElementById('drawer-overlay').classList.add('hidden');
+                resetForm();
+            }, 300);
         }
 
         function resetForm() {
@@ -602,22 +650,27 @@
         });
 
         function editPaymentMethod(id) {
+            const overlay = document.getElementById('drawer-overlay');
+            overlay.classList.remove('hidden');
+            
             fetch(`{{ url('admin/masters/payment-methods') }}/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        populateForm(data.data);
-                        document.getElementById('drawer-title').textContent = 'Edit Payment Method';
-                        document.getElementById('payment-method-form').dataset.mode = 'edit';
-                        document.getElementById('payment-method-form').dataset.id = id;
-                        document.getElementById('payment-method-drawer').classList.remove('drawer-closed');
-                        document.getElementById('payment-method-drawer').classList.add('drawer-open');
-                        document.getElementById('drawer-overlay').classList.remove('hidden');
+                        setTimeout(() => {
+                            populateForm(data.data);
+                            document.getElementById('drawer-title').textContent = 'Edit Payment Method';
+                            document.getElementById('payment-method-form').dataset.mode = 'edit';
+                            document.getElementById('payment-method-form').dataset.id = id;
+                            document.getElementById('payment-method-drawer').classList.remove('drawer-closed');
+                            document.getElementById('payment-method-drawer').classList.add('drawer-open');
+                        }, 10);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showNotification('Error loading payment method', 'error');
+                    overlay.classList.add('hidden');
                 });
         }
 
