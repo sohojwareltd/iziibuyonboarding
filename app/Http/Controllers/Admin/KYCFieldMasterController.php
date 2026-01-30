@@ -14,7 +14,33 @@ class KYCFieldMasterController extends Controller
      */
     public function index()
     {
-        $kycFields = KYCFieldMaster::orderBy('sort_order')->paginate(15);
+        $query = KYCFieldMaster::query();
+
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('field_name', 'like', "%{$search}%")
+                    ->orWhere('internal_key', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($section = request('kyc_section')) {
+            $query->where('kyc_section', $section);
+        }
+
+        if ($dataType = request('data_type')) {
+            $query->where('data_type', $dataType);
+        }
+
+        if ($sensitivity = request('sensitivity_level')) {
+            $query->where('sensitivity_level', $sensitivity);
+        }
+
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        $kycFields = $query->orderBy('sort_order')->paginate(15)->withQueryString();
         return view('admin.masters.kyc-field-master', compact('kycFields'));
     }
 

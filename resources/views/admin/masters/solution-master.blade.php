@@ -16,7 +16,7 @@
             z-index: 50;
             transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
         #solution-drawer.drawer-open {
@@ -45,19 +45,153 @@
         }
 
         /* Form input styles */
-        .form-input { 
-            width: 100%; 
-            border: 1px solid #E5E7EB; 
-            border-radius: 0.5rem; 
-            padding: 0.625rem 0.75rem; 
-            color: #2D3A74; 
-            outline: none; 
-            transition: all 0.2s; 
+        .form-input {
+            width: 100%;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.75rem;
+            color: #2D3A74;
+            outline: none;
+            transition: all 0.2s;
             font-size: 0.875rem;
         }
-        .form-input:focus { 
-            border-color: #2D3A74; 
-            box-shadow: 0 0 0 1px #2D3A74; 
+
+        .form-input:focus {
+            border-color: #2D3A74;
+            box-shadow: 0 0 0 1px #2D3A74;
+        }
+
+        /* Filter panel styles */
+        #filter-panel {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #filter-panel select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232D3A74' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+
+        /* Active filters badges */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.813rem;
+            font-weight: 500;
+        }
+
+        .filter-badge button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.25rem;
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .filter-badge button:hover {
+            opacity: 1;
+        }
+
+        /* Filter input group styling */
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4B5563;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group label i {
+            color: #FF9900;
+            font-size: 0.75rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            padding-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .filter-btn-reset {
+            background: white;
+            border: 2px solid #E5E7EB;
+            color: #6B7280;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn-reset:hover {
+            border-color: #D1D5DB;
+            background: #F9FAFB;
+        }
+
+        .filter-btn-apply {
+            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            border: none;
+            color: white;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
+        }
+
+        .filter-btn-apply:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+        }
+
+        /* Single-row filter layout */
+        #filter-panel .filter-group {
+            margin-bottom: 0;
         }
     </style>
 @endpush
@@ -93,25 +227,148 @@
                     </div>
 
                     <!-- Search and Filters -->
-                    <div class="bg-white border border-gray-200 rounded-t-xl p-4 flex items-center justify-between">
-                        <div class="relative w-[384px]">
-                            <i
-                                class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                            <input type="text" placeholder="Search solutions..."
-                                class="form-input pl-10 bg-brand-neutral border-gray-200">
-                        </div>
-                        <div class="flex gap-3">
-                            <button
-                                class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                <i class="fa-solid fa-filter text-sm"></i>
-                                Filters
-                            </button>
-                            <button
-                                class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                <i class="fa-solid fa-download text-sm"></i>
-                                Export
-                            </button>
-                        </div>
+                    <div class="bg-white border border-gray-200 rounded-t-xl p-4">
+                        <form method="GET" action="{{ route('admin.masters.solution-master') }}" class="space-y-4">
+                            <!-- Search Bar and Filter Button -->
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="relative flex-1 max-w-[384px]">
+                                    <i
+                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                    <input type="text" name="search" placeholder="Search solutions by name..."
+                                        value="{{ request('search') }}"
+                                        class="form-input pl-10 bg-white border-gray-200 focus:bg-white">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="toggleFilters()"
+                                        class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-filter text-sm"></i>
+                                        <span>Filters</span>
+                                        <i id="filter-arrow"
+                                            class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                                    </button>
+                                    <button
+                                        class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                        <i class="fa-solid fa-download text-sm"></i>
+                                        Export
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Active Filters Display -->
+                            @if (request()->has('search') || request()->has('category') || request()->has('status') || request()->has('country'))
+                                <div class="active-filters">
+                                    @if (request('search'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                            <span>{{ request('search') }}</span>
+                                            <button type="button" onclick="clearSearchFilter()">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                    @if (request('category'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-tag text-xs"></i>
+                                            <span>Category:
+                                                {{ $categories->firstWhere('id', request('category'))?->name ?? request('category') }}</span>
+                                            <button type="button" onclick="clearCategoryFilter()">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                    @if (request('status'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-circle-half-stroke text-xs"></i>
+                                            <span>Status: {{ ucfirst(request('status')) }}</span>
+                                            <button type="button" onclick="clearStatusFilter()">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                    @if (request('country'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-map-pin text-xs"></i>
+                                            <span>{{ request('country') }}</span>
+                                            <button type="button" onclick="clearCountryFilter()">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <!-- Filter Panel -->
+                            <div id="filter-panel"
+                                class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
+                                <div class="flex items-end gap-3">
+                                    <!-- Category Filter -->
+                                    <div class="filter-group flex-1">
+                                        <label>
+                                            <i class="fa-solid fa-tag"></i>
+                                            Category
+                                        </label>
+                                        <select name="category"
+                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            <option value="">All Categories</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}"
+                                                    {{ request('category') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Status Filter -->
+                                    <div class="filter-group flex-1">
+                                        <label>
+                                            <i class="fa-solid fa-circle-half-stroke"></i>
+                                            Status
+                                        </label>
+                                        <select name="status"
+                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            <option value="">All Status</option>
+                                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>
+                                                Draft
+                                            </option>
+                                            <option value="published"
+                                                {{ request('status') == 'published' ? 'selected' : '' }}>
+                                                Published
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Country Filter -->
+                                    <div class="filter-group flex-1">
+                                        <label>
+                                            <i class="fa-solid fa-map-pin"></i>
+                                            Country
+                                        </label>
+                                        <select name="country"
+                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            <option value="">All Countries</option>
+                                            @foreach ($countries as $country)
+                                                <option value="{{ $country }}"
+                                                    {{ request('country') == $country ? 'selected' : '' }}>
+                                                    {{ $country }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Filter Controls -->
+                                    <div class="flex gap-2 flex-shrink-0">
+                                        <button type="button" class="filter-btn-reset !p-2.5 !px-3"
+                                            onclick="clearAllFilters()" title="Clear All">
+                                            <i class="fa-solid fa-xmark text-xs"></i>
+                                        </button>
+                                        <button type="submit" class="filter-btn-apply !p-2.5 !px-4" title="Apply Filters">
+                                            <i class="fa-solid fa-check text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
 
                     <!-- Table -->
@@ -169,9 +426,7 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <button
-                                                    data-id="{{ $solution->id }}"
-                                                    data-name="{{ $solution->name }}"
+                                                <button data-id="{{ $solution->id }}" data-name="{{ $solution->name }}"
                                                     data-category-id="{{ $solution->category_id }}"
                                                     data-country="{{ $solution->country }}"
                                                     data-status="{{ $solution->status }}"
@@ -248,7 +503,8 @@
             </div>
 
             <!-- Drawer Content -->
-            <form id="solution-form" method="POST" action="{{ route('admin.masters.solutions.store') }}" class="flex-1 overflow-y-auto flex flex-col">
+            <form id="solution-form" method="POST" action="{{ route('admin.masters.solutions.store') }}"
+                class="flex-1 overflow-y-auto flex flex-col">
                 @csrf
                 <div id="form-method"></div>
                 <input type="hidden" name="status" id="solution-status" value="published">
@@ -258,7 +514,8 @@
                         <!-- Solution Information Section -->
                         <div class="space-y-4">
                             <div class="border-b border-gray-200 pb-2">
-                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Solution Information</h3>
+                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Solution Information
+                                </h3>
                             </div>
 
                             <div>
@@ -319,19 +576,23 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Select Acquirers</label>
                                 <div class="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                                     <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="elavon" class="w-4 h-4 border-gray-400 rounded">
+                                        <input type="checkbox" name="acquirers[]" value="elavon"
+                                            class="w-4 h-4 border-gray-400 rounded">
                                         <span class="text-sm text-gray-700">Elavon</span>
                                     </label>
                                     <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="surfboard" class="w-4 h-4 border-gray-400 rounded">
+                                        <input type="checkbox" name="acquirers[]" value="surfboard"
+                                            class="w-4 h-4 border-gray-400 rounded">
                                         <span class="text-sm text-gray-700">Surfboard</span>
                                     </label>
                                     <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="stripe" class="w-4 h-4 border-gray-400 rounded">
+                                        <input type="checkbox" name="acquirers[]" value="stripe"
+                                            class="w-4 h-4 border-gray-400 rounded">
                                         <span class="text-sm text-gray-700">Stripe</span>
                                     </label>
                                     <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="aib" class="w-4 h-4 border-gray-400 rounded">
+                                        <input type="checkbox" name="acquirers[]" value="aib"
+                                            class="w-4 h-4 border-gray-400 rounded">
                                         <span class="text-sm text-gray-700">AIB Merchant Services</span>
                                     </label>
                                 </div>
@@ -351,17 +612,20 @@
                                     <div class="flex gap-2 flex-wrap">
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="visa" class="w-4 h-4 border-gray-400 rounded">
+                                            <input type="checkbox" name="payment_methods[]" value="visa"
+                                                class="w-4 h-4 border-gray-400 rounded">
                                             <span class="text-sm text-gray-900">Visa</span>
                                         </label>
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="mastercard" class="w-4 h-4 border-gray-400 rounded">
+                                            <input type="checkbox" name="payment_methods[]" value="mastercard"
+                                                class="w-4 h-4 border-gray-400 rounded">
                                             <span class="text-sm text-gray-900">Mastercard</span>
                                         </label>
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="amex" class="w-4 h-4 border-gray-400 rounded">
+                                            <input type="checkbox" name="payment_methods[]" value="amex"
+                                                class="w-4 h-4 border-gray-400 rounded">
                                             <span class="text-sm text-gray-900">Amex</span>
                                         </label>
                                     </div>
@@ -373,12 +637,14 @@
                                     <div class="flex gap-2 flex-wrap">
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="alternative_methods[]" value="vipps" class="w-4 h-4 border-gray-400 rounded">
+                                            <input type="checkbox" name="alternative_methods[]" value="vipps"
+                                                class="w-4 h-4 border-gray-400 rounded">
                                             <span class="text-sm text-gray-900">Vipps</span>
                                         </label>
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="alternative_methods[]" value="mobilepay" class="w-4 h-4 border-gray-400 rounded">
+                                            <input type="checkbox" name="alternative_methods[]" value="mobilepay"
+                                                class="w-4 h-4 border-gray-400 rounded">
                                             <span class="text-sm text-gray-900">MobilePay</span>
                                         </label>
                                     </div>
@@ -390,7 +656,8 @@
                         <div class="space-y-4">
                             <div class="flex items-center justify-between border-b border-gray-200 pb-2">
                                 <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Solution Requirements
-                                    <span class="text-gray-400 font-normal normal-case">(Optional)</span></h3>
+                                    <span class="text-gray-400 font-normal normal-case">(Optional)</span>
+                                </h3>
                                 <button type="button" class="text-gray-400 hover:text-gray-600">
                                     <i class="fa-solid fa-chevron-down text-xs"></i>
                                 </button>
@@ -419,7 +686,8 @@
 
                 <!-- Drawer Footer -->
                 <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white sticky bottom-0">
-                    <button type="button" onclick="closeDrawer()" class="text-gray-600 font-medium hover:text-gray-800">Cancel</button>
+                    <button type="button" onclick="closeDrawer()"
+                        class="text-gray-600 font-medium hover:text-gray-800">Cancel</button>
                     <div class="flex gap-3">
                         <button type="button" onclick="setStatusAndSubmit('draft')"
                             class="border-2 border-brand-accent text-brand-accent px-5 py-3 rounded-lg font-medium hover:bg-orange-50 transition-colors">
@@ -436,8 +704,7 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="delete-modal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-60">
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-60">
         <div class="bg-white rounded-lg shadow-xl max-w-sm mx-4">
             <div class="p-6 text-center">
                 <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4">
@@ -465,161 +732,162 @@
     </div>
 
     <!-- Overlay -->
-    <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300" onclick="closeDrawer()"></div>
+    <div id="drawer-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"
+        onclick="closeDrawer()"></div>
 @endsection
 
-    @push('scripts')
-        <script>
-            let currentEditId = null;
-            let solutionTags = [];
+@push('scripts')
+    <script>
+        let currentEditId = null;
+        let solutionTags = [];
 
-            function renderTags() {
-                const container = document.getElementById('tags-container');
-                const hidden = document.getElementById('tags-hidden');
-                if (!container || !hidden) return;
+        function renderTags() {
+            const container = document.getElementById('tags-container');
+            const hidden = document.getElementById('tags-hidden');
+            if (!container || !hidden) return;
 
-                container.innerHTML = '';
-                hidden.innerHTML = '';
+            container.innerHTML = '';
+            hidden.innerHTML = '';
 
-                solutionTags.forEach((tag) => {
-                    const pill = document.createElement('span');
-                    pill.className = 'bg-brand-neutral text-gray-700 px-2 py-1 rounded text-xs flex items-center gap-1';
-                    pill.innerHTML = `${tag}<button type="button" class="text-gray-500 hover:text-gray-700" onclick="removeTag('${tag.replace(/'/g, "\\'")}')"><i class="fa-solid fa-xmark text-xs"></i></button>`;
-                    container.appendChild(pill);
+            solutionTags.forEach((tag) => {
+                const pill = document.createElement('span');
+                pill.className = 'bg-brand-neutral text-gray-700 px-2 py-1 rounded text-xs flex items-center gap-1';
+                pill.innerHTML =
+                    `${tag}<button type="button" class="text-gray-500 hover:text-gray-700" onclick="removeTag('${tag.replace(/'/g, "\\'")}')"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+                container.appendChild(pill);
 
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'tags[]';
-                    input.value = tag;
-                    hidden.appendChild(input);
-                });
-            }
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'tags[]';
+                input.value = tag;
+                hidden.appendChild(input);
+            });
+        }
 
-            function addTag(tag) {
-                const clean = tag.trim().toLowerCase();
-                if (!clean || solutionTags.includes(clean)) return;
-                solutionTags.push(clean);
-                renderTags();
-            }
+        function addTag(tag) {
+            const clean = tag.trim().toLowerCase();
+            if (!clean || solutionTags.includes(clean)) return;
+            solutionTags.push(clean);
+            renderTags();
+        }
 
-            function removeTag(tag) {
-                solutionTags = solutionTags.filter((t) => t !== tag);
-                renderTags();
-            }
+        function removeTag(tag) {
+            solutionTags = solutionTags.filter((t) => t !== tag);
+            renderTags();
+        }
 
-            function openDrawer(resetForm = true) {
-                // Show overlay
-                const overlay = document.getElementById('drawer-overlay');
-                overlay.classList.remove('hidden');
-                
-                // Show drawer - use setTimeout to ensure display is set before transform
-                setTimeout(() => {
-                    const drawer = document.getElementById('solution-drawer');
-                    drawer.classList.remove('drawer-closed');
-                    drawer.classList.add('drawer-open');
-                }, 10);
+        function openDrawer(resetForm = true) {
+            // Show overlay
+            const overlay = document.getElementById('drawer-overlay');
+            overlay.classList.remove('hidden');
 
-                if (resetForm) {
-                    currentEditId = null;
-                    document.querySelector('#solution-drawer h2').textContent = 'Add New Solution';
-                    document.getElementById('solution-form').reset();
-                    document.getElementById('solution-form').action = '{{ route('admin.masters.solutions.store') }}';
-                    document.getElementById('form-method').innerHTML = '';
-                    document.getElementById('solution-status').value = 'published';
-                    solutionTags = [];
-                    renderTags();
-                }
-            }
-
-            function closeDrawer() {
-                // Animate drawer out
+            // Show drawer - use setTimeout to ensure display is set before transform
+            setTimeout(() => {
                 const drawer = document.getElementById('solution-drawer');
-                drawer.classList.remove('drawer-open');
-                drawer.classList.add('drawer-closed');
-                
-                // Hide overlay after transition
-                setTimeout(() => {
-                    const overlay = document.getElementById('drawer-overlay');
-                    overlay.classList.add('hidden');
-                }, 300);
-            }
+                drawer.classList.remove('drawer-closed');
+                drawer.classList.add('drawer-open');
+            }, 10);
 
-            function editSolution(button) {
-                const data = button.dataset;
-                currentEditId = data.id;
-                openDrawer(false);
-                document.querySelector('#solution-drawer h2').textContent = 'Edit Solution';
-                document.getElementById('solution-form').action = `/admin/masters/solutions/${data.id}`;
-                document.getElementById('form-method').innerHTML = '@method("PUT")';
-
-                document.getElementById('solution-name').value = data.name || '';
-                document.getElementById('category-select').value = data.categoryId || '';
-                document.getElementById('solution-country').value = data.country || '';
-                document.getElementById('solution-status').value = data.status || 'draft';
-                document.getElementById('solution-description').value = data.description || '';
-                document.getElementById('solution-requirements').value = data.requirements || '';
-                document.getElementById('solution-pricing-plan').value = data.pricingPlan || '';
-
+            if (resetForm) {
+                currentEditId = null;
+                document.querySelector('#solution-drawer h2').textContent = 'Add New Solution';
+                document.getElementById('solution-form').reset();
+                document.getElementById('solution-form').action = '{{ route('admin.masters.solutions.store') }}';
+                document.getElementById('form-method').innerHTML = '';
+                document.getElementById('solution-status').value = 'published';
                 solutionTags = [];
-                try {
-                    solutionTags = JSON.parse(data.tags || '[]') || [];
-                } catch (error) {
-                    solutionTags = [];
-                }
                 renderTags();
+            }
+        }
 
-                const acquirers = new Set(JSON.parse(data.acquirers || '[]'));
-                document.querySelectorAll('input[name="acquirers[]"]').forEach((input) => {
-                    input.checked = acquirers.has(input.value);
-                });
+        function closeDrawer() {
+            // Animate drawer out
+            const drawer = document.getElementById('solution-drawer');
+            drawer.classList.remove('drawer-open');
+            drawer.classList.add('drawer-closed');
 
-                const paymentMethods = new Set(JSON.parse(data.paymentMethods || '[]'));
-                document.querySelectorAll('input[name="payment_methods[]"]').forEach((input) => {
-                    input.checked = paymentMethods.has(input.value);
-                });
+            // Hide overlay after transition
+            setTimeout(() => {
+                const overlay = document.getElementById('drawer-overlay');
+                overlay.classList.add('hidden');
+            }, 300);
+        }
 
-                const alternativeMethods = new Set(JSON.parse(data.alternativeMethods || '[]'));
-                document.querySelectorAll('input[name="alternative_methods[]"]').forEach((input) => {
-                    input.checked = alternativeMethods.has(input.value);
-                });
+        function editSolution(button) {
+            const data = button.dataset;
+            currentEditId = data.id;
+            openDrawer(false);
+            document.querySelector('#solution-drawer h2').textContent = 'Edit Solution';
+            document.getElementById('solution-form').action = `/admin/masters/solutions/${data.id}`;
+            document.getElementById('form-method').innerHTML = '@method('PUT')';
+
+            document.getElementById('solution-name').value = data.name || '';
+            document.getElementById('category-select').value = data.categoryId || '';
+            document.getElementById('solution-country').value = data.country || '';
+            document.getElementById('solution-status').value = data.status || 'draft';
+            document.getElementById('solution-description').value = data.description || '';
+            document.getElementById('solution-requirements').value = data.requirements || '';
+            document.getElementById('solution-pricing-plan').value = data.pricingPlan || '';
+
+            solutionTags = [];
+            try {
+                solutionTags = JSON.parse(data.tags || '[]') || [];
+            } catch (error) {
+                solutionTags = [];
+            }
+            renderTags();
+
+            const acquirers = new Set(JSON.parse(data.acquirers || '[]'));
+            document.querySelectorAll('input[name="acquirers[]"]').forEach((input) => {
+                input.checked = acquirers.has(input.value);
+            });
+
+            const paymentMethods = new Set(JSON.parse(data.paymentMethods || '[]'));
+            document.querySelectorAll('input[name="payment_methods[]"]').forEach((input) => {
+                input.checked = paymentMethods.has(input.value);
+            });
+
+            const alternativeMethods = new Set(JSON.parse(data.alternativeMethods || '[]'));
+            document.querySelectorAll('input[name="alternative_methods[]"]').forEach((input) => {
+                input.checked = alternativeMethods.has(input.value);
+            });
+        }
+
+        function submitSolution() {
+            const form = document.getElementById('solution-form');
+            const name = document.getElementById('solution-name').value.trim();
+            const categoryId = document.getElementById('category-select').value;
+
+            if (!name) {
+                alert('Solution name is required');
+                return;
             }
 
-            function submitSolution() {
-                const form = document.getElementById('solution-form');
-                const name = document.getElementById('solution-name').value.trim();
-                const categoryId = document.getElementById('category-select').value;
-
-                if (!name) {
-                    alert('Solution name is required');
-                    return;
-                }
-
-                if (!categoryId) {
-                    alert('Please select a category');
-                    return;
-                }
-
-                form.submit();
+            if (!categoryId) {
+                alert('Please select a category');
+                return;
             }
 
-            function setStatusAndSubmit(status) {
-                document.getElementById('solution-status').value = status;
-                submitSolution();
-            }
+            form.submit();
+        }
 
-            function deleteSolution(id) {
-                document.getElementById('delete-form').action = `/admin/masters/solutions/${id}`;
-                document.getElementById('delete-modal').classList.remove('hidden');
-            }
+        function setStatusAndSubmit(status) {
+            document.getElementById('solution-status').value = status;
+            submitSolution();
+        }
 
-            function closeDeleteModal() {
-                document.getElementById('delete-modal').classList.add('hidden');
-            }
+        function deleteSolution(id) {
+            document.getElementById('delete-form').action = `/admin/masters/solutions/${id}`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
 
-            document.addEventListener('DOMContentLoaded', () => {
-                const input = document.getElementById('tags-input');
-                if (!input) return;
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('tags-input');
+            if (input) {
                 input.addEventListener('keydown', (event) => {
                     if (event.key === 'Enter' || event.key === ',') {
                         event.preventDefault();
@@ -634,6 +902,44 @@
                         input.value = '';
                     }
                 });
-            });
-        </script>
-    @endpush
+            }
+
+            // Filter panel stays hidden by default - only opens on button click
+        });
+
+        function toggleFilters() {
+            const filterPanel = document.getElementById('filter-panel');
+            const filterArrow = document.getElementById('filter-arrow');
+            filterPanel.classList.toggle('hidden');
+            filterArrow.style.transform = filterPanel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function clearAllFilters() {
+            window.location.href = '{{ route('admin.masters.solution-master') }}';
+        }
+
+        function clearSearchFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('search');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearCategoryFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('category');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearStatusFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('status');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearCountryFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('country');
+            window.location.href = `?${params.toString()}`;
+        }
+    </script>
+@endpush

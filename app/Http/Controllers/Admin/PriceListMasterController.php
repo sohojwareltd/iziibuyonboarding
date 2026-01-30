@@ -14,10 +14,37 @@ class PriceListMasterController extends Controller
      */
     public function index()
     {
-        $priceLists = PriceListMaster::latest()->paginate(15);
+        $query = PriceListMaster::query();
+
+        if ($search = request('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($type = request('type')) {
+            $query->where('type', $type);
+        }
+
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($currency = request('currency')) {
+            $query->where('currency', $currency);
+        }
+
+        if ($assignmentLevel = request('assignment_level')) {
+            $query->where('assignment_level', $assignmentLevel);
+        }
+
+        $priceLists = $query->latest()->paginate(15)->withQueryString();
+        $currencies = PriceListMaster::select('currency')
+            ->distinct()
+            ->orderBy('currency')
+            ->pluck('currency');
 
         return view('admin.masters.price-list-master', [
             'priceLists' => $priceLists,
+            'currencies' => $currencies,
         ]);
     }
 

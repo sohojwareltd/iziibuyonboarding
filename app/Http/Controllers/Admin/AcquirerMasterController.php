@@ -13,14 +13,49 @@ class AcquirerMasterController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $acquirers = AcquirerMaster::latest()->paginate(15);
+        $query = AcquirerMaster::query();
+
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+        }
+
+        // Filter by mode
+        if ($request->filled('mode')) {
+            $query->where('mode', $request->mode);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $status = $request->status === 'active' ? true : false;
+            $query->where('is_active', $status);
+        }
+
+        // Filter by country (JSON search)
+        if ($request->filled('country')) {
+            $query->whereJsonContains('supported_countries', $request->country);
+        }
+
+        $acquirers = $query->latest()->paginate(15);
         $solutions = SolutionMaster::all();
+        
+        // Get unique countries for filter dropdown
+        $countries = AcquirerMaster::whereNotNull('supported_countries')
+            ->get()
+            ->pluck('supported_countries')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
         
         return view('admin.masters.acquirer-master', [
             'acquirers' => $acquirers,
             'solutions' => $solutions,
+            'countries' => $countries,
         ]);
     }
 

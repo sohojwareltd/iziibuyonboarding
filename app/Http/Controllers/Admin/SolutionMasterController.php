@@ -13,11 +13,42 @@ class SolutionMasterController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $solutions = SolutionMaster::with('category')->get();
+        $query = SolutionMaster::with('category');
+
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by country
+        if ($request->filled('country')) {
+            $query->where('country', $request->country);
+        }
+
+        $solutions = $query->get();
         $categories = Category::all();
-        return view('admin.masters.solution-master', compact('solutions', 'categories'));
+        
+        // Get unique countries for filter dropdown
+        $countries = SolutionMaster::whereNotNull('country')
+            ->distinct('country')
+            ->pluck('country')
+            ->sort();
+
+        return view('admin.masters.solution-master', compact('solutions', 'categories', 'countries'));
     }
 
     /**

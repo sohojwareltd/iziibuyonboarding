@@ -16,14 +16,51 @@ class PaymentMethodMasterController extends Controller
      */
     public function index()
     {
-        $paymentMethods = PaymentMethodMaster::latest()->paginate(15);
+        $query = PaymentMethodMaster::query();
+
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('display_label', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('scheme', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category = request('category')) {
+            $query->where('category', $category);
+        }
+
+        if ($status = request('status')) {
+            $query->where('is_active', $status === 'active');
+        }
+
+        if ($country = request('country')) {
+            $query->whereJsonContains('supported_countries', $country);
+        }
+
+        $paymentMethods = $query->latest()->paginate(15)->withQueryString();
         $acquirers = AcquirerMaster::where('is_active', true)->get();
         $solutions = SolutionMaster::all();
+        $countries = PaymentMethodMaster::select('supported_countries')
+            ->get()
+            ->pluck('supported_countries')
+            ->filter()
+            ->flatMap(function ($item) {
+                if (is_string($item)) {
+                    $item = json_decode($item, true) ?? [];
+                }
+                return is_array($item) ? $item : [];
+            })
+            ->unique()
+            ->sort()
+            ->values();
         
         return view('admin.masters.payment-method-master', [
             'paymentMethods' => $paymentMethods,
             'acquirers' => $acquirers,
             'solutions' => $solutions,
+            'countries' => $countries,
         ]);
     }
 

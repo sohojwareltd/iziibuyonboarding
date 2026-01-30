@@ -43,6 +43,122 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* Filter panel styles */
+        #filter-panel {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Active filters badges */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.813rem;
+            font-weight: 500;
+        }
+
+        .filter-badge button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.25rem;
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .filter-badge button:hover {
+            opacity: 1;
+        }
+
+        /* Filter input group styling */
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4B5563;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group label i {
+            color: #FF9900;
+            font-size: 0.75rem;
+        }
+
+        .filter-btn-reset {
+            background: white;
+            border: 2px solid #E5E7EB;
+            color: #6B7280;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn-reset:hover {
+            border-color: #D1D5DB;
+            background: #F9FAFB;
+        }
+
+        .filter-btn-apply {
+            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            border: none;
+            color: white;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
+        }
+
+        .filter-btn-apply:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+        }
+
+        /* Single-row filter layout */
+        #filter-panel .filter-group {
+            margin-bottom: 0;
+        }
     </style>
 @endpush
 
@@ -75,21 +191,175 @@
                         </div>
 
                         <!-- Search and Filters -->
-                        <div class="bg-white border border-gray-200 rounded-t-xl p-6 flex items-center justify-between">
-                            <div class="relative w-[384px]">
-                                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <input type="text" placeholder="Search price lists..." class="form-input pl-10 bg-white border-gray-200">
-                            </div>
-                            <div class="flex gap-3">
-                                <button class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                    <i class="fa-solid fa-filter text-sm"></i>
-                                    Filters
-                                </button>
-                                <button class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                    <i class="fa-solid fa-download text-sm"></i>
-                                    Export
-                                </button>
-                            </div>
+                        <div class="bg-white border border-gray-200 rounded-t-xl p-4">
+                            <form method="GET" action="{{ route('admin.masters.price-list-master') }}" class="space-y-4">
+                                <!-- Search Bar and Filter Button -->
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                                    <div class="relative flex-1 max-w-[384px]">
+                                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                        <input type="text" name="search" placeholder="Search price lists..."
+                                            value="{{ request('search') }}"
+                                            class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="button" onclick="toggleFilters()"
+                                            class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center gap-2 whitespace-nowrap">
+                                            <i class="fa-solid fa-filter text-sm"></i>
+                                            <span>Advanced Filters</span>
+                                            <i id="filter-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                                        </button>
+                                        <button
+                                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-download text-sm"></i>
+                                            Export
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Active Filters Display -->
+                                @if (request()->has('search') || request()->has('type') || request()->has('status') || request()->has('currency') || request()->has('assignment_level'))
+                                    <div class="active-filters">
+                                        @if (request('search'))
+                                            <div class="filter-badge">
+                                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                                <span>{{ request('search') }}</span>
+                                                <button type="button" onclick="clearSearchFilter()">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                        @if (request('type'))
+                                            <div class="filter-badge">
+                                                <i class="fa-solid fa-layer-group text-xs"></i>
+                                                <span>Type: {{ str_replace('-', ' ', ucwords(request('type'), '-')) }}</span>
+                                                <button type="button" onclick="clearTypeFilter()">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                        @if (request('status'))
+                                            <div class="filter-badge">
+                                                <i class="fa-solid fa-circle-half-stroke text-xs"></i>
+                                                <span>Status: {{ ucfirst(request('status')) }}</span>
+                                                <button type="button" onclick="clearStatusFilter()">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                        @if (request('currency'))
+                                            <div class="filter-badge">
+                                                <i class="fa-solid fa-coins text-xs"></i>
+                                                <span>Currency: {{ request('currency') }}</span>
+                                                <button type="button" onclick="clearCurrencyFilter()">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                        @if (request('assignment_level'))
+                                            <div class="filter-badge">
+                                                <i class="fa-solid fa-sitemap text-xs"></i>
+                                                <span>Scope: {{ ucfirst(request('assignment_level')) }}</span>
+                                                <button type="button" onclick="clearAssignmentFilter()">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <!-- Filter Panel -->
+                                <div id="filter-panel"
+                                    class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
+                                    <div class="flex flex-col sm:flex-row items-end gap-3">
+                                        <!-- Type Filter -->
+                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                            <label>
+                                                <i class="fa-solid fa-layer-group"></i>
+                                                Type
+                                            </label>
+                                            <select name="type"
+                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                <option value="">All Types</option>
+                                                <option value="merchant-selling" {{ request('type') == 'merchant-selling' ? 'selected' : '' }}>
+                                                    Merchant Selling</option>
+                                                <option value="acquirer-cost" {{ request('type') == 'acquirer-cost' ? 'selected' : '' }}>
+                                                    Acquirer Cost</option>
+                                                <option value="partner-kickback" {{ request('type') == 'partner-kickback' ? 'selected' : '' }}>
+                                                    Partner Kickback</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Status Filter -->
+                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                            <label>
+                                                <i class="fa-solid fa-circle-half-stroke"></i>
+                                                Status
+                                            </label>
+                                            <select name="status"
+                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                <option value="">All Status</option>
+                                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>
+                                                    Active</option>
+                                                <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>
+                                                    Draft</option>
+                                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>
+                                                    Inactive</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Currency Filter -->
+                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                            <label>
+                                                <i class="fa-solid fa-coins"></i>
+                                                Currency
+                                            </label>
+                                            <select name="currency"
+                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                <option value="">All Currencies</option>
+                                                @foreach ($currencies as $currency)
+                                                    <option value="{{ $currency }}" {{ request('currency') == $currency ? 'selected' : '' }}>
+                                                        {{ $currency }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- Scope Filter -->
+                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                            <label>
+                                                <i class="fa-solid fa-sitemap"></i>
+                                                Scope
+                                            </label>
+                                            <select name="assignment_level"
+                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                <option value="">All Scopes</option>
+                                                <option value="global" {{ request('assignment_level') == 'global' ? 'selected' : '' }}>
+                                                    Global</option>
+                                                <option value="country" {{ request('assignment_level') == 'country' ? 'selected' : '' }}>
+                                                    Country</option>
+                                                <option value="solution" {{ request('assignment_level') == 'solution' ? 'selected' : '' }}>
+                                                    Solution</option>
+                                                <option value="acquirer" {{ request('assignment_level') == 'acquirer' ? 'selected' : '' }}>
+                                                    Acquirer</option>
+                                                <option value="merchant" {{ request('assignment_level') == 'merchant' ? 'selected' : '' }}>
+                                                    Merchant</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Filter Controls -->
+                                        <div class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                                            <button type="button" class="filter-btn-reset !p-2.5 !px-3 flex-1 sm:flex-none"
+                                                onclick="clearAllFilters()" title="Clear All">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                            <button type="submit" class="filter-btn-apply !p-2.5 !px-4 flex-1 sm:flex-none"
+                                                title="Apply Filters">
+                                                <i class="fa-solid fa-check text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Table -->
@@ -430,6 +700,47 @@
 @push('scripts')
     <script>
         let deletePriceListId = null;
+
+        function toggleFilters() {
+            const filterPanel = document.getElementById('filter-panel');
+            const filterArrow = document.getElementById('filter-arrow');
+            filterPanel.classList.toggle('hidden');
+            filterArrow.style.transform = filterPanel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function clearAllFilters() {
+            window.location.href = '{{ route('admin.masters.price-list-master') }}';
+        }
+
+        function clearSearchFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('search');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearTypeFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('type');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearStatusFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('status');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearCurrencyFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('currency');
+            window.location.href = `?${params.toString()}`;
+        }
+
+        function clearAssignmentFilter() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('assignment_level');
+            window.location.href = `?${params.toString()}`;
+        }
 
         function openDrawer() {
             const overlay = document.getElementById('drawer-overlay');
