@@ -7,6 +7,8 @@ use App\Models\SolutionMaster;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SolutionMasterController extends Controller
 {
@@ -49,6 +51,105 @@ class SolutionMasterController extends Controller
             ->sort();
 
         return view('admin.masters.solution-master', compact('solutions', 'categories', 'countries'));
+    }
+
+    /**
+     * Export Solution Master data to Excel.
+     */
+    public function export(Request $request)
+    {
+        $query = SolutionMaster::with('category');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('country')) {
+            $query->where('country', $request->country);
+        }
+
+        $solutions = $query->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'ID',
+            'Name',
+            'Slug',
+            'Category',
+            'Status',
+            'Description',
+            'Country',
+            'Tags',
+            'Acquirers',
+            'Payment Methods',
+            'Alternative Methods',
+            'Requirements',
+            'Pricing Plan',
+            'Created At',
+            'Updated At',
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+        foreach ($solutions as $solution) {
+            $sheet->fromArray([
+                $solution->id,
+                $solution->name,
+                $solution->slug,
+                $solution->category?->name ?? '',
+                $solution->status,
+                $solution->description,
+                $solution->country,
+                $this->implodeArray($solution->tags),
+                $this->implodeArray($solution->acquirers),
+                $this->implodeArray($solution->payment_methods),
+                $this->implodeArray($solution->alternative_methods),
+                $solution->requirements,
+                $solution->pricing_plan,
+                optional($solution->created_at)->toDateTimeString(),
+                optional($solution->updated_at)->toDateTimeString(),
+            ], null, 'A' . $row);
+            $row++;
+        }
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, 'solution-master.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    private function implodeArray($value): string
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return implode(', ', $decoded);
+            }
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return '';
     }
 
     /**

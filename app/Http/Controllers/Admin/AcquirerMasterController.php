@@ -7,6 +7,8 @@ use App\Models\AcquirerMaster;
 use App\Models\SolutionMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AcquirerMasterController extends Controller
 {
@@ -57,6 +59,110 @@ class AcquirerMasterController extends Controller
             'solutions' => $solutions,
             'countries' => $countries,
         ]);
+    }
+
+    /**
+     * Export Acquirer Master data to Excel.
+     */
+    public function export(Request $request)
+    {
+        $query = AcquirerMaster::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('mode')) {
+            $query->where('mode', $request->mode);
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->status === 'active' ? true : false;
+            $query->where('is_active', $status);
+        }
+
+        if ($request->filled('country')) {
+            $query->whereJsonContains('supported_countries', $request->country);
+        }
+
+        $acquirers = $query->latest()->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'ID',
+            'Name',
+            'Mode',
+            'Active',
+            'Description',
+            'Supported Countries',
+            'Supported Solutions',
+            'Email Recipient',
+            'Email Subject Template',
+            'Email Body Template',
+            'Attachment Format',
+            'Secure Email Required',
+            'Requires Beneficial Owner Data',
+            'Requires Board Member Data',
+            'Requires Signatories',
+            'Created At',
+            'Updated At',
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+        foreach ($acquirers as $acquirer) {
+            $sheet->fromArray([
+                $acquirer->id,
+                $acquirer->name,
+                $acquirer->mode,
+                $acquirer->is_active ? 'Yes' : 'No',
+                $acquirer->description,
+                $this->implodeArray($acquirer->supported_countries),
+                $this->implodeArray($acquirer->supported_solutions),
+                $acquirer->email_recipient,
+                $acquirer->email_subject_template,
+                $acquirer->email_body_template,
+                $acquirer->attachment_format,
+                $acquirer->secure_email_required ? 'Yes' : 'No',
+                $acquirer->requires_beneficial_owner_data ? 'Yes' : 'No',
+                $acquirer->requires_board_member_data ? 'Yes' : 'No',
+                $acquirer->requires_signatories ? 'Yes' : 'No',
+                optional($acquirer->created_at)->toDateTimeString(),
+                optional($acquirer->updated_at)->toDateTimeString(),
+            ], null, 'A' . $row);
+            $row++;
+        }
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, 'acquirer-master.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    private function implodeArray($value): string
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return implode(', ', $decoded);
+            }
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return '';
     }
 
     /**

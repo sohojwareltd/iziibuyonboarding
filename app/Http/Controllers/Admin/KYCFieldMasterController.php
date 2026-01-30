@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\KYCFieldMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class KYCFieldMasterController extends Controller
 {
@@ -148,5 +150,93 @@ class KYCFieldMasterController extends Controller
 
         return redirect()->route('admin.masters.kyc-field-master')
             ->with('success', 'KYC Field deleted successfully');
+    }
+
+    /**
+     * Export KYC Fields to Excel
+     */
+    public function export(Request $request)
+    {
+        $query = KYCFieldMaster::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('field_name', 'LIKE', "%{$search}%")
+                    ->orWhere('internal_key', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('kyc_section')) {
+            $query->where('kyc_section', $request->kyc_section);
+        }
+
+        if ($request->filled('data_type')) {
+            $query->where('data_type', $request->data_type);
+        }
+
+        if ($request->filled('sensitivity_level')) {
+            $query->where('sensitivity_level', $request->sensitivity_level);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $kycFields = $query->latest()->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('KYC Fields');
+
+        $headers = [
+            'ID',
+            'Field Name',
+            'Internal Key',
+            'KYC Section',
+            'Description',
+            'Data Type',
+            'Is Required',
+            'Sensitivity Level',
+            'Visible to Merchant',
+            'Visible to Admin',
+            'Visible to Partner',
+            'Sort Order',
+            'Status',
+            'Created At',
+            'Updated At'
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+        foreach ($kycFields as $kycField) {
+            $sheet->fromArray([
+                $kycField->id,
+                $kycField->field_name,
+                $kycField->internal_key,
+                $kycField->kyc_section,
+                $kycField->description,
+                $kycField->data_type,
+                $kycField->is_required ? 'Yes' : 'No',
+                $kycField->sensitivity_level,
+                $kycField->visible_to_merchant ? 'Yes' : 'No',
+                $kycField->visible_to_admin ? 'Yes' : 'No',
+                $kycField->visible_to_partner ? 'Yes' : 'No',
+                $kycField->sort_order,
+                $kycField->status,
+                $kycField->created_at->format('Y-m-d H:i:s'),
+                $kycField->updated_at->format('Y-m-d H:i:s')
+            ], null, 'A' . $row);
+            $row++;
+        }
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, 'kyc-field-master.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }

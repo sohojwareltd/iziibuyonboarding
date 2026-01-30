@@ -331,11 +331,11 @@
                                                 class="fa-solid fa-chevron-down text-xs transition-transform"></i>
                                         </button>
 
-                                        <button
+                                        <a href="{{ route('admin.masters.acquirer-master.export', request()->query()) }}"
                                             class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-download text-sm"></i>
                                             Export
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
 

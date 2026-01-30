@@ -31,18 +31,22 @@ Route::prefix('admin')
             ->name('masters.')
             ->group(function () {
                 Route::resource('solutions', SolutionMasterController::class);
+                Route::get('/solution-master/export', [SolutionMasterController::class, 'export'])->name('solution-master.export');
                 Route::get('/solution-master', [SolutionMasterController::class, 'index'])->name('solution-master');
                 Route::resource('acquirers', AcquirerMasterController::class);
+                Route::get('/acquirer-master/export', [AcquirerMasterController::class, 'export'])->name('acquirer-master.export');
                 Route::get('/acquirer-master', [AcquirerMasterController::class, 'index'])->name('acquirer-master');
                 Route::resource('payment-methods', \App\Http\Controllers\Admin\PaymentMethodMasterController::class);
                 Route::get('/payment-method-master', [\App\Http\Controllers\Admin\PaymentMethodMasterController::class, 'index'])->name('payment-method-master');
                 Route::resource('kyc-fields', KYCFieldMasterController::class);
                 Route::get('/kyc-field-master', [KYCFieldMasterController::class, 'index'])->name('kyc-field-master');
+                Route::get('/kyc-field-master/export', [KYCFieldMasterController::class, 'export'])->name('kyc-field-master.export');
                 Route::resource('document-types', \App\Http\Controllers\Admin\DocumentTypesMasterController::class);
                 Route::get('/document-type-master', [\App\Http\Controllers\Admin\DocumentTypesMasterController::class, 'index'])->name('document-type-master');
                 Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');
                 Route::resource('price-lists', \App\Http\Controllers\Admin\PriceListMasterController::class);
                 Route::get('/price-list-master', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'index'])->name('price-list-master');
+                Route::get('/price-list-master/export', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'export'])->name('price-list-master.export');
             });
             
         Route::resource('categories', CategoryController::class);

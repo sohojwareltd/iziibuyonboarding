@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PriceListMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PriceListMasterController extends Controller
 {
@@ -213,5 +215,117 @@ class PriceListMasterController extends Controller
 
         return redirect()->route('admin.masters.price-list-master')
             ->with('success', 'Price list deleted successfully');
+    }
+
+    /**
+     * Export Price Lists to Excel
+     */
+    public function export(Request $request)
+    {
+        $query = PriceListMaster::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%");
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('currency')) {
+            $query->where('currency', $request->currency);
+        }
+
+        if ($request->filled('assignment_level')) {
+            $query->where('assignment_level', $request->assignment_level);
+        }
+
+        $priceLists = $query->latest()->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Price Lists');
+
+        $headers = [
+            'ID',
+            'Name',
+            'Type',
+            'Currency',
+            'Status',
+            'Assignment Level',
+            'Assignment Rules',
+            'Price Lines',
+            'Version',
+            'Effective From',
+            'Effective To',
+            'Created At',
+            'Updated At'
+        ];
+
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+        foreach ($priceLists as $priceList) {
+            $sheet->fromArray([
+                $priceList->id,
+                $priceList->name,
+                $priceList->type,
+                $priceList->currency,
+                $priceList->status,
+                $priceList->assignment_level,
+                $this->implodeArray($priceList->assignment_rules),
+                $this->implodeArray($priceList->price_lines),
+                $priceList->version,
+                $priceList->effective_from ? $priceList->effective_from->format('Y-m-d') : '',
+                $priceList->effective_to ? $priceList->effective_to->format('Y-m-d') : '',
+                $priceList->created_at->format('Y-m-d H:i:s'),
+                $priceList->updated_at->format('Y-m-d H:i:s')
+            ], null, 'A' . $row);
+            $row++;
+        }
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, 'price-list-master.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
+     * Helper method to convert array or JSON string to readable format
+     */
+    private function implodeArray($data)
+    {
+        if (is_null($data)) {
+            return '';
+        }
+
+        if (is_array($data)) {
+            $items = [];
+            foreach ($data as $item) {
+                if (is_array($item)) {
+                    $items[] = json_encode($item);
+                } else {
+                    $items[] = (string) $item;
+                }
+            }
+            return implode('; ', $items);
+        }
+
+        if (is_string($data)) {
+            $decoded = json_decode($data, true);
+            if (is_array($decoded)) {
+                return $this->implodeArray($decoded);
+            }
+            return $data;
+        }
+
+        return (string) $data;
     }
 }
