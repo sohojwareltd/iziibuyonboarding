@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AcquirerMasterSeeder::class,
             PaymentMethodMasterSeeder::class,
             PriceListMasterSeeder::class,
+            KYCFieldMasterSeeder::class,
         ]);
 
         // User::factory(10)->create();

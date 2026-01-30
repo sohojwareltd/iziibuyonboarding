@@ -217,212 +217,82 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-100">
-                                    <!-- Row 1: Company Registration Number -->
+                                    @forelse($kycFields as $field)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary leading-tight">
-                                                <div>Company</div>
-                                                <div>Registration Number</div>
-                                            </div>
+                                            <div class="font-medium text-brand-primary">{{ $field->field_name }}</div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="font-mono text-xs text-gray-600">company_reg_no</span>
+                                            <span class="font-mono text-xs text-gray-600">{{ $field->internal_key }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium">Text</span>
+                                            <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium capitalize">{{ $field->data_type }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <div class="text-gray-700 text-sm leading-tight">
-                                                <div>Company</div>
-                                                <div>Info</div>
-                                            </div>
+                                            <span class="text-gray-700 text-sm capitalize">{{ ucfirst(str_replace('_', ' ', $field->kyc_section)) }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <div class="flex items-center gap-1">
-                                                <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-xs"></i>
-                                                <span class="text-yellow-600 text-xs font-medium">Sensitive</span>
-                                            </div>
+                                            @if($field->sensitivity_level === 'highly-sensitive')
+                                                <div class="flex items-center gap-1">
+                                                    <i class="fa-solid fa-lock text-red-600 text-xs"></i>
+                                                    <span class="text-red-600 text-xs font-medium">Highly Sensitive</span>
+                                                </div>
+                                            @elseif($field->sensitivity_level === 'sensitive')
+                                                <div class="flex items-center gap-1">
+                                                    <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-xs"></i>
+                                                    <span class="text-yellow-600 text-xs font-medium">Sensitive</span>
+                                                </div>
+                                            @else
+                                                <span class="text-gray-600 text-xs font-medium">Normal</span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <div class="flex items-center justify-center gap-0">
-                                                <span class="bg-blue-100 border-2 border-white text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">M</span>
-                                                <span class="bg-purple-100 border-2 border-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium -ml-1">A</span>
+                                                @if($field->visible_to_merchant)
+                                                    <span class="bg-blue-100 border-2 border-white text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium" title="Visible to Merchant">M</span>
+                                                @endif
+                                                @if($field->visible_to_admin)
+                                                    <span class="bg-purple-100 border-2 border-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium {{ $field->visible_to_merchant ? '-ml-1' : '' }}" title="Visible to Admin">A</span>
+                                                @endif
+                                                @if($field->visible_to_partner)
+                                                    <span class="bg-green-100 border-2 border-white text-green-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium -ml-1" title="Visible to Partner">P</span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium">Active</span>
+                                            @if($field->status === 'active')
+                                                <span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium">Active</span>
+                                            @elseif($field->status === 'draft')
+                                                <span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-xs font-medium">Draft</span>
+                                            @else
+                                                <span class="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full text-xs font-medium">Inactive</span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-3">
-                                                <button class="text-gray-400 hover:text-brand-primary">
+                                                <button onclick="editKYCField({{ $field->id }})" class="text-gray-400 hover:text-brand-primary transition-colors">
                                                     <i class="fa-solid fa-pen text-sm"></i>
                                                 </button>
-                                                <button class="text-gray-400 hover:text-red-500">
+                                                <button onclick="deleteKYCField({{ $field->id }}, '{{ $field->field_name }}')" class="text-gray-400 hover:text-red-500 transition-colors">
                                                     <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-gray-600">
-                                                    <i class="fa-solid fa-eye text-sm"></i>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                    <!-- Row 2: Date of Incorporation -->
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary leading-tight">
-                                                <div>Date of</div>
-                                                <div>Incorporation</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="font-mono text-xs text-gray-600">incorporation_date</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium">Date</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-gray-700 text-sm leading-tight">
-                                                <div>Company</div>
-                                                <div>Info</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-gray-600 text-xs font-medium">Normal</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="flex items-center justify-center gap-0">
-                                                <span class="bg-blue-100 border-2 border-white text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">M</span>
-                                                <span class="bg-purple-100 border-2 border-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium -ml-1">A</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium">Active</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-3">
-                                                <button class="text-gray-400 hover:text-brand-primary">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-500">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-gray-600">
-                                                    <i class="fa-solid fa-eye text-sm"></i>
-                                                </button>
-                                            </div>
+                                    @empty
+                                    <tr>
+                                        <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                                            <p>No KYC fields found. Click "Add KYC Field" to create one.</p>
                                         </td>
                                     </tr>
-                                    <!-- Row 3: Beneficial Owner ID -->
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">Beneficial Owner ID</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="font-mono text-xs text-gray-600">bo_passport_id</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium leading-tight">
-                                                <div>File</div>
-                                                <div>Upload</div>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-gray-700 text-sm leading-tight">
-                                                <div>Beneficial</div>
-                                                <div>Owners</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-1">
-                                                <i class="fa-solid fa-lock text-red-600 text-xs"></i>
-                                                <span class="text-red-600 text-xs font-medium leading-tight">
-                                                    <div>Highly</div>
-                                                    <div>Sensitive</div>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="flex items-center justify-center gap-0">
-                                                <span class="bg-blue-100 border-2 border-white text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">M</span>
-                                                <span class="bg-purple-100 border-2 border-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium -ml-1">A</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium">Active</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-3">
-                                                <button class="text-gray-400 hover:text-brand-primary">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-500">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-gray-600">
-                                                    <i class="fa-solid fa-eye text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Row 4: Business Type -->
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">Business Type</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="font-mono text-xs text-gray-600">business_type_id</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium">Dropdown</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-gray-700 text-sm leading-tight">
-                                                <div>Company</div>
-                                                <div>Info</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-gray-600 text-xs font-medium">Normal</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="flex items-center justify-center gap-0">
-                                                <span class="bg-blue-100 border-2 border-white text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">M</span>
-                                                <span class="bg-purple-100 border-2 border-white text-purple-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium -ml-1">A</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-gray-100 text-white px-2.5 py-1 rounded-full text-xs font-medium">Inactive</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-3">
-                                                <button class="text-gray-400 hover:text-brand-primary">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-500">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-gray-600">
-                                                    <i class="fa-solid fa-eye text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    @endforelse
                                 </tbody>
                                 </table>
                             </div>
 
                             <!-- Pagination -->
-                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div class="text-sm text-gray-500">
-                                    Showing <span class="font-medium text-gray-900">1-4</span> of <span class="font-medium text-gray-900">42</span> results
-                                </div>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm opacity-50 cursor-not-allowed">Previous</button>
-                                    <button class="bg-brand-primary text-white px-3 py-1.5 rounded text-sm">1</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">2</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">3</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">Next</button>
-                                </div>
+                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
+                                {{ $kycFields->links('pagination::tailwind') }}
                             </div>
                         </div>
                     </div>
@@ -436,7 +306,7 @@
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-5">
                     <div class="mb-2">
-                        <h2 class="text-xl font-semibold text-brand-primary">Add New KYC Field</h2>
+                        <h2 id="drawer-title" class="text-xl font-semibold text-brand-primary">Add New KYC Field</h2>
                         <p class="text-xs text-gray-500 mt-1">Configure field properties, validation, and visibility.</p>
                     </div>
                     <button onclick="closeDrawer()" class="absolute top-5 right-6 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
@@ -446,7 +316,7 @@
 
                 <!-- Drawer Content -->
                 <div class="flex-1 overflow-y-auto p-6">
-                    <div class="space-y-8">
+                    <form id="kyc-field-form" class="space-y-8" data-mode="create" data-id="">
                         <!-- Section 1: Basic Information -->
                         <div class="space-y-4">
                             <div class="flex items-center gap-2 pb-2">
@@ -456,20 +326,21 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Field Name <span class="text-red-500">*</span></label>
-                                <input type="text" class="form-input" placeholder="e.g. Beneficial Owner Name">
+                                <input type="text" id="field-name" name="field_name" class="form-input" placeholder="e.g. Beneficial Owner Name" required>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Internal Key</label>
                                 <div class="flex">
                                     <span class="form-input-prefix">kyc_</span>
-                                    <input type="text" class="form-input form-input-with-prefix" placeholder="beneficial_owner_name" value="beneficial_owner_name">
+                                    <input type="text" id="internal-key" name="internal_key" class="form-input form-input-with-prefix" placeholder="beneficial_owner_name" required>
                                 </div>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">KYC Section <span class="text-red-500">*</span></label>
-                                <select class="form-input">
+                                <select id="kyc-section" name="kyc_section" class="form-input" required>
+                                    <option value="">Select a section</option>
                                     <option value="beneficial">Beneficial Owners</option>
                                     <option value="company">Company Information</option>
                                     <option value="board">Board Members</option>
@@ -479,7 +350,7 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea class="form-input resize-y" rows="3" placeholder="Optional description for internal reference..."></textarea>
+                                <textarea id="description" name="description" class="form-input resize-y" rows="3" placeholder="Optional description for internal reference..."></textarea>
                             </div>
                         </div>
 
@@ -495,7 +366,8 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Type <span class="text-red-500">*</span></label>
-                                <select class="form-input">
+                                <select id="data-type" name="data_type" class="form-input" required>
+                                    <option value="">Select a type</option>
                                     <option value="text">Text</option>
                                     <option value="date">Date</option>
                                     <option value="number">Number</option>
@@ -521,6 +393,7 @@
                             <div class="flex items-center justify-between">
                                 <label class="text-sm font-medium text-gray-700">Is Required? <span class="text-red-500">*</span></label>
                                 <div class="toggle-switch" id="required-toggle" onclick="toggleRequired()"></div>
+                                <input type="hidden" id="is-required" name="is_required" value="0">
                             </div>
                         </div>
 
@@ -536,7 +409,8 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Sensitivity Level <span class="text-red-500">*</span></label>
-                                <select class="form-input">
+                                <select id="sensitivity-level" name="sensitivity_level" class="form-input" required>
+                                    <option value="">Select a level</option>
                                     <option value="normal">Normal</option>
                                     <option value="sensitive">Sensitive</option>
                                     <option value="highly-sensitive">Highly Sensitive</option>
@@ -547,17 +421,16 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Visibility Controls</label>
                                 <div class="space-y-2.5">
                                     <label class="flex items-center gap-2.5 cursor-pointer">
-                                        <input type="checkbox" checked class="w-4 h-4 border-gray-400 rounded text-blue-600">
+                                        <input type="checkbox" id="visible-merchant" name="visible_to_merchant" value="1" class="w-4 h-4 border-gray-400 rounded text-blue-600">
                                         <span class="text-sm text-gray-700">Visible to Merchant</span>
                                     </label>
                                     <label class="flex items-center gap-2.5 cursor-pointer">
-                                        <input type="checkbox" checked class="w-4 h-4 border-gray-400 rounded text-blue-600">
+                                        <input type="checkbox" id="visible-admin" name="visible_to_admin" value="1" class="w-4 h-4 border-gray-400 rounded text-blue-600">
                                         <span class="text-sm text-gray-700">Visible to Admin</span>
                                     </label>
-                                    <label class="flex items-center gap-2.5 cursor-pointer opacity-50">
-                                        <input type="checkbox" class="w-4 h-4 border-gray-400 rounded">
+                                    <label class="flex items-center gap-2.5 cursor-pointer">
+                                        <input type="checkbox" id="visible-partner" name="visible_to_partner" value="1" class="w-4 h-4 border-gray-400 rounded">
                                         <span class="text-sm text-gray-700">Visible to Partner</span>
-                                        <i class="fa-solid fa-circle-question text-gray-400 text-xs"></i>
                                     </label>
                                 </div>
                             </div>
@@ -575,25 +448,26 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
-                                <input type="number" class="form-input" placeholder="100" value="100">
+                                <input type="number" id="sort-order" name="sort_order" class="form-input" placeholder="100" value="100" required>
                             </div>
                             
                             <div class="flex items-center justify-between">
                                 <label class="text-sm font-medium text-gray-700">Status</label>
                                 <div class="toggle-switch active" id="status-toggle" onclick="toggleStatus()"></div>
+                                <input type="hidden" id="status" name="status" value="active">
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- Drawer Footer -->
                 <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white">
                     <button onclick="closeDrawer()" class="text-brand-primary font-medium hover:text-brand-secondary">Cancel</button>
                     <div class="flex gap-3">
-                        <button class="border-2 border-brand-accent text-brand-accent px-5 py-2.5 rounded-lg font-medium hover:bg-orange-50 transition-colors">
+                        <button type="button" id="save-draft-btn" class="border-2 border-brand-accent text-brand-accent px-5 py-2.5 rounded-lg font-medium hover:bg-orange-50 transition-colors" style="display: none;">
                             Save Draft
                         </button>
-                        <button class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
+                        <button type="button" id="save-field-btn" form="kyc-field-form" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
                             Save Field
                         </button>
                     </div>
@@ -604,8 +478,36 @@
         <!-- Overlay -->
         <div id="drawer-overlay" class="fixed top-0 left-0 md:left-[260px] right-0 bottom-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeDrawer()"></div>
 
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full animate-scale-in">
+                <div class="p-6">
+                    <div class="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
+                        <i class="fa-solid fa-trash-can text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-primary text-center mb-2">Delete KYC Field</h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Are you sure you want to delete <span id="delete-field-name" class="font-semibold text-brand-primary"></span>? This action cannot be undone.
+                    </p>
+                    <div class="flex gap-3">
+                        <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button id="confirm-delete-btn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-sm">
+                            <i class="fa-solid fa-trash-can mr-2"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
+            let currentDeleteId = null;
+
             function openDrawer() {
+                resetForm();
+                document.getElementById('kyc-field-form').dataset.mode = 'create';
+                document.getElementById('drawer-title').textContent = 'Add New KYC Field';
                 document.getElementById('kyc-field-drawer').classList.remove('drawer-closed');
                 document.getElementById('kyc-field-drawer').classList.add('drawer-open');
                 document.getElementById('drawer-overlay').classList.remove('hidden');
@@ -617,14 +519,218 @@
                 document.getElementById('drawer-overlay').classList.add('hidden');
             }
 
+            function resetForm() {
+                document.getElementById('kyc-field-form').reset();
+                document.getElementById('kyc-field-form').dataset.id = '';
+                document.getElementById('kyc-field-form').dataset.mode = 'create';
+                document.getElementById('required-toggle').classList.remove('active');
+                document.getElementById('is-required').value = '0';
+                document.getElementById('status-toggle').classList.add('active');
+                document.getElementById('status').value = 'active';
+                document.getElementById('sort-order').value = '100';
+                document.getElementById('visible-merchant').checked = true;
+                document.getElementById('visible-admin').checked = true;
+                document.getElementById('visible-partner').checked = false;
+            }
+
             function toggleRequired() {
                 const toggle = document.getElementById('required-toggle');
                 toggle.classList.toggle('active');
+                document.getElementById('is-required').value = toggle.classList.contains('active') ? '1' : '0';
             }
 
             function toggleStatus() {
                 const toggle = document.getElementById('status-toggle');
                 toggle.classList.toggle('active');
+                document.getElementById('status').value = toggle.classList.contains('active') ? 'active' : 'draft';
+            }
+
+            function editKYCField(id) {
+                fetch(`/admin/masters/kyc-fields/${id}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetched data:', data);
+                    
+                    // First, reset the form without calling openDrawer (openDrawer will be called at the end)
+                    document.getElementById('kyc-field-form').reset();
+                    document.getElementById('kyc-field-form').dataset.mode = 'edit';
+                    document.getElementById('kyc-field-form').dataset.id = data.id;
+                    
+                    // Now populate the form with the fetched data
+                    document.getElementById('field-name').value = data.field_name;
+                    document.getElementById('internal-key').value = data.internal_key;
+                    document.getElementById('kyc-section').value = data.kyc_section;
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('data-type').value = data.data_type;
+                    document.getElementById('sensitivity-level').value = data.sensitivity_level;
+                    document.getElementById('sort-order').value = data.sort_order;
+                    
+                    // Toggle required
+                    const requiredToggle = document.getElementById('required-toggle');
+                    if (data.is_required) {
+                        requiredToggle.classList.add('active');
+                        document.getElementById('is-required').value = '1';
+                    } else {
+                        requiredToggle.classList.remove('active');
+                        document.getElementById('is-required').value = '0';
+                    }
+                    
+                    // Toggle status
+                    const statusToggle = document.getElementById('status-toggle');
+                    if (data.status === 'active') {
+                        statusToggle.classList.add('active');
+                        document.getElementById('status').value = 'active';
+                    } else {
+                        statusToggle.classList.remove('active');
+                        document.getElementById('status').value = data.status;
+                    }
+                    
+                    // Visibility checkboxes
+                    document.getElementById('visible-merchant').checked = data.visible_to_merchant;
+                    document.getElementById('visible-admin').checked = data.visible_to_admin;
+                    document.getElementById('visible-partner').checked = data.visible_to_partner;
+                    
+                    // Update drawer title
+                    document.getElementById('drawer-title').textContent = 'Edit KYC Field';
+                    
+                    // Now open the drawer (without calling resetForm)
+                    document.getElementById('kyc-field-drawer').classList.remove('drawer-closed');
+                    document.getElementById('kyc-field-drawer').classList.add('drawer-open');
+                    document.getElementById('drawer-overlay').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error loading KYC field', 'error');
+                });
+            }
+
+            function deleteKYCField(id, name) {
+                currentDeleteId = id;
+                document.getElementById('delete-field-name').textContent = name;
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+                currentDeleteId = null;
+            }
+
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                if (!currentDeleteId) return;
+                
+                fetch(`/admin/masters/kyc-fields/${currentDeleteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error deleting KYC field', 'error');
+                    closeDeleteModal();
+                });
+            });
+
+            document.getElementById('kyc-field-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const mode = this.dataset.mode;
+                const fieldId = this.dataset.id;
+                const url = mode === 'edit' ? `/admin/masters/kyc-fields/${fieldId}` : '/admin/masters/kyc-fields';
+                const method = mode === 'edit' ? 'PUT' : 'POST';
+                
+                // Prepare form data
+                const formData = new FormData(this);
+                formData.append('_method', method);
+                
+                // Ensure checkbox values are captured correctly
+                formData.set('is_required', document.getElementById('required-toggle').classList.contains('active') ? '1' : '0');
+                formData.set('visible_to_merchant', document.getElementById('visible-merchant').checked ? '1' : '0');
+                formData.set('visible_to_admin', document.getElementById('visible-admin').checked ? '1' : '0');
+                formData.set('visible_to_partner', document.getElementById('visible-partner').checked ? '1' : '0');
+                formData.set('status', document.getElementById('status-toggle').classList.contains('active') ? 'active' : 'draft');
+                
+                // Debug: Log form data
+                console.log('Form Mode:', mode);
+                console.log('Field ID:', fieldId);
+                console.log('URL:', url);
+                console.log('Form Data:', Object.fromEntries(formData));
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok && response.status !== 422) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else if (data.errors) {
+                        console.log('Validation errors:', data.errors);
+                        Object.keys(data.errors).forEach(field => {
+                            showNotification(`${field}: ${data.errors[field][0]}`, 'error');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification(error.message || 'Error saving KYC field', 'error');
+                });
+            });
+
+            // Handle save button click
+            document.getElementById('save-field-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('kyc-field-form').dispatchEvent(new Event('submit'));
+            });
+
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 max-w-sm px-6 py-4 rounded-lg shadow-lg text-white z-50 animate-fade-in ${
+                    type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, type === 'success' ? 3000 : 5000);
+            }
+
+            // Add CSRF token meta tag if not present
+            if (!document.querySelector('meta[name="csrf-token"]')) {
+                const meta = document.createElement('meta');
+                meta.name = 'csrf-token';
+                meta.content = '{{ csrf_token() }}';
+                document.head.appendChild(meta);
             }
         </script>
 

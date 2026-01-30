@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
 use App\Http\Controllers\Admin\AcquirerMasterController;
+use App\Http\Controllers\Admin\KYCFieldMasterController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
@@ -35,8 +36,9 @@ Route::prefix('admin')
                 Route::get('/acquirer-master', [AcquirerMasterController::class, 'index'])->name('acquirer-master');
                 Route::resource('payment-methods', \App\Http\Controllers\Admin\PaymentMethodMasterController::class);
                 Route::get('/payment-method-master', [\App\Http\Controllers\Admin\PaymentMethodMasterController::class, 'index'])->name('payment-method-master');
+                Route::resource('kyc-fields', KYCFieldMasterController::class);
+                Route::get('/kyc-field-master', [KYCFieldMasterController::class, 'index'])->name('kyc-field-master');
                 Route::get('/document-type-master', [MasterController::class, 'documentTypeMaster'])->name('document-type-master');
-                Route::get('/kyc-field-master', [MasterController::class, 'kycFieldMaster'])->name('kyc-field-master');
                 Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');
                 Route::resource('price-lists', \App\Http\Controllers\Admin\PriceListMasterController::class);
                 Route::get('/price-list-master', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'index'])->name('price-list-master');
