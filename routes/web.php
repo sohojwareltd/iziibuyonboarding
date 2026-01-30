@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
+use App\Http\Controllers\Admin\AcquirerMasterController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
@@ -30,7 +31,8 @@ Route::prefix('admin')
             ->group(function () {
                 Route::resource('solutions', SolutionMasterController::class);
                 Route::get('/solution-master', [SolutionMasterController::class, 'index'])->name('solution-master');
-                Route::get('/acquirer-master', [MasterController::class, 'acquirerMaster'])->name('acquirer-master');
+                Route::resource('acquirers', AcquirerMasterController::class);
+                Route::get('/acquirer-master', [AcquirerMasterController::class, 'index'])->name('acquirer-master');
                 Route::get('/payment-method-master', [MasterController::class, 'paymentMethodMaster'])->name('payment-method-master');
                 Route::get('/document-type-master', [MasterController::class, 'documentTypeMaster'])->name('document-type-master');
                 Route::get('/kyc-field-master', [MasterController::class, 'kycFieldMaster'])->name('kyc-field-master');
