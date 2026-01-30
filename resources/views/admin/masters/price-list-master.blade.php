@@ -65,131 +65,72 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-[#ececec]">
+                                    @forelse($priceLists as $priceList)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">Standard EU Retail</div>
-                                            <div class="text-xs text-gray-400 mt-0.5">EUR • Created by Admin</div>
+                                            <div class="font-medium text-brand-primary">{{ $priceList->name }}</div>
+                                            <div class="text-xs text-gray-400 mt-0.5">{{ $priceList->currency }} • Version {{ $priceList->version }}</div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="bg-[#eff6ff] text-[#1d4ed8] px-2.5 py-0.5 rounded-full text-xs font-medium">Merchant Selling Price</span>
+                                            <span class="bg-[#eff6ff] text-[#1d4ed8] px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                {{ str_replace('-', ' ', ucwords($priceList->type, '-')) }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#475569] px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit">
-                                                <i class="fa-solid fa-globe text-[10px]"></i>
-                                                Global
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-600">
-                                                <div>From: <span class="font-medium text-gray-900">Jan 01, 2024</span></div>
-                                                <div class="text-xs text-gray-400 mt-0.5">To: Indefinite</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-[#f0fdf4] border border-[#dcfce7] text-[#28a745] px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit">
-                                                <span class="w-1.5 h-1.5 bg-[#28a745] rounded-full"></span>
-                                                Active
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <button class="text-gray-400 hover:text-brand-primary p-2">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-500 p-2">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">Acquirer Cost - Chase US</div>
-                                            <div class="text-xs text-gray-400 mt-0.5">USD • Created by System</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-[#faf5ff] text-[#7e22ce] px-2.5 py-0.5 rounded-full text-xs font-medium">Acquirer Cost</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex gap-1 flex-wrap">
-                                                <span class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#475569] px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit">
-                                                    <i class="fa-solid fa-building text-[10px]"></i>
-                                                    Chase
-                                                </span>
-                                                <span class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#475569] px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit">
+                                                @if($priceList->assignment_level === 'global')
+                                                    <i class="fa-solid fa-globe text-[10px]"></i>
+                                                @elseif($priceList->assignment_level === 'country')
                                                     <i class="fa-solid fa-flag text-[10px]"></i>
-                                                    US
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-600">
-                                                <div>From: <span class="font-medium text-gray-900">Feb 01, 2024</span></div>
-                                                <div class="text-xs text-gray-400 mt-0.5">To: Dec 31, 2024</div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] px-2.5 py-0.5 rounded-full text-xs font-medium">Draft</span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <button class="text-gray-400 hover:text-brand-primary p-2">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-500 p-2">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">Partner Kickback - TechReseller</div>
-                                            <div class="text-xs text-gray-400 mt-0.5">GBP • Created by Admin</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-[#ecfdf5] text-[#047857] px-2.5 py-0.5 rounded-full text-xs font-medium">Partner Kickback</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#475569] px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit">
-                                                <i class="fa-solid fa-handshake text-[10px]"></i>
-                                                TechReseller
+                                                @elseif($priceList->assignment_level === 'solution')
+                                                    <i class="fa-solid fa-cube text-[10px]"></i>
+                                                @elseif($priceList->assignment_level === 'acquirer')
+                                                    <i class="fa-solid fa-building text-[10px]"></i>
+                                                @else
+                                                    <i class="fa-solid fa-store text-[10px]"></i>
+                                                @endif
+                                                {{ ucfirst($priceList->assignment_level) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-sm text-gray-600">
-                                                <div>From: <span class="font-medium text-gray-900">Mar 15, 2023</span></div>
-                                                <div class="text-xs text-gray-400 mt-0.5">To: Indefinite</div>
+                                                <div>From: <span class="font-medium text-gray-900">{{ optional($priceList->effective_from)->format('M d, Y') ?? '—' }}</span></div>
+                                                <div class="text-xs text-gray-400 mt-0.5">To: {{ optional($priceList->effective_to)->format('M d, Y') ?? 'Indefinite' }}</div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="bg-[#ececec] border border-[#d1d5db] text-[#64748b] px-2.5 py-0.5 rounded-full text-xs font-medium">Expired</span>
+                                            <span class="@if($priceList->status === 'active') bg-[#f0fdf4] border border-[#dcfce7] text-[#28a745] @elseif($priceList->status === 'draft') bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] @else bg-[#ececec] border border-[#d1d5db] text-[#64748b] @endif px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                {{ ucfirst($priceList->status) }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <button class="text-gray-400 hover:text-brand-primary p-2">
+                                                <button onclick="editPriceList({{ $priceList->id }})" class="text-gray-400 hover:text-brand-primary p-2">
                                                     <i class="fa-solid fa-pen text-sm"></i>
                                                 </button>
-                                                <button class="text-gray-400 hover:text-red-500 p-2">
+                                                <button onclick="deletePriceList({{ $priceList->id }}, '{{ $priceList->name }}')" class="text-gray-400 hover:text-red-500 p-2">
                                                     <i class="fa-solid fa-trash text-sm"></i>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                            <p class="text-sm">No price lists found. Create one to get started.</p>
+                                        </td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
 
                             <!-- Pagination -->
                             <div class="bg-white border-t border-gray-200 px-4 py-4 flex items-center justify-between">
                                 <div class="text-sm text-gray-500">
-                                    Showing <span class="font-medium text-gray-900">1</span> to <span class="font-medium text-gray-900">10</span> of <span class="font-medium text-gray-900">45</span> results
+                                    Showing <span class="font-medium text-gray-900">{{ ($priceLists->currentPage() - 1) * $priceLists->perPage() + 1 }}</span> to <span class="font-medium text-gray-900">{{ min($priceLists->currentPage() * $priceLists->perPage(), $priceLists->total()) }}</span> of <span class="font-medium text-gray-900">{{ $priceLists->total() }}</span> results
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm opacity-50 cursor-not-allowed">Previous</button>
-                                    <button class="bg-brand-primary text-white px-3 py-1.5 rounded text-sm">1</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">2</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">3</button>
-                                    <button class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">Next</button>
+                                    {{ $priceLists->links('pagination::tailwind') }}
                                 </div>
                             </div>
                         </div>
@@ -203,15 +144,22 @@
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-brand-primary">Add Price List</h2>
+                    <h2 class="text-lg font-semibold text-brand-primary" id="drawer-title">Add Price List</h2>
                     <button onclick="closeDrawer()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
                 <!-- Drawer Content -->
-                <div class="flex-1 overflow-y-auto bg-[#f7f8fa] p-6">
-                    <div class="space-y-8">
+                <form id="price-list-form" class="flex-1 overflow-y-auto bg-[#f7f8fa] p-6 flex flex-col">
+                    <input type="hidden" id="assignment_level" name="assignment_level" value="global">
+                    <input type="hidden" id="assignment_rules" name="assignment_rules" value="[]">
+                    <input type="hidden" id="price_lines" name="price_lines" value="[]">
+                    <input type="hidden" id="version" name="version" value="1.0">
+                    <input type="hidden" id="effective_from" name="effective_from" value="">
+                    <input type="hidden" id="effective_to" name="effective_to" value="">
+
+                    <div class="space-y-8 flex-1">
                         <!-- Section 1: Price List Information -->
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
                             <div class="flex items-center gap-3 mb-4">
@@ -226,7 +174,7 @@
                                     <label class="block text-xs font-semibold text-gray-600 uppercase mb-1.5">
                                         Price List Name <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" class="form-input" placeholder="e.g. Standard Merchant Pricing 2025">
+                                    <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Standard Merchant Pricing 2025" required>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 gap-4">
@@ -234,7 +182,7 @@
                                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1.5">
                                             Type <span class="text-red-500">*</span>
                                         </label>
-                                        <select class="form-input">
+                                        <select id="type" name="type" class="form-input" required>
                                             <option value="">Select type</option>
                                             <option value="merchant-selling">Merchant Selling Price</option>
                                             <option value="acquirer-cost">Acquirer Cost</option>
@@ -246,7 +194,7 @@
                                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1.5">
                                             Currency <span class="text-red-500">*</span>
                                         </label>
-                                        <select class="form-input">
+                                        <select id="currency" name="currency" class="form-input" required>
                                             <option value="">Select currency</option>
                                             <option value="EUR">EUR - Euro</option>
                                             <option value="USD">USD - US Dollar</option>
@@ -322,7 +270,7 @@
                                     </div>
                                     <h3 class="text-base font-medium text-gray-900">Price List Lines</h3>
                                 </div>
-                                <button onclick="addPriceLine()" class="text-[#4055a8] text-xs font-medium flex items-center gap-1 hover:text-[#2d3a74]">
+                                <button type="button" onclick="addPriceLine()" class="text-[#4055a8] text-xs font-medium flex items-center gap-1 hover:text-[#2d3a74]">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                     Add Line
                                 </button>
@@ -342,26 +290,26 @@
                                     <tbody id="price-lines-tbody">
                                         <tr class="border-b border-[#ececec]">
                                             <td class="px-3 py-2">
-                                                <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5">
+                                                <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-method">
                                                     <option>Visa Credit</option>
                                                     <option>Mastercard</option>
                                                     <option>Amex</option>
                                                 </select>
                                             </td>
                                             <td class="px-3 py-2">
-                                                <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5">
+                                                <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-type">
                                                     <option>Card Present</option>
                                                     <option>Card Not Present</option>
                                                 </select>
                                             </td>
                                             <td class="px-3 py-2">
-                                                <input type="text" class="form-input text-sm py-1.5" placeholder="2.50" value="2.50">
+                                                <input type="text" class="form-input text-sm py-1.5 price-line-percent" placeholder="2.50" value="2.50">
                                             </td>
                                             <td class="px-3 py-2">
-                                                <input type="text" class="form-input text-sm py-1.5" placeholder="0.25" value="0.25">
+                                                <input type="text" class="form-input text-sm py-1.5 price-line-fixed" placeholder="0.25" value="0.25">
                                             </td>
                                             <td class="px-3 py-2 text-center">
-                                                <button onclick="removePriceLine(this)" class="text-gray-400 hover:text-red-500">
+                                                <button type="button" onclick="removePriceLine(this)" class="text-gray-400 hover:text-red-500">
                                                     <i class="fa-solid fa-trash text-xs"></i>
                                                 </button>
                                             </td>
@@ -388,7 +336,7 @@
                                 
                                 <div>
                                     <label class="block text-xs font-semibold text-[#64748b] mb-1">Created On</label>
-                                    <input type="text" class="form-input bg-[#f7f8fa] border-gray-200" value="Dec 15, 2024" disabled>
+                                    <input type="text" class="form-input bg-[#f7f8fa] border-gray-200" value="{{ now()->format('M d, Y') }}" disabled>
                                 </div>
                             </div>
                         </div>
@@ -397,13 +345,34 @@
 
                 <!-- Drawer Footer -->
                 <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white">
-                    <button onclick="closeDrawer()" class="text-[#4055a8] font-medium hover:text-[#2d3a74]">Cancel</button>
+                    <button type="button" onclick="closeDrawer()" class="text-[#4055a8] font-medium hover:text-[#2d3a74]">Cancel</button>
                     <div class="flex gap-3">
-                        <button class="border-2 border-brand-accent text-brand-accent px-5 py-2.5 rounded-lg font-medium hover:bg-orange-50 transition-colors">
-                            Save Draft
-                        </button>
-                        <button class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
+                        <button type="submit" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
                             Save Price List
+                        </button>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
+                        <i class="fa-solid fa-trash-can text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-primary text-center mb-2">Delete Price List</h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Are you sure you want to delete <span id="delete-price-list-name" class="font-semibold text-brand-primary"></span>? This action cannot be undone.
+                    </p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="button" onclick="confirmDelete()" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-sm">
+                            <i class="fa-solid fa-trash-can mr-2"></i>Delete
                         </button>
                     </div>
                 </div>
@@ -416,7 +385,12 @@
 
 @push('scripts')
     <script>
+        let deletePriceListId = null;
+
         function openDrawer() {
+            resetForm();
+            document.getElementById('drawer-title').textContent = 'Add Price List';
+            document.getElementById('price-list-form').dataset.mode = 'create';
             document.getElementById('price-list-drawer').classList.remove('drawer-closed');
             document.getElementById('price-list-drawer').classList.add('drawer-open');
             document.getElementById('drawer-overlay').classList.remove('hidden');
@@ -426,15 +400,32 @@
             document.getElementById('price-list-drawer').classList.remove('drawer-open');
             document.getElementById('price-list-drawer').classList.add('drawer-closed');
             document.getElementById('drawer-overlay').classList.add('hidden');
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('price-list-form').reset();
+            document.getElementById('assignment_level').value = 'global';
+            document.getElementById('assignment_rules').value = '[]';
+            document.getElementById('price_lines').value = '[]';
+            document.getElementById('version').value = '1.0';
+            document.getElementById('effective_from').value = '';
+            document.getElementById('effective_to').value = '';
+
+            document.querySelectorAll('.assignment-level-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.assignment-level-btn')?.classList.add('active');
+
+            const tbody = document.getElementById('price-lines-tbody');
+            tbody.innerHTML = '';
+            addPriceLine();
         }
 
         function setAssignmentLevel(button, level) {
-            // Remove active class from all buttons
             document.querySelectorAll('.assignment-level-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            // Add active class to clicked button
             button.classList.add('active');
+            document.getElementById('assignment_level').value = level;
         }
 
         function addPriceLine() {
@@ -443,26 +434,26 @@
             newRow.className = 'border-b border-[#ececec]';
             newRow.innerHTML = `
                 <td class="px-3 py-2">
-                    <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5">
+                    <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-method">
                         <option>Visa Credit</option>
                         <option>Mastercard</option>
                         <option>Amex</option>
                     </select>
                 </td>
                 <td class="px-3 py-2">
-                    <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5">
+                    <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-type">
                         <option>Card Present</option>
                         <option>Card Not Present</option>
                     </select>
                 </td>
                 <td class="px-3 py-2">
-                    <input type="text" class="form-input text-sm py-1.5" placeholder="0.00">
+                    <input type="text" class="form-input text-sm py-1.5 price-line-percent" placeholder="0.00">
                 </td>
                 <td class="px-3 py-2">
-                    <input type="text" class="form-input text-sm py-1.5" placeholder="0.00">
+                    <input type="text" class="form-input text-sm py-1.5 price-line-fixed" placeholder="0.00">
                 </td>
                 <td class="px-3 py-2 text-center">
-                    <button onclick="removePriceLine(this)" class="text-gray-400 hover:text-red-500">
+                    <button type="button" onclick="removePriceLine(this)" class="text-gray-400 hover:text-red-500">
                         <i class="fa-solid fa-trash text-xs"></i>
                     </button>
                 </td>
@@ -472,6 +463,188 @@
 
         function removePriceLine(button) {
             button.closest('tr').remove();
+        }
+
+        function collectPriceLines() {
+            const rows = document.querySelectorAll('#price-lines-tbody tr');
+            const lines = [];
+            rows.forEach(row => {
+                const method = row.querySelector('.price-line-method')?.value || '';
+                const lineType = row.querySelector('.price-line-type')?.value || '';
+                const percentFee = row.querySelector('.price-line-percent')?.value || '';
+                const fixedFee = row.querySelector('.price-line-fixed')?.value || '';
+
+                if (method || lineType || percentFee || fixedFee) {
+                    lines.push({
+                        payment_method: method,
+                        line_type: lineType,
+                        percent_fee: percentFee === '' ? null : parseFloat(percentFee),
+                        fixed_fee: fixedFee === '' ? null : parseFloat(fixedFee),
+                    });
+                }
+            });
+            return lines;
+        }
+
+        function editPriceList(id) {
+            fetch(`{{ url('admin/masters/price-lists') }}/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        populateForm(data.data);
+                        document.getElementById('drawer-title').textContent = 'Edit Price List';
+                        document.getElementById('price-list-form').dataset.mode = 'edit';
+                        document.getElementById('price-list-form').dataset.id = id;
+                        document.getElementById('price-list-drawer').classList.remove('drawer-closed');
+                        document.getElementById('price-list-drawer').classList.add('drawer-open');
+                        document.getElementById('drawer-overlay').classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error loading price list', 'error');
+                });
+        }
+
+        function populateForm(data) {
+            document.getElementById('name').value = data.name || '';
+            document.getElementById('type').value = data.type || '';
+            document.getElementById('currency').value = data.currency || '';
+            document.querySelectorAll('input[name="status"]').forEach(radio => {
+                radio.checked = radio.value === (data.status || 'active');
+            });
+
+            document.getElementById('assignment_level').value = data.assignment_level || 'global';
+            document.querySelectorAll('.assignment-level-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.assignment-level-btn[onclick*="'${data.assignment_level || 'global'}'"]`)?.classList.add('active');
+
+            document.getElementById('assignment_rules').value = JSON.stringify(data.assignment_rules || []);
+            document.getElementById('version').value = data.version || '1.0';
+            document.getElementById('effective_from').value = data.effective_from || '';
+            document.getElementById('effective_to').value = data.effective_to || '';
+
+            const tbody = document.getElementById('price-lines-tbody');
+            tbody.innerHTML = '';
+            const lines = data.price_lines || [];
+            if (lines.length === 0) {
+                addPriceLine();
+            } else {
+                lines.forEach(line => {
+                    addPriceLine();
+                    const row = tbody.lastElementChild;
+                    row.querySelector('.price-line-method').value = line.payment_method || '';
+                    row.querySelector('.price-line-type').value = line.line_type || '';
+                    row.querySelector('.price-line-percent').value = line.percent_fee ?? '';
+                    row.querySelector('.price-line-fixed').value = line.fixed_fee ?? '';
+                });
+            }
+        }
+
+        function deletePriceList(id, name) {
+            deletePriceListId = id;
+            document.getElementById('delete-price-list-name').textContent = name;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deletePriceListId = null;
+        }
+
+        function confirmDelete() {
+            if (!deletePriceListId) return;
+
+            fetch(`{{ url('admin/masters/price-lists') }}/${deletePriceListId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    showNotification('Price list deleted successfully', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    closeDeleteModal();
+                    showNotification(data.message || 'Error deleting price list', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                closeDeleteModal();
+                showNotification('Error deleting price list', 'error');
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg text-white max-w-md z-[100] ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.style.whiteSpace = 'pre-wrap';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), type === 'success' ? 3000 : 5000);
+        }
+
+        document.getElementById('price-list-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const mode = this.dataset.mode;
+            const id = this.dataset.id;
+            const formData = new FormData(this);
+
+            const priceLines = collectPriceLines();
+            formData.set('price_lines', JSON.stringify(priceLines));
+
+            let url;
+            let method = 'POST';
+
+            if (mode === 'create') {
+                url = '{{ url("admin/masters/price-lists") }}';
+            } else {
+                url = `{{ url('admin/masters/price-lists') }}/${id}`;
+                formData.append('_method', 'PUT');
+            }
+
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}');
+
+            fetch(url, {
+                method: method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    if (data.errors) {
+                        let errorMsg = 'Validation errors:\n';
+                        for (let field in data.errors) {
+                            errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
+                        }
+                        showNotification(errorMsg, 'error');
+                    } else {
+                        showNotification(data.message || 'Error saving price list', 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error saving price list: ' + error.message, 'error');
+            });
+        });
+
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'csrf-token');
+            meta.setAttribute('content', '{{ csrf_token() }}');
+            document.head.appendChild(meta);
         }
     </script>
 @endpush
