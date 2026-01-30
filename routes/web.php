@@ -33,7 +33,8 @@ Route::prefix('admin')
                 Route::get('/solution-master', [SolutionMasterController::class, 'index'])->name('solution-master');
                 Route::resource('acquirers', AcquirerMasterController::class);
                 Route::get('/acquirer-master', [AcquirerMasterController::class, 'index'])->name('acquirer-master');
-                Route::get('/payment-method-master', [MasterController::class, 'paymentMethodMaster'])->name('payment-method-master');
+                Route::resource('payment-methods', \App\Http\Controllers\Admin\PaymentMethodMasterController::class);
+                Route::get('/payment-method-master', [\App\Http\Controllers\Admin\PaymentMethodMasterController::class, 'index'])->name('payment-method-master');
                 Route::get('/document-type-master', [MasterController::class, 'documentTypeMaster'])->name('document-type-master');
                 Route::get('/kyc-field-master', [MasterController::class, 'kycFieldMaster'])->name('kyc-field-master');
                 Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');

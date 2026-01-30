@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             SolutionMasterSeeder::class,
             AcquirerMasterSeeder::class,
+            PaymentMethodMasterSeeder::class,
         ]);
 
         // User::factory(10)->create();
