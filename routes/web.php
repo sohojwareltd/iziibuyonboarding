@@ -38,7 +38,8 @@ Route::prefix('admin')
                 Route::get('/payment-method-master', [\App\Http\Controllers\Admin\PaymentMethodMasterController::class, 'index'])->name('payment-method-master');
                 Route::resource('kyc-fields', KYCFieldMasterController::class);
                 Route::get('/kyc-field-master', [KYCFieldMasterController::class, 'index'])->name('kyc-field-master');
-                Route::get('/document-type-master', [MasterController::class, 'documentTypeMaster'])->name('document-type-master');
+                Route::resource('document-types', \App\Http\Controllers\Admin\DocumentTypesMasterController::class);
+                Route::get('/document-type-master', [\App\Http\Controllers\Admin\DocumentTypesMasterController::class, 'index'])->name('document-type-master');
                 Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');
                 Route::resource('price-lists', \App\Http\Controllers\Admin\PriceListMasterController::class);
                 Route::get('/price-list-master', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'index'])->name('price-list-master');
