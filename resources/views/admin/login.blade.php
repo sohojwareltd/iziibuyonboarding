@@ -169,22 +169,28 @@
                     <div class="text-xs text-brand-textSubtle mb-3">
                         Local login is for internal testing only.
                     </div>
-                    <div class="space-y-3">
+                    @if ($errors->any())
+                        <div class="mb-3 text-xs text-red-600">
+                            {{ $errors->first() }}
+                        </div>
+                    @endif
+                    <form method="POST" action="{{ route('admin.login.submit') }}" class="space-y-3">
+                        @csrf
                         <div>
                             <label class="block text-xs font-medium text-brand-textSubtle mb-1">Email</label>
-                            <input type="email" placeholder="admin@example.com"
+                            <input type="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com"
                                    class="w-full h-10 px-3 border border-[#D0D0D0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-brand-textSubtle mb-1">Password</label>
-                            <input type="password" placeholder="••••••••"
+                            <input type="password" name="password" placeholder="••••••••"
                                    class="w-full h-10 px-3 border border-[#D0D0D0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
                         </div>
-                        <button type="button"
+                        <button type="submit"
                                 class="w-full h-10 bg-brand-dark text-white rounded-md text-sm font-medium hover:bg-brand-accent transition-colors">
-                            Sign in (Local)
+                            Sign in (Admin)
                         </button>
-                    </div>
+                    </form>
                 </div>
             </div>
 
