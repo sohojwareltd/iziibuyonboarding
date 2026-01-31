@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\KYCFieldMasterController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
-    return view('merchant.kyc.welcome');
+    return redirect()->route('admin.login');
 });
 
 Route::prefix('admin')

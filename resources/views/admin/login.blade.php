@@ -159,10 +159,32 @@
 
                 {{-- Local credentials link --}}
                 <div class="mt-5 text-center">
-                    <button type="button"
+                    <button type="button" id="local-login-toggle"
                             class="text-sm font-medium text-[#4055A8] underline underline-offset-2">
                         Use Local Admin Credentials (Internal Only)
                     </button>
+                </div>
+
+                <div id="local-login-panel" class="hidden mt-4 border border-[#E5E7EB] rounded-lg p-4 bg-[#FAFAFB]">
+                    <div class="text-xs text-brand-textSubtle mb-3">
+                        Local login is for internal testing only.
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-brand-textSubtle mb-1">Email</label>
+                            <input type="email" placeholder="admin@example.com"
+                                   class="w-full h-10 px-3 border border-[#D0D0D0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-brand-textSubtle mb-1">Password</label>
+                            <input type="password" placeholder="••••••••"
+                                   class="w-full h-10 px-3 border border-[#D0D0D0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
+                        </div>
+                        <button type="button"
+                                class="w-full h-10 bg-brand-dark text-white rounded-md text-sm font-medium hover:bg-brand-accent transition-colors">
+                            Sign in (Local)
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -176,5 +198,15 @@
         </section>
     </div>
 </body>
+<script>
+    const localToggle = document.getElementById('local-login-toggle');
+    const localPanel = document.getElementById('local-login-panel');
+
+    if (localToggle && localPanel) {
+        localToggle.addEventListener('click', () => {
+            localPanel.classList.toggle('hidden');
+        });
+    }
+</script>
 @endsection
 
