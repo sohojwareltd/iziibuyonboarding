@@ -98,7 +98,7 @@
                                     Merchant
                                 </div>
                                 <div class="text-base font-semibold text-[#2d3a74] truncate">
-                                    Global Retail Solutions Ltd.
+                                    {{ $onboarding?->legal_business_name ?? 'Global Retail Solutions Ltd.' }}
                                 </div>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                                     Solution Selected
                                 </div>
                                 <div class="text-base font-semibold text-[#2d3a74]">
-                                    OnePOS Integrated
+                                    {{ $onboarding?->solution?->name ?? 'OnePOS Integrated' }}
                                 </div>
                             </div>
                         </div>
@@ -128,14 +128,23 @@
                         Your Payment Partners
                     </label>
                     <div class="flex flex-wrap gap-3">
-                        <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
-                            <i class="fa-solid fa-building text-[#374151] text-sm"></i>
-                            <span class="text-sm font-medium text-[#374151]">Elavon</span>
-                        </div>
-                        <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
-                            <i class="fa-solid fa-water text-[#374151] text-sm"></i>
-                            <span class="text-sm font-medium text-[#374151]">Surfboard</span>
-                        </div>
+                        @if($onboarding && $onboarding->acquirers)
+                            @foreach($onboarding->acquirers as $acquirer)
+                                <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-building text-[#374151] text-sm"></i>
+                                    <span class="text-sm font-medium text-[#374151]">{{ $acquirer }}</span>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
+                                <i class="fa-solid fa-building text-[#374151] text-sm"></i>
+                                <span class="text-sm font-medium text-[#374151]">Elavon</span>
+                            </div>
+                            <div class="bg-[#f3f4f6] border border-[#e5e7eb] rounded-full px-4 py-2 flex items-center gap-2">
+                                <i class="fa-solid fa-water text-[#374151] text-sm"></i>
+                                <span class="text-sm font-medium text-[#374151]">Surfboard</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -144,7 +153,7 @@
 
                 <!-- CTA Button -->
                 <div class="space-y-4">
-                    <a href="{{ route('merchant.kyc.company') }}" 
+                    <a href="{{ route('merchant.kyc.company', ['kyc_link' => $kyc_link ?? $onboarding?->kyc_link]) }}" 
                        class="w-full bg-[#FF7C00] hover:bg-[#E56D00] text-white font-semibold text-base py-3 px-8 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2 group">
                         <span>Start Your KYC Application</span>
                         <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>

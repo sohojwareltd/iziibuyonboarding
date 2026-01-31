@@ -420,10 +420,10 @@
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
                                                 <button onclick="editPriceList({{ $priceList->id }})" class="text-gray-400 hover:text-brand-primary p-2">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
+                                                    <i class="fa-solid fa-pen text-sm"></i> Edit
                                                 </button>
                                                 <button onclick="deletePriceList({{ $priceList->id }}, '{{ $priceList->name }}')" class="text-gray-400 hover:text-red-500 p-2">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
+                                                    <i class="fa-solid fa-trash text-sm"></i> Delete
                                                 </button>
                                             </div>
                                         </td>

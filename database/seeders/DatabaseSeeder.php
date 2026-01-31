@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             PriceListMasterSeeder::class,
             KYCFieldMasterSeeder::class,
             DocumentTypesMasterSeeder::class,
+            PartnerSeeder::class,
+            OnboardingSeeder::class,
         ]);
 
         // User::factory(10)->create();

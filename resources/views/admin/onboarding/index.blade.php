@@ -140,51 +140,53 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acquirer(s)</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($onboardings as $onboarding)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TechFlow Solutions</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">FinancePartner</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">E-commerce Gateway</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Stripe, PayPal</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $onboarding->legal_business_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->partner->title ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->solution->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->acquirer_names }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Submitted</span>
+                                        @php
+                                            $statusColors = [
+                                                'draft' => 'bg-gray-100 text-gray-800',
+                                                'sent' => 'bg-blue-100 text-blue-800',
+                                                'in-review' => 'bg-yellow-100 text-yellow-800',
+                                                'approved' => 'bg-green-100 text-green-800',
+                                                'active' => 'bg-green-100 text-green-800',
+                                                'rejected' => 'bg-red-100 text-red-800',
+                                                'suspended' => 'bg-orange-100 text-orange-800',
+                                            ];
+                                            $statusClass = $statusColors[$onboarding->status] ?? 'bg-gray-100 text-gray-800';
+                                        @endphp
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $statusClass }}">{{ ucfirst(str_replace('-', ' ', $onboarding->status)) }}</span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Digital Commerce Ltd</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">PaymentHub</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mobile Payments</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Square</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Started</span>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->updated_at->diffForHumans() }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                                        <a href="{{ route('admin.onboarding.edit', $onboarding) }}" class="text-brand-primary hover:text-brand-secondary font-medium">Edit</a>
+                                        <form method="POST" action="{{ route('admin.onboarding.destroy', $onboarding) }}" class="inline-block" onsubmit="return confirm('Sure?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                                        </form>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4 hours ago</td>
                                 </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Retail Express Inc</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MerchantGateway</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">POS Integration</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adyen</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                        No onboarding requests found. <a href="{{ route('admin.onboarding.create') }}" class="text-brand-primary font-medium">Create one</a>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1 day ago</td>
                                 </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Global Trade Co</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">FinancePartner</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">International Gateway</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WorldPay, Stripe</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending More Info</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 days ago</td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        {{ $onboardings->links() }}
                     </div>
                 </section>
             </div>

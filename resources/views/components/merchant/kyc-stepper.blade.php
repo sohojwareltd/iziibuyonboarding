@@ -1,8 +1,11 @@
 @props([
     'active' => null,
+    'kycLink' => null,
 ])
 
 @php
+    $kycLink = $kycLink ?? request()->route('kyc_link');
+
     $steps = [
         1 => 'Company Information',
         2 => 'Beneficial Owners',
@@ -52,9 +55,10 @@
                     $isActive = $active === $num;
                     $isCompleted = $num < $active;
                     $routeName = $stepRoutes[$num] ?? null;
+                    $routeParams = $routeName ? ['kyc_link' => $kycLink] : [];
                 @endphp
                 <li class="relative group {{ $isActive ? 'bg-orange-50/50 border-l-4 border-accent' : '' }}">
-                    <a href="{{ $routeName ? route($routeName) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white">
+                    <a href="{{ $routeName ? route($routeName, $routeParams) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white">
                         <span class="flex items-center justify-center w-6 h-6 rounded-full {{ $isCompleted ? 'bg-green-100 text-success' : ($isActive ? 'bg-white border border-gray-step flex h-6 items-center justify-center mr-3 rounded-full text-gray-step text-xs w-6' : 'border border-gray-step text-gray-step bg-white') }} mr-3 text-xs">
                             @if($isCompleted)
                                 <i class="fa-solid fa-check text-xs"></i>

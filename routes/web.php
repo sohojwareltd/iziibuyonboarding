@@ -23,8 +23,13 @@ Route::prefix('admin')
             ->name('onboarding.')
             ->group(function () {
                 Route::get('/', [OnboardingController::class, 'index'])->name('index');
+                Route::get('/create', [OnboardingController::class, 'create'])->name('create');
+                Route::post('/', [OnboardingController::class, 'store'])->name('store');
                 Route::get('/start', [OnboardingController::class, 'start'])->name('start');
                 Route::get('/track', [OnboardingController::class, 'track'])->name('track');
+                Route::get('/{onboarding}/edit', [OnboardingController::class, 'edit'])->name('edit');
+                Route::put('/{onboarding}', [OnboardingController::class, 'update'])->name('update');
+                Route::delete('/{onboarding}', [OnboardingController::class, 'destroy'])->name('destroy');
             });
 
         Route::prefix('masters')
@@ -48,7 +53,7 @@ Route::prefix('admin')
                 Route::get('/price-list-master', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'index'])->name('price-list-master');
                 Route::get('/price-list-master/export', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'export'])->name('price-list-master.export');
             });
-            
+
         Route::resource('categories', CategoryController::class);
     });
 
@@ -58,15 +63,15 @@ Route::prefix('merchant')
         Route::prefix('kyc')
             ->name('kyc.')
             ->group(function () {
-                Route::get('/', [KycController::class, 'welcome'])->name('welcome');
-                Route::get('/company', [KycController::class, 'company'])->name('company');
-                Route::get('/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
-                Route::get('/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
-                Route::get('/contact-person', [KycController::class, 'contactPerson'])->name('contactPerson');
-                Route::get('/purpose-of-service', [KycController::class, 'purposeOfService'])->name('purposeOfService');
-                Route::get('/sales-channels', [KycController::class, 'salesChannels'])->name('salesChannels');
-                Route::get('/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
-                Route::get('/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
-                Route::get('/review', [KycController::class, 'review'])->name('review');
+                Route::get('/{kyc_link}', [KycController::class, 'welcome'])->name('start');
+                Route::get('/{kyc_link}/company', [KycController::class, 'company'])->name('company');
+                Route::get('/{kyc_link}/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
+                Route::get('/{kyc_link}/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
+                Route::get('/{kyc_link}/contact-person', [KycController::class, 'contactPerson'])->name('contactPerson');
+                Route::get('/{kyc_link}/purpose-of-service', [KycController::class, 'purposeOfService'])->name('purposeOfService');
+                Route::get('/{kyc_link}/sales-channels', [KycController::class, 'salesChannels'])->name('salesChannels');
+                Route::get('/{kyc_link}/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
+                Route::get('/{kyc_link}/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
+                Route::get('/{kyc_link}/review', [KycController::class, 'review'])->name('review');
             });
     });

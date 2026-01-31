@@ -60,7 +60,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.company') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.company', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
@@ -106,7 +106,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.beneficialOwners') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.beneficialOwners', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 pt-12 sm:pt-6">
@@ -173,7 +173,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.contactPerson') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.contactPerson', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
@@ -211,7 +211,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.purposeOfService') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.purposeOfService', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
@@ -250,7 +250,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
@@ -283,7 +283,7 @@
                     <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                 </div>
                 <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation') }}">
+                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}">
                         <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                     </button>
                     <div class="p-4 sm:p-6 mt-8 sm:mt-0">
@@ -379,7 +379,7 @@
         <footer id="footer"
             class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
             <div class="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-                <a href="{{ route('merchant.kyc.authorizedSignatories') }}"
+                <a href="{{ route('merchant.kyc.authorizedSignatories', ['kyc_link' => $kyc_link]) }}"
                     class="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-brand-dark text-brand-dark bg-white hover:bg-gray-50 font-medium text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span>Back</span>

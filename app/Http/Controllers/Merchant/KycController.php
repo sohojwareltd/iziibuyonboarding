@@ -3,58 +3,62 @@
 namespace App\Http\Controllers\Merchant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Onboarding;
 use Illuminate\View\View;
 
 class KycController extends Controller
 {
-    public function welcome(): View
+    public function welcome($kyc_link = null): View
     {
-        return view('merchant.kyc.welcome');
+        $onboarding = null;
+        if ($kyc_link) {
+            $onboarding = Onboarding::where('kyc_link', $kyc_link)->with('solution')->firstOrFail();
+        }
+        return view('merchant.kyc.welcome', ['onboarding' => $onboarding, 'kyc_link' => $kyc_link]);
     }
 
-    public function company(): View
+    public function company($kyc_link = null): View
     {
-        return view('merchant.kyc.company');
+        return view('merchant.kyc.company', ['kyc_link' => $kyc_link]);
     }
 
-    public function beneficialOwners(): View
+    public function beneficialOwners($kyc_link = null): View
     {
-        return view('merchant.kyc.beneficial-owners');
+        return view('merchant.kyc.beneficial-owners', ['kyc_link' => $kyc_link]);
     }
 
-    public function boardMembers(): View
+    public function boardMembers($kyc_link = null): View
     {
-        return view('merchant.kyc.board-members');
+        return view('merchant.kyc.board-members', ['kyc_link' => $kyc_link]);
     }
 
-    public function contactPerson(): View
+    public function contactPerson($kyc_link = null): View
     {
-        return view('merchant.kyc.contact-person');
+        return view('merchant.kyc.contact-person', ['kyc_link' => $kyc_link]);
     }
 
-    public function purposeOfService(): View
+    public function purposeOfService($kyc_link = null): View
     {
-        return view('merchant.kyc.purpose-of-service');
+        return view('merchant.kyc.purpose-of-service', ['kyc_link' => $kyc_link]);
     }
 
-    public function salesChannels(): View
+    public function salesChannels($kyc_link = null): View
     {
-        return view('merchant.kyc.sales-channels');
+        return view('merchant.kyc.sales-channels', ['kyc_link' => $kyc_link]);
     }
 
-    public function bankInformation(): View
+    public function bankInformation($kyc_link = null): View
     {
-        return view('merchant.kyc.bank-information');
+        return view('merchant.kyc.bank-information', ['kyc_link' => $kyc_link]);
     }
 
-    public function authorizedSignatories(): View
+    public function authorizedSignatories($kyc_link = null): View
     {
-        return view('merchant.kyc.authorized-signatories');
+        return view('merchant.kyc.authorized-signatories', ['kyc_link' => $kyc_link]);
     }
 
-    public function review(): View
+    public function review($kyc_link = null): View
     {
-        return view('merchant.kyc.review');
+        return view('merchant.kyc.review', ['kyc_link' => $kyc_link]);
     }
 }
-

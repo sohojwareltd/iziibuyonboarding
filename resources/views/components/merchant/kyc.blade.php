@@ -1,3 +1,9 @@
+@props([
+    'kyc_link' => null,
+])
+@php
+    $kyc_link = $kyc_link ?? request()->route('kyc_link');
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -53,7 +59,7 @@
     <!-- Mobile Overlay -->
     <div id="mobile-overlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity"></div> --}}
 
-    <x-merchant.kyc-stepper  />
+    <x-merchant.kyc-stepper :kycLink="$kyc_link" />
 
     <main id="main-content" class="flex-1 h-full overflow-y-auto pb-32 sm:pb-24 w-full">
         <div class="max-w-[900px] mx-auto bg-white p-4 sm:p-6 md:p-12 min-h-full">
