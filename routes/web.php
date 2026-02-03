@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
 use App\Http\Controllers\Admin\AcquirerMasterController;
 use App\Http\Controllers\Admin\KYCFieldMasterController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
@@ -64,6 +65,9 @@ Route::prefix('admin')
                 });
 
             Route::resource('categories', CategoryController::class);
+            
+            // User Management Routes
+            Route::resource('users', UserController::class);
         });
     });
 

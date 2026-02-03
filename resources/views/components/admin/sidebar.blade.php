@@ -167,7 +167,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                    <a href="{{ route('admin.users.index') }}" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
                         <i class="fa-solid fa-users w-5 mr-3"></i>User Management
                     </a>
                 </li>
