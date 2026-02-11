@@ -34,6 +34,17 @@ class PaymentMethodMaster extends Model
         'requires_acquirer_configuration' => 'boolean',
     ];
 
+    public function countries()
+    {
+        return $this->belongsToMany(
+            Country::class,
+            'country_payment_method_master',
+            'payment_method_id',
+            'country_id'
+        )->withTimestamps();
+    }
+
+
     /**
      * Override getAttributeValue to automatically decode JSON strings to arrays
      */

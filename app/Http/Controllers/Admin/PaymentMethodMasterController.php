@@ -7,6 +7,7 @@ use App\Models\PaymentMethodMaster;
 use App\Models\AcquirerMaster;
 use App\Models\SolutionMaster;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class PaymentMethodMasterController extends Controller
@@ -16,7 +17,7 @@ class PaymentMethodMasterController extends Controller
      */
     public function index()
     {
-        $query = PaymentMethodMaster::query();
+        $query = PaymentMethodMaster::with('countries');
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
@@ -35,73 +36,36 @@ class PaymentMethodMasterController extends Controller
             $query->where('is_active', $status === 'active');
         }
 
-        if ($country = request('country')) {
-            $query->whereJsonContains('supported_countries', $country);
+        if ($countryId = request('country')) {
+            $query->whereHas('countries', function ($q) use ($countryId) {
+                $q->where('countries.id', $countryId);
+            });
         }
 
         $paymentMethods = $query->latest()->paginate(15)->withQueryString();
         $acquirers = AcquirerMaster::where('is_active', true)->get();
         $solutions = SolutionMaster::all();
-        $countries = PaymentMethodMaster::select('supported_countries')
-            ->get()
-            ->pluck('supported_countries')
-            ->filter()
-            ->flatMap(function ($item) {
-                if (is_string($item)) {
-                    $item = json_decode($item, true) ?? [];
-                }
-                return is_array($item) ? $item : [];
-            })
-            ->unique()
-            ->sort()
-            ->values();
-        
+        $countryList = \App\Models\Country::orderBy('name')->get(['id','name','code']);
+
         return view('admin.masters.payment-method-master', [
             'paymentMethods' => $paymentMethods,
             'acquirers' => $acquirers,
             'solutions' => $solutions,
-            'countries' => $countries,
+            'countryList' => $countryList,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
-        // Parse JSON fields if they come as strings BEFORE validation
-        $input = $request->all();
-        
-        if (isset($input['supported_countries']) && is_string($input['supported_countries'])) {
-            $input['supported_countries'] = json_decode($input['supported_countries'], true) ?? [];
-        }
-        
-        if (isset($input['supported_acquirers']) && is_string($input['supported_acquirers'])) {
-            $input['supported_acquirers'] = json_decode($input['supported_acquirers'], true) ?? [];
-        }
-        
-        if (isset($input['supported_solutions']) && is_string($input['supported_solutions'])) {
-            $input['supported_solutions'] = json_decode($input['supported_solutions'], true) ?? [];
-        }
-
-        // Convert string boolean values to actual booleans
-        $input['is_active'] = isset($input['is_active']) ? (bool)$input['is_active'] : true;
-        $input['supports_3ds'] = isset($input['supports_3ds']) && $input['supports_3ds'] !== '0';
-        $input['allows_tokenization'] = isset($input['allows_tokenization']) && $input['allows_tokenization'] !== '0';
-        $input['requires_additional_documents'] = isset($input['requires_additional_documents']) && $input['requires_additional_documents'] !== '0';
-        $input['requires_acquirer_configuration'] = isset($input['requires_acquirer_configuration']) && $input['requires_acquirer_configuration'] !== '0';
-
-        // Replace request input with parsed data
-        $request->merge($input);
-
         $validated = $request->validate([
             'name' => 'required|string|unique:payment_method_masters|max:255',
             'display_label' => 'required|string|max:255',
             'category' => 'required|in:card,wallet,bank',
             'description' => 'nullable|string',
-            'supported_countries' => 'nullable|array',
-            'supported_acquirers' => 'nullable|array',
-            'supported_solutions' => 'nullable|array',
             'scheme' => 'nullable|string|max:255',
             'supports_3ds' => 'boolean',
             'allows_tokenization' => 'boolean',
@@ -109,42 +73,56 @@ class PaymentMethodMasterController extends Controller
             'notes' => 'nullable|string',
             'requires_additional_documents' => 'boolean',
             'requires_acquirer_configuration' => 'boolean',
+
+            // ✅ NEW: countries ids array
+            'country_ids' => 'nullable|array',
+            'country_ids.*' => 'integer|exists:countries,id',
+
+            // আপনার আগের মতো
+            'supported_acquirers' => 'nullable',
+            'supported_solutions' => 'nullable',
         ]);
 
-        // Ensure arrays are stored as JSON
-        if (isset($validated['supported_countries']) && is_array($validated['supported_countries'])) {
-            $validated['supported_countries'] = json_encode($validated['supported_countries']);
-        }
+        // JSON fields parse (FormData থেকে string আসতে পারে)
+        $supportedAcquirers = $request->input('supported_acquirers');
+        if (is_string($supportedAcquirers)) $supportedAcquirers = json_decode($supportedAcquirers, true) ?? [];
 
-        if (isset($validated['supported_acquirers']) && is_array($validated['supported_acquirers'])) {
-            $validated['supported_acquirers'] = json_encode($validated['supported_acquirers']);
-        }
+        $supportedSolutions = $request->input('supported_solutions');
+        if (is_string($supportedSolutions)) $supportedSolutions = json_decode($supportedSolutions, true) ?? [];
 
-        if (isset($validated['supported_solutions']) && is_array($validated['supported_solutions'])) {
-            $validated['supported_solutions'] = json_encode($validated['supported_solutions']);
-        }
+        $validated['supported_acquirers'] = json_encode($supportedAcquirers);
+        $validated['supported_solutions'] = json_encode($supportedSolutions);
 
-        $paymentMethod = PaymentMethodMaster::create($validated);
+        $countryIds = $validated['country_ids'] ?? [];
+        unset($validated['country_ids']); // ✅ master table এ যাবে না
 
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment method created successfully',
-                'data' => $paymentMethod,
-            ], 201);
-        }
+        return DB::transaction(function () use ($validated, $countryIds, $request) {
+            $paymentMethod = \App\Models\PaymentMethodMaster::create($validated);
 
-        return redirect()->route('admin.masters.payment-method-master')
-            ->with('success', 'Payment method created successfully');
+            // ✅ Pivot sync
+            $paymentMethod->countries()->sync($countryIds);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment method created successfully',
+                    'data' => $paymentMethod->load('countries:id,name'),
+                ], 201);
+            }
+
+            return redirect()->route('admin.masters.payment-method-master')
+                ->with('success', 'Payment method created successfully');
+        });
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $paymentMethod = PaymentMethodMaster::findOrFail($id);
-        
+        $paymentMethod = PaymentMethodMaster::with('countries')->findOrFail($id);
+
         // Ensure arrays are properly decoded
         $paymentMethod_data = $paymentMethod->toArray();
         if (is_string($paymentMethod_data['supported_countries'])) {
@@ -172,15 +150,15 @@ class PaymentMethodMasterController extends Controller
 
         // Parse JSON fields if they come as strings BEFORE validation
         $input = $request->all();
-        
+
         if (isset($input['supported_countries']) && is_string($input['supported_countries'])) {
             $input['supported_countries'] = json_decode($input['supported_countries'], true) ?? [];
         }
-        
+
         if (isset($input['supported_acquirers']) && is_string($input['supported_acquirers'])) {
             $input['supported_acquirers'] = json_decode($input['supported_acquirers'], true) ?? [];
         }
-        
+
         if (isset($input['supported_solutions']) && is_string($input['supported_solutions'])) {
             $input['supported_solutions'] = json_decode($input['supported_solutions'], true) ?? [];
         }
@@ -215,6 +193,10 @@ class PaymentMethodMasterController extends Controller
             'notes' => 'nullable|string',
             'requires_additional_documents' => 'boolean',
             'requires_acquirer_configuration' => 'boolean',
+            
+            // ✅ Countries pivot table
+            'country_ids' => 'nullable|array',
+            'country_ids.*' => 'integer|exists:countries,id',
         ]);
 
         // Ensure arrays are stored as JSON
@@ -230,13 +212,20 @@ class PaymentMethodMasterController extends Controller
             $validated['supported_solutions'] = json_encode($validated['supported_solutions']);
         }
 
+        // ✅ Extract country_ids before updating model
+        $countryIds = $validated['country_ids'] ?? [];
+        unset($validated['country_ids']); // Remove from validated to avoid mass assignment error
+
         $paymentMethod->update($validated);
+
+        // ✅ Sync pivot table with countries
+        $paymentMethod->countries()->sync($countryIds);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Payment method updated successfully',
-                'data' => $paymentMethod,
+                'data' => $paymentMethod->load('countries:id,name'),
             ]);
         }
 
