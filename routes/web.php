@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
 use App\Http\Controllers\Admin\AcquirerMasterController;
@@ -45,6 +46,8 @@ Route::prefix('admin')
             Route::prefix('masters')
                 ->name('masters.')
                 ->group(function () {
+                    Route::resource('countrys', CountryController::class);
+                    Route::get('/country/export', [CountryController::class, 'export'])->name('country.export');
                     Route::resource('solutions', SolutionMasterController::class);
                     Route::get('/solution-master/export', [SolutionMasterController::class, 'export'])->name('solution-master.export');
                     Route::get('/solution-master', [SolutionMasterController::class, 'index'])->name('solution-master');

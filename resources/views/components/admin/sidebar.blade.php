@@ -100,6 +100,12 @@
                         </div>
                         <ul class="sidebar-submenu overflow-hidden transition-all duration-300 {{ $isMastersExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0' }}">
                             <li>
+                                <a href="{{ route('admin.masters.countrys.index') }}" 
+                                   class="{{ request()->routeIs('admin.masters.countrys.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    Country Master
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('admin.masters.solution-master') }}" 
                                    class="{{ request()->routeIs('admin.masters.solution-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Solution Master
