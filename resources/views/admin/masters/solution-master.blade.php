@@ -439,7 +439,7 @@
                                                     data-description="{{ $solution->description }}"
                                                     data-tags='@json($solution->tags ?? [])'
                                                     data-acquirers='@json($solution->acquirers ?? [])'
-                                                    data-payment-methods='@json($solution->payment_methods ?? [])'
+                                                    data-payment-methods='@json($solution->paymentMethodMasters->pluck("id"))'
                                                     data-alternative-methods='@json($solution->alternative_methods ?? [])'
                                                     data-requirements="{{ $solution->requirements }}"
                                                     data-pricing-plan="{{ $solution->pricing_plan }}"
@@ -622,29 +622,24 @@
                             </div>
 
                             <div class="space-y-3">
+                                @php
+                                    $groupedPaymentMethods = $paymentMethods->groupBy('category');
+                                @endphp
+                                @foreach ($groupedPaymentMethods as $category => $methods)
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Cards</label>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">{{ ucfirst($category) }}s</label>
                                     <div class="flex gap-2 flex-wrap">
+                                        @foreach ($methods as $pm)
                                         <label
                                             class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="visa"
+                                            <input type="checkbox" name="payment_methods[]" value="{{ $pm->id }}"
                                                 class="w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-900">Visa</span>
+                                            <span class="text-sm text-gray-900">{{ $pm->display_label }}</span>
                                         </label>
-                                        <label
-                                            class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="mastercard"
-                                                class="w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-900">Mastercard</span>
-                                        </label>
-                                        <label
-                                            class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="amex"
-                                                class="w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-900">Amex</span>
-                                        </label>
+                                        @endforeach
                                     </div>
                                 </div>
+                                @endforeach
 
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Alternative
@@ -882,7 +877,7 @@
                 input.checked = acquirers.has(input.value);
             });
 
-            const paymentMethods = new Set(JSON.parse(data.paymentMethods || '[]'));
+            const paymentMethods = new Set(JSON.parse(data.paymentMethods || '[]').map(String));
             document.querySelectorAll('input[name="payment_methods[]"]').forEach((input) => {
                 input.checked = paymentMethods.has(input.value);
             });
