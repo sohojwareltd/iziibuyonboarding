@@ -398,9 +398,20 @@
                                                 <option value="number" {{ request('data_type') == 'number' ? 'selected' : '' }}>Number</option>
                                                 <option value="email" {{ request('data_type') == 'email' ? 'selected' : '' }}>Email</option>
                                                 <option value="tel" {{ request('data_type') == 'tel' ? 'selected' : '' }}>Phone</option>
-                                                <option value="file" {{ request('data_type') == 'file' ? 'selected' : '' }}>File</option>
+                                                <option value="url" {{ request('data_type') == 'url' ? 'selected' : '' }}>URL</option>
+                                                <option value="password" {{ request('data_type') == 'password' ? 'selected' : '' }}>Password</option>
+                                                <option value="time" {{ request('data_type') == 'time' ? 'selected' : '' }}>Time</option>
+                                                <option value="datetime-local" {{ request('data_type') == 'datetime-local' ? 'selected' : '' }}>Date & Time</option>
+                                                <option value="file" {{ request('data_type') == 'file' ? 'selected' : '' }}>File Upload</option>
                                                 <option value="dropdown" {{ request('data_type') == 'dropdown' ? 'selected' : '' }}>Dropdown</option>
+                                                <option value="multi-select" {{ request('data_type') == 'multi-select' ? 'selected' : '' }}>Multi-Select</option>
+                                                <option value="checkbox" {{ request('data_type') == 'checkbox' ? 'selected' : '' }}>Checkbox</option>
+                                                <option value="radio" {{ request('data_type') == 'radio' ? 'selected' : '' }}>Radio</option>
                                                 <option value="textarea" {{ request('data_type') == 'textarea' ? 'selected' : '' }}>Textarea</option>
+                                                <option value="country" {{ request('data_type') == 'country' ? 'selected' : '' }}>Country</option>
+                                                <option value="currency" {{ request('data_type') == 'currency' ? 'selected' : '' }}>Currency</option>
+                                                <option value="address" {{ request('data_type') == 'address' ? 'selected' : '' }}>Address</option>
+                                                <option value="signature" {{ request('data_type') == 'signature' ? 'selected' : '' }}>Signature</option>
                                             </select>
                                         </div>
 
@@ -632,9 +643,20 @@
                                     <option value="number">Number</option>
                                     <option value="email">Email</option>
                                     <option value="tel">Phone</option>
+                                    <option value="url">URL</option>
+                                    <option value="password">Password</option>
+                                    <option value="time">Time</option>
+                                    <option value="datetime-local">Date & Time</option>
                                     <option value="file">File Upload</option>
                                     <option value="dropdown">Dropdown</option>
+                                    <option value="multi-select">Multi-Select</option>
+                                    <option value="checkbox">Checkbox</option>
+                                    <option value="radio">Radio</option>
                                     <option value="textarea">Textarea</option>
+                                    <option value="country">Country</option>
+                                    <option value="currency">Currency</option>
+                                    <option value="address">Address</option>
+                                    <option value="signature">Signature</option>
                                 </select>
                             </div>
                         </div>

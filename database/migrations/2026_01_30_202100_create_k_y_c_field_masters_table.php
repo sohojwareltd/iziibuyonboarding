@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('internal_key')->unique();
             $table->foreignId('kyc_section_id')->constrained('kyc_sections')->onDelete('cascade');
             $table->text('description')->nullable();
-            $table->enum('data_type', ['text', 'date', 'number', 'email', 'tel', 'file', 'dropdown', 'textarea']);
+            $table->enum('data_type', ['text', 'date', 'number', 'email', 'tel', 'url', 'password', 'time', 'datetime-local', 'file', 'dropdown', 'multi-select', 'checkbox', 'radio', 'textarea', 'country', 'currency', 'address', 'signature']);
             $table->boolean('is_required')->default(false);
             $table->enum('sensitivity_level', ['normal', 'sensitive', 'highly-sensitive'])->default('normal');
             $table->boolean('visible_to_merchant')->default(true);
