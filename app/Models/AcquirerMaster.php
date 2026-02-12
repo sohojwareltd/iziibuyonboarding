@@ -46,4 +46,14 @@ class AcquirerMaster extends Model
         
         return $value;
     }
+
+    public function solutionMasters()
+    {
+        return $this->belongsToMany(
+            SolutionMaster::class,
+            'acquirer_master_solution_master',
+            'acquirer_master_id',
+            'solution_master_id'
+        )->withTimestamps();
+    }
 }

@@ -43,4 +43,14 @@ class SolutionMaster extends Model
             'payment_method_master_id'
         )->withTimestamps();
     }
+
+    public function acquirerMasters()
+    {
+        return $this->belongsToMany(
+            AcquirerMaster::class,
+            'acquirer_master_solution_master',
+            'solution_master_id',
+            'acquirer_master_id'
+        )->withTimestamps();
+    }
 }
