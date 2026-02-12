@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\KYCFieldMaster;
+use App\Models\KycSection;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -16,7 +17,7 @@ class KYCFieldMasterController extends Controller
      */
     public function index()
     {
-        $query = KYCFieldMaster::query();
+        $query = KYCFieldMaster::with('kycSection');
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
@@ -27,7 +28,7 @@ class KYCFieldMasterController extends Controller
         }
 
         if ($section = request('kyc_section')) {
-            $query->where('kyc_section', $section);
+            $query->where('kyc_section_id', $section);
         }
 
         if ($dataType = request('data_type')) {
@@ -43,7 +44,8 @@ class KYCFieldMasterController extends Controller
         }
 
         $kycFields = $query->orderBy('sort_order')->paginate(15)->withQueryString();
-        return view('admin.masters.kyc-field-master', compact('kycFields'));
+        $kycSections = KycSection::active()->ordered()->get();
+        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections'));
     }
 
     /**
@@ -55,7 +57,7 @@ class KYCFieldMasterController extends Controller
             $validated = $request->validate([
                 'field_name' => 'required|string|max:255|unique:k_y_c_field_masters',
                 'internal_key' => 'required|string|max:255|unique:k_y_c_field_masters',
-                'kyc_section' => 'required|in:beneficial,company,board,contact',
+                'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,file,dropdown,textarea',
                 'is_required' => 'boolean',
@@ -108,7 +110,7 @@ class KYCFieldMasterController extends Controller
             $validated = $request->validate([
                 'field_name' => ['required', 'string', 'max:255', Rule::unique('k_y_c_field_masters')->ignore($kycField->id)],
                 'internal_key' => ['required', 'string', 'max:255', Rule::unique('k_y_c_field_masters')->ignore($kycField->id)],
-                'kyc_section' => 'required|in:beneficial,company,board,contact',
+                'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,file,dropdown,textarea',
                 'is_required' => 'boolean',
@@ -169,7 +171,7 @@ class KYCFieldMasterController extends Controller
         }
 
         if ($request->filled('kyc_section')) {
-            $query->where('kyc_section', $request->kyc_section);
+            $query->where('kyc_section_id', $request->kyc_section);
         }
 
         if ($request->filled('data_type')) {
@@ -216,7 +218,7 @@ class KYCFieldMasterController extends Controller
                 $kycField->id,
                 $kycField->field_name,
                 $kycField->internal_key,
-                $kycField->kyc_section,
+                $kycField->kycSection->name ?? '—',
                 $kycField->description,
                 $kycField->data_type,
                 $kycField->is_required ? 'Yes' : 'No',

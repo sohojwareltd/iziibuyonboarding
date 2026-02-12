@@ -11,7 +11,7 @@ class KYCFieldMaster extends Model
     protected $fillable = [
         'field_name',
         'internal_key',
-        'kyc_section',
+        'kyc_section_id',
         'description',
         'data_type',
         'is_required',
@@ -31,4 +31,12 @@ class KYCFieldMaster extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the KYC section this field belongs to.
+     */
+    public function kycSection()
+    {
+        return $this->belongsTo(KycSection::class, 'kyc_section_id');
+    }
 }

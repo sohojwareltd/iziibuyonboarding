@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('field_name')->unique();
             $table->string('internal_key')->unique();
-            $table->enum('kyc_section', ['beneficial', 'company', 'board', 'contact']);
+            $table->foreignId('kyc_section_id')->constrained('kyc_sections')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->enum('data_type', ['text', 'date', 'number', 'email', 'tel', 'file', 'dropdown', 'textarea']);
             $table->boolean('is_required')->default(false);
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->timestamps();
             
             // Indices for common queries
-            $table->index('kyc_section');
+            $table->index('kyc_section_id');
             $table->index('data_type');
             $table->index('status');
             $table->index('sort_order');

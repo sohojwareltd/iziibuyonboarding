@@ -329,7 +329,7 @@
                                         @if (request('kyc_section'))
                                             <div class="filter-badge">
                                                 <i class="fa-solid fa-layer-group text-xs"></i>
-                                                <span>Section: {{ ucfirst(request('kyc_section')) }}</span>
+                                                <span>Section: {{ $kycSections->firstWhere('id', request('kyc_section'))->name ?? request('kyc_section') }}</span>
                                                 <button type="button" onclick="clearSectionFilter()">
                                                     <i class="fa-solid fa-xmark text-xs"></i>
                                                 </button>
@@ -378,10 +378,9 @@
                                             <select name="kyc_section"
                                                 class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
                                                 <option value="">All Sections</option>
-                                                <option value="beneficial" {{ request('kyc_section') == 'beneficial' ? 'selected' : '' }}>Beneficial</option>
-                                                <option value="company" {{ request('kyc_section') == 'company' ? 'selected' : '' }}>Company</option>
-                                                <option value="board" {{ request('kyc_section') == 'board' ? 'selected' : '' }}>Board</option>
-                                                <option value="contact" {{ request('kyc_section') == 'contact' ? 'selected' : '' }}>Contact</option>
+                                                @foreach ($kycSections as $section)
+                                                    <option value="{{ $section->id }}" {{ request('kyc_section') == $section->id ? 'selected' : '' }}>{{ $section->name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
 
@@ -490,7 +489,7 @@
                                             <span class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium capitalize">{{ $field->data_type }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="text-gray-700 text-sm capitalize">{{ ucfirst(str_replace('_', ' ', $field->kyc_section)) }}</span>
+                                            <span class="text-gray-700 text-sm">{{ $field->kycSection->name ?? '—' }}</span>
                                         </td>
                                         <td class="px-6 py-4">
                                             @if($field->sensitivity_level === 'highly-sensitive')
@@ -600,12 +599,11 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">KYC Section <span class="text-red-500">*</span></label>
-                                <select id="kyc-section" name="kyc_section" class="form-input" required>
+                                <select id="kyc-section" name="kyc_section_id" class="form-input" required>
                                     <option value="">Select a section</option>
-                                    <option value="beneficial">Beneficial Owners</option>
-                                    <option value="company">Company Information</option>
-                                    <option value="board">Board Members</option>
-                                    <option value="contact">Contact Person</option>
+                                    @foreach ($kycSections as $section)
+                                        <option value="{{ $section->id }}">{{ $section->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             
@@ -866,7 +864,7 @@
                     // Now populate the form with the fetched data
                     document.getElementById('field-name').value = data.field_name;
                     document.getElementById('internal-key').value = data.internal_key;
-                    document.getElementById('kyc-section').value = data.kyc_section;
+                    document.getElementById('kyc-section').value = data.kyc_section_id;
                     document.getElementById('description').value = data.description || '';
                     document.getElementById('data-type').value = data.data_type;
                     document.getElementById('sensitivity-level').value = data.sensitivity_level;

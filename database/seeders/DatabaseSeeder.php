@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PaymentMethodMasterSeeder::class,
             SolutionMasterSeeder::class,
             PriceListMasterSeeder::class,
+            KycSectionSeeder::class,
             KYCFieldMasterSeeder::class,
             DocumentTypesMasterSeeder::class,
             PartnerSeeder::class,
