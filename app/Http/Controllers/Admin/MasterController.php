@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcquirerMaster;
+use App\Models\Country;
+use App\Models\KycSection;
 use Illuminate\View\View;
 
 class MasterController extends Controller
@@ -34,7 +37,15 @@ class MasterController extends Controller
 
     public function acquirerFieldMapping(): View
     {
-        return view('admin.masters.acquirer-field-mapping');
+        $kycSections = KycSection::active()
+            ->ordered()
+            ->with(['kycFields' => fn ($q) => $q->where('status', 'active')->orderBy('sort_order')])
+            ->get();
+
+        $acquirers = AcquirerMaster::orderBy('name')->get();
+        $countries = Country::orderBy('name')->get();
+
+        return view('admin.masters.acquirer-field-mapping', compact('kycSections', 'acquirers', 'countries'));
     }
 
     public function priceListMaster(): View

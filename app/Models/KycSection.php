@@ -41,7 +41,7 @@ class KycSection extends Model
      */
     public function kycFields()
     {
-        return $this->hasMany(KYCFieldMaster::class, 'kyc_section', 'slug');
+        return $this->hasMany(KYCFieldMaster::class, 'kyc_section_id');
     }
 
     /**

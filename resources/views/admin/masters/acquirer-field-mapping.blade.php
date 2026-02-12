@@ -235,11 +235,9 @@
                                     </label>
                                     <select class="form-input">
                                         <option value="">Select Acquirer...</option>
-                                        <option value="elavon">Elavon</option>
-                                        <option value="surfboard">Surfboard</option>
-                                        <option value="stripe">Stripe</option>
-                                        <option value="square">Square</option>
-                                        <option value="paypal">PayPal</option>
+                                        @foreach ($acquirers as $acquirer)
+                                            <option value="{{ $acquirer->id }}">{{ $acquirer->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="w-full sm:w-72">
@@ -249,11 +247,9 @@
                                     </label>
                                     <select class="form-input">
                                         <option value="">Select Country...</option>
-                                        <option value="uk">United Kingdom</option>
-                                        <option value="nl">Netherlands</option>
-                                        <option value="no">Norway</option>
-                                        <option value="bd">Bangladesh</option>
-                                        <option value="us">United States</option>
+                                        @foreach ($countries as $country)
+                                            <option value="{{ $country->id }}">{{ $country->name }} ({{ $country->code }})</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <button class="w-full sm:w-auto bg-brand-primary from-brand-primary to-brand-secondary text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 font-semibold">
@@ -328,186 +324,113 @@
 
                                 <!-- Field Sections -->
                                 <div class="divide-y divide-gray-200 min-w-[900px]">
-                                    <!-- Company Information Section -->
-                                    <div class="field-section">
-                                        <div class="section-header bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-3">
-                                                <i class="fa-solid fa-chevron-down text-base text-brand-secondary section-chevron transition-transform"></i>
-                                                <i class="fa-solid fa-building text-brand-cta"></i>
-                                                <span class="font-bold text-brand-primary text-base">Company Information</span>
-                                                <span class="bg-white border-2 border-blue-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">3 fields</span>
-                                            </div>
-                                            <div class="text-xs text-gray-600 font-medium">2 Mandatory • 1 Optional</div>
-                                        </div>
-                                        <div class="section-content">
-                                            <!-- Legal Name -->
-                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
-                                                <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <div class="font-semibold text-gray-900 text-base">Legal Name</div>
-                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1">
-                                                            <i class="fa-solid fa-asterisk" style="font-size: 8px;"></i>
-                                                            Required
-                                                        </span>
-                                                    </div>
-                                                    <div class="font-mono text-xs text-gray-500">company_legal_name</div>
-                                                </div>
-                                                <div class="w-52">
-                                                    <div class="requirement-toggle">
-                                                        <button class="active" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
-                                                        <button onclick="setRequirement(this, 'optional')">Optional</button>
-                                                        <button onclick="setRequirement(this, 'hidden')">Hidden</button>
-                                                    </div>
-                                                </div>
-                                                <div class="w-80">
-                                                    <div class="flex items-center gap-4">
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Merchant</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Admin</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox">
-                                                            <span>Partner</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="w-24 text-center">
-                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
-                                                        <i class="fa-solid fa-cog"></i>
-                                                        Setup
-                                                    </button>
-                                                </div>
-                                            </div>
+                                    @php
+                                        $sectionColors = [
+                                            ['from' => 'from-blue-50', 'to' => 'to-indigo-50', 'hover_from' => 'hover:from-blue-100', 'hover_to' => 'hover:to-indigo-100', 'border' => 'border-blue-200', 'badge_border' => 'border-blue-300'],
+                                            ['from' => 'from-purple-50', 'to' => 'to-pink-50', 'hover_from' => 'hover:from-purple-100', 'hover_to' => 'hover:to-pink-100', 'border' => 'border-purple-200', 'badge_border' => 'border-purple-300'],
+                                            ['from' => 'from-green-50', 'to' => 'to-teal-50', 'hover_from' => 'hover:from-green-100', 'hover_to' => 'hover:to-teal-100', 'border' => 'border-green-200', 'badge_border' => 'border-green-300'],
+                                            ['from' => 'from-amber-50', 'to' => 'to-orange-50', 'hover_from' => 'hover:from-amber-100', 'hover_to' => 'hover:to-orange-100', 'border' => 'border-amber-200', 'badge_border' => 'border-amber-300'],
+                                            ['from' => 'from-rose-50', 'to' => 'to-red-50', 'hover_from' => 'hover:from-rose-100', 'hover_to' => 'hover:to-red-100', 'border' => 'border-rose-200', 'badge_border' => 'border-rose-300'],
+                                            ['from' => 'from-cyan-50', 'to' => 'to-sky-50', 'hover_from' => 'hover:from-cyan-100', 'hover_to' => 'hover:to-sky-100', 'border' => 'border-cyan-200', 'badge_border' => 'border-cyan-300'],
+                                            ['from' => 'from-emerald-50', 'to' => 'to-lime-50', 'hover_from' => 'hover:from-emerald-100', 'hover_to' => 'hover:to-lime-100', 'border' => 'border-emerald-200', 'badge_border' => 'border-emerald-300'],
+                                            ['from' => 'from-violet-50', 'to' => 'to-fuchsia-50', 'hover_from' => 'hover:from-violet-100', 'hover_to' => 'hover:to-fuchsia-100', 'border' => 'border-violet-200', 'badge_border' => 'border-violet-300'],
+                                        ];
+                                        $sectionIcons = [
+                                            'company-information' => 'fa-building',
+                                            'beneficial-owners' => 'fa-users',
+                                            'board-members-gm' => 'fa-user-tie',
+                                            'contact-person' => 'fa-address-card',
+                                            'purpose-of-service' => 'fa-bullseye',
+                                            'sales-channels' => 'fa-store',
+                                            'bank-information' => 'fa-landmark',
+                                            'authorized-signatories' => 'fa-file-signature',
+                                        ];
+                                    @endphp
 
-                                            <!-- Trading Name -->
-                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
-                                                <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
+                                    @foreach ($kycSections as $sIndex => $section)
+                                        @php
+                                            $color = $sectionColors[$sIndex % count($sectionColors)];
+                                            $icon = $sectionIcons[$section->slug] ?? 'fa-folder';
+                                            $fieldCount = $section->kycFields->count();
+                                            $mandatoryCount = $section->kycFields->where('is_required', true)->count();
+                                            $optionalCount = $fieldCount - $mandatoryCount;
+                                            $isFirst = $sIndex === 0;
+                                        @endphp
+                                        <div class="field-section">
+                                            <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b-2 {{ $color['border'] }} px-6 py-4 flex items-center justify-between cursor-pointer {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all" onclick="toggleSection(this)">
+                                                <div class="flex items-center gap-3">
+                                                    <i class="fa-solid {{ $isFirst ? 'fa-chevron-down' : 'fa-chevron-right' }} text-base text-brand-secondary section-chevron transition-transform"></i>
+                                                    <i class="fa-solid {{ $icon }} text-brand-cta"></i>
+                                                    <span class="font-bold text-brand-primary text-base">{{ $section->name }}</span>
+                                                    <span class="bg-white border-2 {{ $color['badge_border'] }} text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">{{ $fieldCount }} {{ Str::plural('field', $fieldCount) }}</span>
                                                 </div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <div class="font-semibold text-gray-900 text-base">Trading Name</div>
-                                                        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-xs font-bold">Optional</span>
-                                                    </div>
-                                                    <div class="font-mono text-xs text-gray-500">company_trading_name</div>
-                                                </div>
-                                                <div class="w-52">
-                                                    <div class="requirement-toggle">
-                                                        <button onclick="setRequirement(this, 'mandatory')">Mandatory</button>
-                                                        <button class="optional-active" onclick="setRequirement(this, 'optional')">Optional</button>
-                                                        <button onclick="setRequirement(this, 'hidden')">Hidden</button>
-                                                    </div>
-                                                </div>
-                                                <div class="w-80">
-                                                    <div class="flex items-center gap-4">
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Merchant</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Admin</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox">
-                                                            <span>Partner</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="w-24 text-center">
-                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
-                                                        <i class="fa-solid fa-cog"></i>
-                                                        Setup
-                                                    </button>
+                                                <div class="text-xs text-gray-600 font-medium">
+                                                    @if ($fieldCount > 0)
+                                                        {{ $mandatoryCount }} Mandatory &bull; {{ $optionalCount }} Optional
+                                                    @else
+                                                        No fields
+                                                    @endif
                                                 </div>
                                             </div>
-
-                                            <!-- Registration Number -->
-                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
-                                                <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <div class="font-semibold text-gray-900 text-base">Registration Number</div>
-                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1">
-                                                            <i class="fa-solid fa-asterisk" style="font-size: 8px;"></i>
-                                                            Required
-                                                        </span>
+                                            <div class="section-content {{ $isFirst ? '' : 'collapsed' }}">
+                                                @forelse ($section->kycFields as $field)
+                                                    <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
+                                                        <div class="w-10 flex items-center justify-center">
+                                                            <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="flex items-center gap-2 mb-1">
+                                                                <div class="font-semibold text-gray-900 text-base">{{ $field->field_name }}</div>
+                                                                @if ($field->is_required)
+                                                                    <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1">
+                                                                        <i class="fa-solid fa-asterisk" style="font-size: 8px;"></i>
+                                                                        Required
+                                                                    </span>
+                                                                @else
+                                                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-xs font-bold">Optional</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="font-mono text-xs text-gray-500">{{ $field->internal_key }}</div>
+                                                        </div>
+                                                        <div class="w-60">
+                                                            <div class="requirement-toggle" data-field-id="{{ $field->id }}">
+                                                                <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
+                                                                <button class="{{ !$field->is_required ? 'optional-active' : '' }}" onclick="setRequirement(this, 'optional')">Optional</button>
+                                                                <button onclick="setRequirement(this, 'hidden')">Hidden</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="w-80">
+                                                            <div class="flex items-center gap-4">
+                                                                <label class="visibility-checkbox">
+                                                                    <input type="checkbox" {{ $field->visible_to_merchant ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="merchant">
+                                                                    <span>Merchant</span>
+                                                                </label>
+                                                                <label class="visibility-checkbox">
+                                                                    <input type="checkbox" {{ $field->visible_to_admin ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="admin">
+                                                                    <span>Admin</span>
+                                                                </label>
+                                                                <label class="visibility-checkbox">
+                                                                    <input type="checkbox" {{ $field->visible_to_partner ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="partner">
+                                                                    <span>Partner</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="w-24 text-center">
+                                                            <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
+                                                                <i class="fa-solid fa-cog"></i>
+                                                                Setup
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div class="font-mono text-xs text-gray-500">company_registration_no</div>
-                                                </div>
-                                                <div class="w-52">
-                                                    <div class="requirement-toggle">
-                                                        <button class="active" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
-                                                        <button onclick="setRequirement(this, 'optional')">Optional</button>
-                                                        <button onclick="setRequirement(this, 'hidden')">Hidden</button>
+                                                @empty
+                                                    <div class="px-6 py-8 text-center text-gray-400 text-sm">
+                                                        <i class="fa-solid fa-inbox text-2xl mb-2"></i>
+                                                        <p>No KYC fields in this section yet.</p>
                                                     </div>
-                                                </div>
-                                                <div class="w-80">
-                                                    <div class="flex items-center gap-4">
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Merchant</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox" checked>
-                                                            <span>Admin</span>
-                                                        </label>
-                                                        <label class="visibility-checkbox">
-                                                            <input type="checkbox">
-                                                            <span>Partner</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="w-24 text-center">
-                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
-                                                        <i class="fa-solid fa-cog"></i>
-                                                        Setup
-                                                    </button>
-                                                </div>
+                                                @endforelse
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Beneficial Owners Section -->
-                                    <div class="field-section">
-                                        <div class="section-header bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-all" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-3">
-                                                <i class="fa-solid fa-chevron-right text-base text-brand-secondary section-chevron transition-transform"></i>
-                                                <i class="fa-solid fa-users text-brand-cta"></i>
-                                                <span class="font-bold text-brand-primary text-base">Beneficial Owners</span>
-                                                <span class="bg-white border-2 border-purple-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">Collapsed</span>
-                                            </div>
-                                            <div class="text-xs text-gray-600 font-medium">Click to expand</div>
-                                        </div>
-                                        <div class="section-content collapsed">
-                                            <!-- Fields would go here -->
-                                        </div>
-                                    </div>
-
-                                    <!-- Bank Information Section -->
-                                    <div class="field-section">
-                                        <div class="section-header bg-gradient-to-r from-green-50 to-teal-50 border-b-2 border-green-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-green-100 hover:to-teal-100 transition-all" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-3">
-                                                <i class="fa-solid fa-chevron-right text-base text-brand-secondary section-chevron transition-transform"></i>
-                                                <i class="fa-solid fa-landmark text-brand-cta"></i>
-                                                <span class="font-bold text-brand-primary text-base">Bank Information</span>
-                                                <span class="bg-white border-2 border-green-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">Collapsed</span>
-                                            </div>
-                                            <div class="text-xs text-gray-600 font-medium">Click to expand</div>
-                                        </div>
-                                        <div class="section-content collapsed">
-                                            <!-- Fields would go here -->
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 </div>
                                 </div>
                             </div>
@@ -525,27 +448,61 @@
 
                                 <!-- Preview Content -->
                                 <div class="p-6 bg-gray-50 min-h-[800px]">
-                                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                                        <h3 class="text-lg font-semibold text-brand-primary mb-4">Company Information</h3>
-                                        <div class="space-y-4">
-                                            <!-- Legal Name -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Legal Name <span class="text-brand-accent">*</span></label>
-                                                <input type="text" class="form-input" placeholder="e.g. Acme Corp Ltd.">
+                                    @foreach ($kycSections as $section)
+                                        @if ($section->kycFields->where('visible_to_merchant', true)->count() > 0)
+                                            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-4">
+                                                <h3 class="text-lg font-semibold text-brand-primary mb-4">{{ $section->name }}</h3>
+                                                <div class="space-y-4">
+                                                    @foreach ($section->kycFields->where('visible_to_merchant', true) as $field)
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                                {{ $field->field_name }}
+                                                                @if ($field->is_required)
+                                                                    <span class="text-brand-accent">*</span>
+                                                                @else
+                                                                    <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+                                                                @endif
+                                                            </label>
+                                                            @switch($field->data_type)
+                                                                @case('textarea')
+                                                                    <textarea class="form-input resize-y" rows="2" placeholder="{{ $field->field_name }}" disabled></textarea>
+                                                                    @break
+                                                                @case('dropdown')
+                                                                @case('multi-select')
+                                                                @case('country')
+                                                                @case('currency')
+                                                                    <select class="form-input" disabled>
+                                                                        <option>Select {{ $field->field_name }}...</option>
+                                                                    </select>
+                                                                    @break
+                                                                @case('file')
+                                                                @case('signature')
+                                                                    <div class="form-input bg-gray-50 text-gray-400 text-sm flex items-center gap-2">
+                                                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                                        Upload {{ $field->field_name }}
+                                                                    </div>
+                                                                    @break
+                                                                @case('checkbox')
+                                                                    <label class="flex items-center gap-2">
+                                                                        <input type="checkbox" class="w-4 h-4 border-gray-300 rounded" disabled>
+                                                                        <span class="text-sm text-gray-600">{{ $field->field_name }}</span>
+                                                                    </label>
+                                                                    @break
+                                                                @case('radio')
+                                                                    <label class="flex items-center gap-2">
+                                                                        <input type="radio" class="w-4 h-4 border-gray-300" disabled>
+                                                                        <span class="text-sm text-gray-600">{{ $field->field_name }}</span>
+                                                                    </label>
+                                                                    @break
+                                                                @default
+                                                                    <input type="{{ $field->data_type }}" class="form-input" placeholder="{{ $field->field_name }}" disabled>
+                                                            @endswitch
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                            <!-- Trading Name -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Trading Name <span class="text-gray-400 text-xs font-normal">(Optional)</span></label>
-                                                <input type="text" class="form-input" placeholder="e.g. Acme Stores">
-                                            </div>
-                                            <!-- Registration Number -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Registration Number <span class="text-brand-accent">*</span></label>
-                                                <input type="text" class="form-input" placeholder="e.g. 12345678">
-                                            </div>
-                                            <!-- Tax ID is hidden, so not shown in merchant preview -->
-                                        </div>
-                                    </div>
+                                        @endif
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
