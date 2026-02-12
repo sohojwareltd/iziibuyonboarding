@@ -272,13 +272,11 @@
                                     </label>
                                     <select name="country_of_operation"
                                         class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
-                                        @php
-                                            $countryOptions = $countries->isNotEmpty() ? $countries : collect(['gb', 'no', 'se']);
-                                        @endphp
-                                        @foreach ($countryOptions as $country)
-                                            <option value="{{ strtolower($country) }}"
-                                                {{ strtolower(old('country_of_operation', $onboarding->country_of_operation ?? '')) === strtolower($country) ? 'selected' : '' }}>
-                                                {{ strtoupper($country) }}
+                                        <option value="">— Select Country —</option>
+                                        @foreach ($countries as $country)
+                                            <option value="{{ strtolower($country->code) }}" data-country-code="{{ strtolower($country->code) }}"
+                                                {{ strtolower(old('country_of_operation', $onboarding->country_of_operation ?? '')) === strtolower($country->code) ? 'selected' : '' }}>
+                                                {{ $country->name }} ({{ strtoupper($country->code) }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -291,14 +289,16 @@
                                             @php
                                                 $isSelected = in_array($method->name, $selectedPaymentMethods);
                                             @endphp
-                                            <input type="checkbox" name="payment_methods[]" value="{{ $method->name }}"
-                                                class="hidden" data-payment-method-input="{{ $method->name }}"
-                                                {{ $isSelected ? 'checked' : '' }}>
-                                            <button type="button" data-payment-method="{{ $method->name }}"
-                                                class="{{ $isSelected ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-gray-700 border-gray-300' }} px-3 py-1.5 rounded-full text-sm font-medium border flex items-center gap-1.5">
-                                                <i class="fa-solid fa-credit-card text-sm"></i>
-                                                {{ $method->display_label ?? $method->name }}
-                                            </button>
+                                            <span data-pm-wrapper="{{ $method->name }}">
+                                                <input type="checkbox" name="payment_methods[]" value="{{ $method->name }}"
+                                                    class="hidden" data-payment-method-input="{{ $method->name }}"
+                                                    {{ $isSelected ? 'checked' : '' }}>
+                                                <button type="button" data-payment-method="{{ $method->name }}"
+                                                    class="{{ $isSelected ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-gray-700 border-gray-300' }} px-3 py-1.5 rounded-full text-sm font-medium border flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-credit-card text-sm"></i>
+                                                    {{ $method->display_label ?? $method->name }}
+                                                </button>
+                                            </span>
                                         @endforeach
                                     </div>
                                 </div>
@@ -314,7 +314,7 @@
                                             $acquirerKey = \Illuminate\Support\Str::slug($acquirer->name);
                                             $isSelected = in_array($acquirer->name, $selectedAcquirers);
                                         @endphp
-                                        <div data-acquirer-card="{{ $acquirerKey }}"
+                                        <div data-acquirer-card="{{ $acquirerKey }}" data-acquirer-slug="{{ $acquirerKey }}"
                                             class="{{ $isSelected ? 'bg-blue-50 border-2 border-brand-secondary' : 'bg-white border border-gray-200' }} rounded-lg p-4 flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center justify-between mb-1">
@@ -565,7 +565,10 @@
                         complexity: '{{ $solution->status ?? "Standard" }}',
                         category: '{{ $solution->category->name ?? "Uncategorized" }}',
                         status: '{{ $solution->status ?? "draft" }}',
-                        mode: '{{ $solution->pricing_plan ?? "Standard" }}'
+                        mode: '{{ $solution->pricing_plan ?? "Standard" }}',
+                        countries: @json($solution->countries->pluck('code')->map(fn ($c) => strtolower($c))),
+                        paymentMethods: @json($solution->paymentMethodMasters->pluck('name')),
+                        acquirers: @json($solution->acquirerMasters->pluck('name')->map(fn ($n) => \Illuminate\Support\Str::slug($n)))
                     },
                 @endforeach
             };
@@ -703,10 +706,12 @@
                 if (solutionSelect) {
                     solutionSelect.addEventListener('change', function() {
                         updateSolutionInfo(this.value);
+                        updateSolutionFilters(this.value);
                     });
                     // Initialize with selected value on load
                     if (solutionSelect.value) {
                         updateSolutionInfo(solutionSelect.value);
+                        updateSolutionFilters(solutionSelect.value);
                     }
                 }
 
@@ -743,6 +748,71 @@
                         document.getElementById('solution-status-badge').textContent = '-';
                         document.getElementById('solution-status-badge').className = 'bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded-full';
                     }
+                }
+
+                function updateSolutionFilters(solutionId) {
+                    const data = solutionsData[solutionId];
+                    const countrySelect = document.querySelector('select[name="country_of_operation"]');
+
+                    // --- Filter countries ---
+                    if (countrySelect) {
+                        const options = countrySelect.querySelectorAll('option[data-country-code]');
+                        options.forEach(opt => {
+                            if (!data) {
+                                opt.style.display = '';
+                                opt.disabled = false;
+                            } else if (data.countries.includes(opt.getAttribute('data-country-code'))) {
+                                opt.style.display = '';
+                                opt.disabled = false;
+                            } else {
+                                opt.style.display = 'none';
+                                opt.disabled = true;
+                            }
+                        });
+                        // Reset selection if current value is now hidden
+                        const current = countrySelect.value;
+                        const currentOpt = countrySelect.querySelector(`option[value="${current}"]`);
+                        if (currentOpt && currentOpt.disabled) {
+                            countrySelect.value = '';
+                        }
+                    }
+
+                    // --- Filter payment method pills ---
+                    const pmWrappers = document.querySelectorAll('[data-pm-wrapper]');
+                    pmWrappers.forEach(wrapper => {
+                        const methodName = wrapper.getAttribute('data-pm-wrapper');
+                        if (!data) {
+                            wrapper.style.display = '';
+                        } else if (data.paymentMethods.includes(methodName)) {
+                            wrapper.style.display = '';
+                        } else {
+                            wrapper.style.display = 'none';
+                            // Uncheck hidden payment methods
+                            const input = wrapper.querySelector('input[type="checkbox"]');
+                            if (input) input.checked = false;
+                            const btn = wrapper.querySelector('button');
+                            if (btn) {
+                                btn.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary');
+                                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+                            }
+                        }
+                    });
+
+                    // --- Filter acquirer cards ---
+                    const acquirerCards = document.querySelectorAll('[data-acquirer-slug]');
+                    acquirerCards.forEach(card => {
+                        const slug = card.getAttribute('data-acquirer-slug');
+                        if (!data) {
+                            card.style.display = '';
+                        } else if (data.acquirers.includes(slug)) {
+                            card.style.display = '';
+                        } else {
+                            card.style.display = 'none';
+                            // Uncheck hidden acquirers
+                            const input = card.querySelector('input[type="checkbox"]');
+                            if (input) input.checked = false;
+                        }
+                    });
                 }
 
                 // Payment method buttons

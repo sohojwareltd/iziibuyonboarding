@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcquirerMaster;
+use App\Models\Country;
 use App\Models\Onboarding;
 use App\Models\Partner;
 use App\Models\PaymentMethodMaster;
@@ -27,7 +28,8 @@ class OnboardingController extends Controller
 
     public function create(): View
     {
-        $solutions = SolutionMaster::with('category')->orderBy('name')->get();
+        $solutions = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters', 'acquirerMasters'])
+            ->orderBy('name')->get();
         $partners = Partner::orderBy('title')->get();
         $paymentMethods = PaymentMethodMaster::where('is_active', true)
             ->orderBy('display_label')
@@ -36,11 +38,7 @@ class OnboardingController extends Controller
             ->orderBy('name')
             ->get();
         $priceLists = PriceListMaster::where('status', 'active')->orderBy('name')->get();
-        $countries = SolutionMaster::where('status', 'published')->whereNotNull('country')
-            ->select('country')
-            ->distinct()
-            ->orderBy('country')
-            ->pluck('country');
+        $countries = Country::orderBy('name')->get();
 
         return view('admin.onboarding.start', compact(
             'solutions',
@@ -95,7 +93,8 @@ class OnboardingController extends Controller
 
     public function edit(Onboarding $onboarding): View
     {
-        $solutions = SolutionMaster::with('category')->orderBy('name')->get();
+        $solutions = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters', 'acquirerMasters'])
+            ->orderBy('name')->get();
         $partners = Partner::orderBy('title')->get();
         $paymentMethods = PaymentMethodMaster::where('is_active', true)
             ->orderBy('display_label')
@@ -104,11 +103,7 @@ class OnboardingController extends Controller
             ->orderBy('name')
             ->get();
         $priceLists = PriceListMaster::orderBy('name')->get();
-        $countries = SolutionMaster::whereNotNull('country')
-            ->select('country')
-            ->distinct()
-            ->orderBy('country')
-            ->pluck('country');
+        $countries = Country::orderBy('name')->get();
 
         return view('admin.onboarding.start', compact(
             'onboarding',
