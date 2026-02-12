@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->json('tags')->nullable();
             $table->json('acquirers')->nullable();
-            $table->json('payment_methods')->nullable();
             $table->json('alternative_methods')->nullable();
             $table->text('requirements')->nullable();
             $table->string('pricing_plan')->nullable();

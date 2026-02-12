@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use App\Models\PaymentMethodMaster;
 use App\Models\SolutionMaster;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
@@ -24,7 +25,7 @@ class SolutionMasterSeeder extends Seeder
                 'countries' => ['NL'],
                 'tags' => ['pos', 'card-present', 'retail'],
                 'acquirers' => ['elavon'],
-                'payment_methods' => ['visa', 'mastercard', 'maestro'],
+                'payment_methods' => ['Visa', 'Mastercard'],
                 'alternative_methods' => ['contactless'],
                 'requirements' => 'Requires compatible POS terminal and merchant onboarding approval.',
                 'pricing_plan' => 'custom',
@@ -37,7 +38,7 @@ class SolutionMasterSeeder extends Seeder
                 'countries' => [],
                 'tags' => ['ecommerce', 'multi-currency', 'global'],
                 'acquirers' => ['elavon', 'adyen'],
-                'payment_methods' => ['visa', 'mastercard', 'amex'],
+                'payment_methods' => ['Visa', 'Mastercard', 'American Express'],
                 'alternative_methods' => ['klarna', 'paypal'],
                 'requirements' => 'Requires PCI compliance and valid business registration.',
                 'pricing_plan' => 'tiered',
@@ -50,7 +51,7 @@ class SolutionMasterSeeder extends Seeder
                 'countries' => ['GB'],
                 'tags' => ['mobile', 'app', 'payments'],
                 'acquirers' => ['worldpay'],
-                'payment_methods' => ['visa', 'mastercard'],
+                'payment_methods' => ['Visa', 'Mastercard', 'Apple Pay', 'Google Pay'],
                 'alternative_methods' => ['apple-pay', 'google-pay'],
                 'requirements' => 'Requires mobile SDK integration and app store approval.',
                 'pricing_plan' => 'standard',
@@ -63,7 +64,7 @@ class SolutionMasterSeeder extends Seeder
                 'countries' => [],
                 'tags' => ['marketplace', 'distribution', 'multi-vendor'],
                 'acquirers' => ['stripe'],
-                'payment_methods' => ['visa', 'mastercard'],
+                'payment_methods' => ['Visa', 'Mastercard', 'PayPal', 'Bank Transfer'],
                 'alternative_methods' => ['sepa-transfer'],
                 'requirements' => 'Requires marketplace KYC verification for sub-merchants.',
                 'pricing_plan' => 'enterprise',
@@ -84,7 +85,6 @@ class SolutionMasterSeeder extends Seeder
                 'description' => $solution['description'],
                 'tags' => $solution['tags'],
                 'acquirers' => $solution['acquirers'],
-                'payment_methods' => $solution['payment_methods'],
                 'alternative_methods' => $solution['alternative_methods'],
                 'requirements' => $solution['requirements'],
                 'pricing_plan' => $solution['pricing_plan'],
@@ -111,6 +111,15 @@ class SolutionMasterSeeder extends Seeder
                 $solutionModel->countries()->sync($countryIds);
             } else {
                 $solutionModel->countries()->sync([]);
+            }
+
+            // Sync payment methods via pivot
+            $pmNames = collect($solution['payment_methods'] ?? [])->filter()->unique()->values();
+            if ($pmNames->isNotEmpty()) {
+                $pmIds = PaymentMethodMaster::whereIn('name', $pmNames)->pluck('id')->all();
+                $solutionModel->paymentMethodMasters()->sync($pmIds);
+            } else {
+                $solutionModel->paymentMethodMasters()->sync([]);
             }
         }
     }

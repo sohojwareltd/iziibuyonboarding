@@ -13,7 +13,6 @@ class SolutionMaster extends Model
     protected $casts = [
         'tags' => 'array',
         'acquirers' => 'array',
-        'payment_methods' => 'array',
         'alternative_methods' => 'array',
     ];
 
