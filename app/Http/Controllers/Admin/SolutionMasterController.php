@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
 use App\Models\SolutionMaster;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class SolutionMasterController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SolutionMaster::with('category');
+        $query = SolutionMaster::with(['category', 'countries']);
 
         // Filter by search
         if ($request->filled('search')) {
@@ -36,19 +37,16 @@ class SolutionMasterController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by country
+        // Filter by country (pivot)
         if ($request->filled('country')) {
-            $query->where('country', $request->country);
+            $query->whereHas('countries', function ($q) use ($request) {
+                $q->where('countries.id', $request->country);
+            });
         }
 
         $solutions = $query->get();
         $categories = Category::all();
-        
-        // Get unique countries for filter dropdown
-        $countries = SolutionMaster::whereNotNull('country')
-            ->distinct('country')
-            ->pluck('country')
-            ->sort();
+        $countries = Country::orderBy('name')->get();
 
         return view('admin.masters.solution-master', compact('solutions', 'categories', 'countries'));
     }
@@ -77,10 +75,12 @@ class SolutionMasterController extends Controller
         }
 
         if ($request->filled('country')) {
-            $query->where('country', $request->country);
+            $query->whereHas('countries', function ($q) use ($request) {
+                $q->where('countries.id', $request->country);
+            });
         }
 
-        $solutions = $query->get();
+        $solutions = $query->with('countries')->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -114,7 +114,7 @@ class SolutionMasterController extends Controller
                 $solution->category?->name ?? '',
                 $solution->status,
                 $solution->description,
-                $solution->country,
+                $solution->countries->pluck('name')->implode(', '),
                 $this->implodeArray($solution->tags),
                 $this->implodeArray($solution->acquirers),
                 $this->implodeArray($solution->payment_methods),
@@ -170,7 +170,8 @@ class SolutionMasterController extends Controller
             'category_id' => 'required|exists:categories,id',
             'status' => 'nullable|in:draft,published',
             'description' => 'nullable|string',
-            'country' => 'nullable|string',
+            'countries' => 'nullable|array',
+            'countries.*' => 'exists:countries,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'acquirers' => 'nullable|array',
@@ -186,13 +187,12 @@ class SolutionMasterController extends Controller
         $slug = Str::slug($request->name);
         $status = $request->status ?? 'published';
         
-        SolutionMaster::create([
+        $solution = SolutionMaster::create([
             'name' => $request->name,
             'slug' => $slug,
             'category_id' => $request->category_id,
             'status' => $status,
             'description' => $request->description,
-            'country' => $request->country,
             'tags' => $request->tags,
             'acquirers' => $request->acquirers,
             'payment_methods' => $request->payment_methods,
@@ -200,6 +200,8 @@ class SolutionMasterController extends Controller
             'requirements' => $request->requirements,
             'pricing_plan' => $request->pricing_plan,
         ]);
+
+        $solution->countries()->sync($request->countries ?? []);
 
         return redirect()->route('admin.masters.solution-master')->with('success', 'Solution created successfully.');
     }
@@ -232,7 +234,8 @@ class SolutionMasterController extends Controller
             'category_id' => 'required|exists:categories,id',
             'status' => 'nullable|in:draft,published',
             'description' => 'nullable|string',
-            'country' => 'nullable|string',
+            'countries' => 'nullable|array',
+            'countries.*' => 'exists:countries,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'acquirers' => 'nullable|array',
@@ -253,7 +256,6 @@ class SolutionMasterController extends Controller
             'category_id' => $request->category_id,
             'status' => $request->status ?? $solution->status,
             'description' => $request->description,
-            'country' => $request->country,
             'tags' => $request->tags,
             'acquirers' => $request->acquirers,
             'payment_methods' => $request->payment_methods,
@@ -261,6 +263,8 @@ class SolutionMasterController extends Controller
             'requirements' => $request->requirements,
             'pricing_plan' => $request->pricing_plan,
         ]);
+
+        $solution->countries()->sync($request->countries ?? []);
 
         return redirect()->route('admin.masters.solution-master')->with('success', 'Solution updated successfully.');
     }

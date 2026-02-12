@@ -288,7 +288,7 @@
                                     @if (request('country'))
                                         <div class="filter-badge">
                                             <i class="fa-solid fa-map-pin text-xs"></i>
-                                            <span>{{ request('country') }}</span>
+                                            <span>{{ $countries->firstWhere('id', request('country'))?->name ?? request('country') }}</span>
                                             <button type="button" onclick="clearCountryFilter()">
                                                 <i class="fa-solid fa-xmark text-xs"></i>
                                             </button>
@@ -348,9 +348,9 @@
                                             class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
                                             <option value="">All Countries</option>
                                             @foreach ($countries as $country)
-                                                <option value="{{ $country }}"
-                                                    {{ request('country') == $country ? 'selected' : '' }}>
-                                                    {{ $country }}
+                                                <option value="{{ $country->id }}"
+                                                    {{ request('country') == $country->id ? 'selected' : '' }}>
+                                                    {{ $country->name }} ({{ $country->code }})
                                                 </option>
                                             @endforeach
                                         </select>
@@ -409,7 +409,13 @@
                                                 class="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-medium">{{ $solution->category->name }}</span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="text-gray-600">{{ $solution->country ?? '—' }}</span>
+                                            <span class="text-gray-600">
+                                                @if ($solution->countries->isNotEmpty())
+                                                    {{ $solution->countries->pluck('name')->implode(', ') }}
+                                                @else
+                                                    &mdash;
+                                                @endif
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="text-gray-600">
@@ -428,7 +434,7 @@
                                             <div class="flex items-center justify-end gap-2">
                                                 <button data-id="{{ $solution->id }}" data-name="{{ $solution->name }}"
                                                     data-category-id="{{ $solution->category_id }}"
-                                                    data-country="{{ $solution->country }}"
+                                                    data-countries='@json($solution->countries->pluck("id"))'
                                                     data-status="{{ $solution->status }}"
                                                     data-description="{{ $solution->description }}"
                                                     data-tags='@json($solution->tags ?? [])'
@@ -554,15 +560,24 @@
                             </div>
                         </div>
 
-                        <!-- Select Country Section -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Select Country</label>
-                            <select id="solution-country" name="country" class="form-input">
-                                <option value="">Select country...</option>
-                                <option value="nl">Netherlands</option>
-                                <option value="uk">United Kingdom</option>
-                                <option value="no">Norway</option>
-                            </select>
+                        <!-- Select Countries Section -->
+                        <div class="space-y-4">
+                            <div class="border-b border-gray-200 pb-2">
+                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Select Countries</h3>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Countries</label>
+                                <div id="countries-list" class="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                                    @foreach ($countries as $country)
+                                        <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                                            <input type="checkbox" name="countries[]" value="{{ $country->id }}"
+                                                class="w-4 h-4 border-gray-400 rounded">
+                                            <span class="text-sm text-gray-700">{{ $country->name }} ({{ $country->code }})</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">Select one or more countries for this solution.</p>
+                            </div>
                         </div>
 
                         <!-- Supported Acquirers Section -->
@@ -797,6 +812,26 @@
                 document.getElementById('solution-status').value = 'published';
                 solutionTags = [];
                 renderTags();
+
+                // Reset all country checkboxes
+                document.querySelectorAll('input[name="countries[]"]').forEach((input) => {
+                    input.checked = false;
+                });
+
+                // Reset all acquirer checkboxes
+                document.querySelectorAll('input[name="acquirers[]"]').forEach((input) => {
+                    input.checked = false;
+                });
+
+                // Reset all payment method checkboxes
+                document.querySelectorAll('input[name="payment_methods[]"]').forEach((input) => {
+                    input.checked = false;
+                });
+
+                // Reset all alternative method checkboxes
+                document.querySelectorAll('input[name="alternative_methods[]"]').forEach((input) => {
+                    input.checked = false;
+                });
             }
         }
 
@@ -823,11 +858,16 @@
 
             document.getElementById('solution-name').value = data.name || '';
             document.getElementById('category-select').value = data.categoryId || '';
-            document.getElementById('solution-country').value = data.country || '';
             document.getElementById('solution-status').value = data.status || 'draft';
             document.getElementById('solution-description').value = data.description || '';
             document.getElementById('solution-requirements').value = data.requirements || '';
             document.getElementById('solution-pricing-plan').value = data.pricingPlan || '';
+
+            // Pre-fill countries checkboxes
+            const selectedCountries = new Set(JSON.parse(data.countries || '[]').map(String));
+            document.querySelectorAll('input[name="countries[]"]').forEach((input) => {
+                input.checked = selectedCountries.has(input.value);
+            });
 
             solutionTags = [];
             try {

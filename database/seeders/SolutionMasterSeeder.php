@@ -21,6 +21,7 @@ class SolutionMasterSeeder extends Seeder
                 'category_slug' => 'pop',
                 'status' => 'published',
                 'description' => 'Card present point-of-sale solution for Netherlands',
+                'countries' => ['NL'],
                 'tags' => ['pos', 'card-present', 'retail'],
                 'acquirers' => ['elavon'],
                 'payment_methods' => ['visa', 'mastercard', 'maestro'],
@@ -33,6 +34,7 @@ class SolutionMasterSeeder extends Seeder
                 'category_slug' => 'e-commerce',
                 'status' => 'published',
                 'description' => 'Global e-commerce payment solution with multi-currency support',
+                'countries' => [],
                 'tags' => ['ecommerce', 'multi-currency', 'global'],
                 'acquirers' => ['elavon', 'adyen'],
                 'payment_methods' => ['visa', 'mastercard', 'amex'],
@@ -45,6 +47,7 @@ class SolutionMasterSeeder extends Seeder
                 'category_slug' => 'mobile-app',
                 'status' => 'published',
                 'description' => 'Mobile application payment integration',
+                'countries' => ['GB'],
                 'tags' => ['mobile', 'app', 'payments'],
                 'acquirers' => ['worldpay'],
                 'payment_methods' => ['visa', 'mastercard'],
@@ -57,6 +60,7 @@ class SolutionMasterSeeder extends Seeder
                 'category_slug' => 'marketplace',
                 'status' => 'published',
                 'description' => 'Marketplace payment distribution system',
+                'countries' => [],
                 'tags' => ['marketplace', 'distribution', 'multi-vendor'],
                 'acquirers' => ['stripe'],
                 'payment_methods' => ['visa', 'mastercard'],
@@ -87,17 +91,15 @@ class SolutionMasterSeeder extends Seeder
                 ]
             );
 
-            $legacyCountry = $solution['country'];
-            $countryCodes = is_string($legacyCountry) && $legacyCountry !== '' ? [$legacyCountry] : [];
-            $normalizedCodes = collect($countryCodes)
+            $countryCodes = collect($solution['countries'] ?? [])
                 ->filter()
                 ->map(fn ($code) => strtoupper(trim($code)))
                 ->map(fn ($code) => $code === 'UK' ? 'GB' : $code)
                 ->unique()
                 ->values();
 
-            if ($normalizedCodes->isNotEmpty()) {
-                $countryIds = $normalizedCodes
+            if ($countryCodes->isNotEmpty()) {
+                $countryIds = $countryCodes
                     ->map(function (string $code) {
                         return Country::firstOrCreate(
                             ['code' => $code],
