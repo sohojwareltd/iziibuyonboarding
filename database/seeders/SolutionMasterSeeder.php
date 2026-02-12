@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use App\Models\SolutionMaster;
 use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -18,10 +18,9 @@ class SolutionMasterSeeder extends Seeder
         $solutions = [
             [
                 'name' => 'Elavon Card Present POS - NL',
-                'category_id' => Category::where('slug', 'pop')->first()->id ?? 1,
+                'category_slug' => 'pop',
                 'status' => 'published',
                 'description' => 'Card present point-of-sale solution for Netherlands',
-                'country' => 'nl',
                 'tags' => ['pos', 'card-present', 'retail'],
                 'acquirers' => ['elavon'],
                 'payment_methods' => ['visa', 'mastercard', 'maestro'],
@@ -31,10 +30,9 @@ class SolutionMasterSeeder extends Seeder
             ],
             [
                 'name' => 'E-com Global',
-                'category_id' => Category::where('slug', 'e-commerce')->first()->id ?? 2,
+                'category_slug' => 'e-commerce',
                 'status' => 'published',
                 'description' => 'Global e-commerce payment solution with multi-currency support',
-                'country' => null,
                 'tags' => ['ecommerce', 'multi-currency', 'global'],
                 'acquirers' => ['elavon', 'adyen'],
                 'payment_methods' => ['visa', 'mastercard', 'amex'],
@@ -44,10 +42,9 @@ class SolutionMasterSeeder extends Seeder
             ],
             [
                 'name' => 'Mobile App Payment',
-                'category_id' => Category::where('slug', 'mobile-app')->first()->id ?? 3,
+                'category_slug' => 'mobile-app',
                 'status' => 'published',
                 'description' => 'Mobile application payment integration',
-                'country' => 'uk',
                 'tags' => ['mobile', 'app', 'payments'],
                 'acquirers' => ['worldpay'],
                 'payment_methods' => ['visa', 'mastercard'],
@@ -57,10 +54,9 @@ class SolutionMasterSeeder extends Seeder
             ],
             [
                 'name' => 'Marketplace Connect',
-                'category_id' => Category::where('slug', 'marketplace')->first()->id ?? 4,
+                'category_slug' => 'marketplace',
                 'status' => 'published',
                 'description' => 'Marketplace payment distribution system',
-                'country' => null,
                 'tags' => ['marketplace', 'distribution', 'multi-vendor'],
                 'acquirers' => ['stripe'],
                 'payment_methods' => ['visa', 'mastercard'],
@@ -71,20 +67,49 @@ class SolutionMasterSeeder extends Seeder
         ];
 
         foreach ($solutions as $solution) {
-            SolutionMaster::create([
+            $categoryId = Category::where('slug', $solution['category_slug'])->value('id')
+                ?? Category::value('id')
+                ?? 1;
+
+            $solutionModel = SolutionMaster::updateOrCreate(
+                ['slug' => Str::slug($solution['name'])],
+                [
                 'name' => $solution['name'],
-                'slug' => Str::slug($solution['name']),
-                'category_id' => $solution['category_id'],
+                'category_id' => $categoryId,
                 'status' => $solution['status'],
                 'description' => $solution['description'],
-                'country' => $solution['country'],
                 'tags' => $solution['tags'],
                 'acquirers' => $solution['acquirers'],
                 'payment_methods' => $solution['payment_methods'],
                 'alternative_methods' => $solution['alternative_methods'],
                 'requirements' => $solution['requirements'],
                 'pricing_plan' => $solution['pricing_plan'],
-            ]);
+                ]
+            );
+
+            $legacyCountry = $solution['country'];
+            $countryCodes = is_string($legacyCountry) && $legacyCountry !== '' ? [$legacyCountry] : [];
+            $normalizedCodes = collect($countryCodes)
+                ->filter()
+                ->map(fn ($code) => strtoupper(trim($code)))
+                ->map(fn ($code) => $code === 'UK' ? 'GB' : $code)
+                ->unique()
+                ->values();
+
+            if ($normalizedCodes->isNotEmpty()) {
+                $countryIds = $normalizedCodes
+                    ->map(function (string $code) {
+                        return Country::firstOrCreate(
+                            ['code' => $code],
+                            ['name' => $code]
+                        )->id;
+                    })
+                    ->all();
+
+                $solutionModel->countries()->sync($countryIds);
+            } else {
+                $solutionModel->countries()->sync([]);
+            }
         }
     }
 }

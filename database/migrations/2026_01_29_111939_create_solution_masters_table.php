@@ -19,7 +19,6 @@ return new class extends Migration
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->text('description')->nullable();
             $table->json('tags')->nullable();
-            $table->string('country')->nullable();
             $table->json('acquirers')->nullable();
             $table->json('payment_methods')->nullable();
             $table->json('alternative_methods')->nullable();

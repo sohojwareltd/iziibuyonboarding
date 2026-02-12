@@ -21,6 +21,16 @@ class Country extends Model
         )->withTimestamps();
     }
 
+    public function solutionMasters()
+    {
+        return $this->belongsToMany(
+            SolutionMaster::class,
+            'country_solution_master',
+            'country_id',
+            'solution_master_id'
+        )->withTimestamps();
+    }
+
     /**
      * Scope to search countries by name or code.
      */

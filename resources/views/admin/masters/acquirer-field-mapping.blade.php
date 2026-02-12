@@ -100,14 +100,64 @@
         }
         .requirement-toggle button.active {
             background: white;
-            color: #FFA439;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            color: #10B981;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        .requirement-toggle button.optional-active {
+            background: white;
+            color: #F59E0B;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: 600;
         }
         .requirement-toggle button.hidden-active {
             background: white;
-            color: #DC2626;
-            border: 1px solid #FECACA;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            color: #EF4444;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        .field-row {
+            transition: all 0.2s;
+        }
+        .field-row:hover {
+            background-color: #F9FAFB;
+        }
+        .visibility-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .visibility-checkbox:hover {
+            background-color: #F3F4F6;
+        }
+        .visibility-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #D1D5DB;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .visibility-checkbox input[type="checkbox"]:checked {
+            border-color: #4055A8;
+            background-color: #4055A8;
+        }
+        .visibility-checkbox span {
+            font-size: 0.8125rem;
+            color: #374151;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .drag-handle {
+            cursor: grab;
+            transition: color 0.2s;
+        }
+        .drag-handle:hover {
+            color: #4055A8;
         }
         .preview-tabs {
             display: flex;
@@ -163,222 +213,264 @@
                 <div class="bg-brand-neutral p-6">
                     <div class="max-w-[1200px] mx-auto">
                         <!-- Page Title and Description -->
-                        <div class="mb-6">
-                            <h1 class="text-2xl font-semibold text-brand-primary mb-1">Acquirer-Specific KYC Field Mapping</h1>
-                            <p class="text-sm text-gray-500">Configure mandatory, optional, and hidden KYC fields per acquirer and per country. Supports drag-and-drop ordering and visibility control.</p>
+                        <div class="mb-8">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-brand-cta text-white p-3 rounded-xl shadow-lg">
+                                    <i class="fa-solid fa-sliders text-xl"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-3xl font-bold text-brand-primary">Acquirer Field Mapping</h1>
+                                    <p class="text-sm text-brand-text mt-1">Configure field requirements per acquirer and country</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Configuration Controls -->
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
-                            <div class="w-full sm:w-64">
-                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Acquirer</label>
-                                <select class="form-input">
-                                    <option value="">Select Acquirer...</option>
-                                    <option value="elavon">Elavon</option>
-                                    <option value="surfboard">Surfboard</option>
-                                    <option value="stripe">Stripe</option>
-                                </select>
-                            </div>
-                            <div class="w-full sm:w-64">
-                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Country</label>
-                                <select class="form-input">
-                                    <option value="">Select Country...</option>
-                                    <option value="uk">United Kingdom</option>
-                                    <option value="nl">Netherlands</option>
-                                    <option value="no">Norway</option>
-                                </select>
-                            </div>
-                            <button class="w-full sm:w-auto bg-brand-primary text-white px-4 py-2.5 rounded-lg shadow-sm hover:bg-brand-secondary transition-colors flex items-center justify-center gap-2 h-[38px]">
-                                <i class="fa-solid fa-rotate text-sm"></i>
-                                <span class="font-medium text-sm">Load Mapping</span>
-                            </button>
-                            <div class="w-full sm:flex-1 text-center sm:text-right text-xs text-gray-400">
-                                <div>Last updated: Oct 24, 14:30 • v1.2.4</div>
+                        <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6 shadow-md">
+                            <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                                <div class="w-full sm:w-72">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-building text-brand-cta"></i>
+                                        Acquirer
+                                    </label>
+                                    <select class="form-input">
+                                        <option value="">Select Acquirer...</option>
+                                        <option value="elavon">Elavon</option>
+                                        <option value="surfboard">Surfboard</option>
+                                        <option value="stripe">Stripe</option>
+                                        <option value="square">Square</option>
+                                        <option value="paypal">PayPal</option>
+                                    </select>
+                                </div>
+                                <div class="w-full sm:w-72">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-globe text-brand-secondary"></i>
+                                        Country
+                                    </label>
+                                    <select class="form-input">
+                                        <option value="">Select Country...</option>
+                                        <option value="uk">United Kingdom</option>
+                                        <option value="nl">Netherlands</option>
+                                        <option value="no">Norway</option>
+                                        <option value="bd">Bangladesh</option>
+                                        <option value="us">United States</option>
+                                    </select>
+                                </div>
+                                <button class="w-full sm:w-auto bg-brand-primary from-brand-primary to-brand-secondary text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 font-semibold">
+                                    <i class="fa-solid fa-download"></i>
+                                    <span>Load Mapping</span>
+                                </button>
+                                <div class="w-full sm:flex-1 flex items-center justify-end">
+                                    <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        <span>Last updated: Feb 11, 2026</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Main Content: Field Mapping and Preview -->
                         <div class="flex flex-col lg:flex-row gap-6">
                             <!-- Left Panel: Field Mapping Configuration -->
-                            <div class="flex-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div class="flex-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg overflow-hidden">
                                 <!-- Action Bar -->
-                                <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <button class="text-sm font-medium text-brand-primary flex items-center gap-1">
+                                <div class="bg-gradient-to-r from-gray-50 to-white border-b-2 border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div class="flex flex-wrap items-center gap-4">
+                                        <button class="bg-white border-2 border-brand-primary text-brand-primary px-4 py-2 rounded-lg shadow-sm hover:bg-brand-primary hover:text-white transition-all font-semibold flex items-center gap-2">
+                                            <i class="fa-solid fa-list-check"></i>
                                             Bulk Actions
                                             <i class="fa-solid fa-chevron-down text-xs"></i>
                                         </button>
-                                        <div class="h-4 w-px bg-gray-300"></div>
-                                        <button class="text-sm text-gray-600 hover:text-brand-primary flex items-center gap-1">
-                                            <i class="fa-solid fa-check-double text-xs"></i>
-                                            Make All Mandatory
+                                        <div class="h-6 w-px bg-gray-300"></div>
+                                        <button class="text-sm text-gray-700 hover:text-green-600 font-medium flex items-center gap-2 hover:bg-green-50 px-3 py-2 rounded-lg transition-all">
+                                            <i class="fa-solid fa-check-double"></i>
+                                            All Mandatory
                                         </button>
-                                        <button class="text-sm text-gray-600 hover:text-brand-primary flex items-center gap-1">
-                                            <i class="fa-solid fa-eye-slash text-xs"></i>
+                                        <button class="text-sm text-gray-700 hover:text-red-600 font-medium flex items-center gap-2 hover:bg-red-50 px-3 py-2 rounded-lg transition-all">
+                                            <i class="fa-solid fa-eye-slash"></i>
                                             Hide All
                                         </button>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-3">
-                                        <button class="text-sm text-gray-600 hover:text-brand-primary flex items-center gap-1">
-                                            <i class="fa-solid fa-upload text-xs"></i>
-                                            Import JSON
+                                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium flex items-center gap-2">
+                                            <i class="fa-solid fa-upload"></i>
+                                            Import
                                         </button>
-                                        <button class="text-sm text-gray-600 hover:text-brand-primary flex items-center gap-1">
-                                            <i class="fa-solid fa-download text-xs"></i>
-                                            Export JSON
+                                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium flex items-center gap-2">
+                                            <i class="fa-solid fa-download"></i>
+                                            Export
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Table Headers -->
                                 <div class="overflow-x-auto">
-                                <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-3 flex items-center gap-4 min-w-[800px]">
-                                    <div class="w-10"></div>
+                                <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-6 py-4 flex items-center gap-4 min-w-[900px]">
+                                    <div class="w-10 flex items-center justify-center">
+                                        <i class="fa-solid fa-grip-vertical text-xs opacity-60"></i>
+                                    </div>
                                     <div class="flex-1">
-                                        <div class="text-xs font-bold text-gray-500 uppercase">Field Name</div>
+                                        <div class="text-xs font-bold uppercase tracking-wide">Field Name</div>
                                     </div>
-                                    <div class="w-40">
-                                        <div class="text-xs font-bold text-gray-500 uppercase">Requirement</div>
+                                    <div class="w-52">
+                                        <div class="text-xs font-bold uppercase tracking-wide">Requirement</div>
                                     </div>
-                                    <div class="w-48">
-                                        <div class="text-xs font-bold text-gray-500 uppercase">Visibility</div>
+                                    <div class="w-80">
+                                        <div class="text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+                                            Visibility Roles
+                                            <i class="fa-solid fa-circle-info text-xs opacity-70" title="Control where field appears"></i>
+                                        </div>
                                     </div>
-                                    <div class="w-20 text-right">
-                                        <div class="text-xs font-bold text-gray-500 uppercase">Validation</div>
+                                    <div class="w-24 text-center">
+                                        <div class="text-xs font-bold uppercase tracking-wide">Actions</div>
                                     </div>
                                 </div>
 
                                 <!-- Field Sections -->
-                                <div class="divide-y divide-gray-100 min-w-[800px]">
+                                <div class="divide-y divide-gray-200 min-w-[900px]">
                                     <!-- Company Information Section -->
                                     <div class="field-section">
-                                        <div class="section-header bg-gray-50 border-b border-gray-200 px-6 py-2.5 flex items-center justify-between cursor-pointer" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 section-chevron"></i>
-                                                <span class="font-medium text-brand-primary">Company Information</span>
-                                                <span class="bg-white border border-gray-200 text-gray-400 px-2 py-0.5 rounded-full text-xs">5 fields</span>
+                                        <div class="section-header bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all" onclick="toggleSection(this)">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fa-solid fa-chevron-down text-base text-brand-secondary section-chevron transition-transform"></i>
+                                                <i class="fa-solid fa-building text-brand-cta"></i>
+                                                <span class="font-bold text-brand-primary text-base">Company Information</span>
+                                                <span class="bg-white border-2 border-blue-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">3 fields</span>
                                             </div>
+                                            <div class="text-xs text-gray-600 font-medium">2 Mandatory • 1 Optional</div>
                                         </div>
                                         <div class="section-content">
                                             <!-- Legal Name -->
-                                            <div class="px-4 md:px-6 py-3 flex items-center gap-4 border-b border-gray-100 hover:bg-gray-50">
+                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
                                                 <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 cursor-move"></i>
+                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <div class="font-medium text-gray-900">Legal Name</div>
-                                                    <div class="font-mono text-xs text-gray-400">company_legal_name</div>
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <div class="font-semibold text-gray-900 text-base">Legal Name</div>
+                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1">
+                                                            <i class="fa-solid fa-asterisk" style="font-size: 8px;"></i>
+                                                            Required
+                                                        </span>
+                                                    </div>
+                                                    <div class="font-mono text-xs text-gray-500">company_legal_name</div>
                                                 </div>
-                                                <div class="w-40">
+                                                <div class="w-52">
                                                     <div class="requirement-toggle">
                                                         <button class="active" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
                                                         <button onclick="setRequirement(this, 'optional')">Optional</button>
                                                         <button onclick="setRequirement(this, 'hidden')">Hidden</button>
                                                     </div>
                                                 </div>
-                                                <div class="w-48">
-                                                    <div class="flex items-center gap-3">
-                                                        <label class="flex items-center gap-2 cursor-pointer opacity-70">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Merch</span>
+                                                <div class="w-80">
+                                                    <div class="flex items-center gap-4">
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Merchant</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Admin</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Admin</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" class="w-3.5 h-3.5 border-gray-400 rounded">
-                                                            <span class="text-xs text-gray-400">Partner</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox">
+                                                            <span>Partner</span>
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="w-20 text-right">
-                                                    <button class="text-brand-primary text-xs font-medium flex items-center gap-1">
-                                                        <i class="fa-solid fa-gear text-xs"></i>
-                                                        Config
+                                                <div class="w-24 text-center">
+                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
+                                                        <i class="fa-solid fa-cog"></i>
+                                                        Setup
                                                     </button>
                                                 </div>
                                             </div>
 
                                             <!-- Trading Name -->
-                                            <div class="px-6 py-3 flex items-center gap-4 border-b border-gray-100 hover:bg-gray-50">
+                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
                                                 <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 cursor-move"></i>
+                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <div class="font-medium text-gray-900">Trading Name</div>
-                                                    <div class="font-mono text-xs text-gray-400">company_trading_name</div>
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <div class="font-semibold text-gray-900 text-base">Trading Name</div>
+                                                        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-xs font-bold">Optional</span>
+                                                    </div>
+                                                    <div class="font-mono text-xs text-gray-500">company_trading_name</div>
                                                 </div>
-                                                <div class="w-40">
+                                                <div class="w-52">
                                                     <div class="requirement-toggle">
                                                         <button onclick="setRequirement(this, 'mandatory')">Mandatory</button>
-                                                        <button class="active" onclick="setRequirement(this, 'optional')">Optional</button>
+                                                        <button class="optional-active" onclick="setRequirement(this, 'optional')">Optional</button>
                                                         <button onclick="setRequirement(this, 'hidden')">Hidden</button>
                                                     </div>
                                                 </div>
-                                                <div class="w-48">
-                                                    <div class="flex items-center gap-3">
-                                                        <label class="flex items-center gap-2 cursor-pointer opacity-70">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Merch</span>
+                                                <div class="w-80">
+                                                    <div class="flex items-center gap-4">
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Merchant</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Admin</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Admin</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" class="w-3.5 h-3.5 border-gray-400 rounded">
-                                                            <span class="text-xs text-gray-400">Partner</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox">
+                                                            <span>Partner</span>
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="w-20 text-right">
-                                                    <button class="text-brand-primary text-xs font-medium flex items-center gap-1">
-                                                        <i class="fa-solid fa-gear text-xs"></i>
-                                                        Config
+                                                <div class="w-24 text-center">
+                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
+                                                        <i class="fa-solid fa-cog"></i>
+                                                        Setup
                                                     </button>
                                                 </div>
                                             </div>
 
-                                            <!-- Tax ID (Hidden) -->
-                                            <div class="px-6 py-3 flex items-center gap-4 border-b border-gray-100 hover:bg-gray-50 opacity-60">
+                                            <!-- Registration Number -->
+                                            <div class="field-row px-6 py-5 flex items-center gap-4 border-b border-gray-200">
                                                 <div class="w-10 flex items-center justify-center">
-                                                    <i class="fa-solid fa-grip-vertical text-gray-400 cursor-move"></i>
+                                                    <i class="fa-solid fa-grip-vertical text-gray-400 drag-handle"></i>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-medium text-gray-900">Tax ID</span>
-                                                        <span class="bg-red-100 border border-red-200 text-red-600 px-2 py-0.5 rounded text-xs font-medium">Hidden</span>
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <div class="font-semibold text-gray-900 text-base">Registration Number</div>
+                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold flex items-center gap-1">
+                                                            <i class="fa-solid fa-asterisk" style="font-size: 8px;"></i>
+                                                            Required
+                                                        </span>
                                                     </div>
-                                                    <div class="font-mono text-xs text-gray-400">company_tax_id</div>
+                                                    <div class="font-mono text-xs text-gray-500">company_registration_no</div>
                                                 </div>
-                                                <div class="w-40">
+                                                <div class="w-52">
                                                     <div class="requirement-toggle">
-                                                        <button onclick="setRequirement(this, 'mandatory')">Mandatory</button>
+                                                        <button class="active" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
                                                         <button onclick="setRequirement(this, 'optional')">Optional</button>
-                                                        <button class="hidden-active" onclick="setRequirement(this, 'hidden')">Hidden</button>
+                                                        <button onclick="setRequirement(this, 'hidden')">Hidden</button>
                                                     </div>
                                                 </div>
-                                                <div class="w-48">
-                                                    <div class="flex items-center gap-3">
-                                                        <label class="flex items-center gap-2 cursor-pointer opacity-70">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Merch</span>
+                                                <div class="w-80">
+                                                    <div class="flex items-center gap-4">
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Merchant</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" checked class="w-3.5 h-3.5 border-gray-400 rounded text-blue-600">
-                                                            <span class="text-xs text-gray-600">Admin</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox" checked>
+                                                            <span>Admin</span>
                                                         </label>
-                                                        <label class="flex items-center gap-2 cursor-pointer">
-                                                            <input type="checkbox" class="w-3.5 h-3.5 border-gray-400 rounded">
-                                                            <span class="text-xs text-gray-400">Partner</span>
+                                                        <label class="visibility-checkbox">
+                                                            <input type="checkbox">
+                                                            <span>Partner</span>
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="w-20 text-right">
-                                                    <button class="text-brand-primary text-xs font-medium flex items-center gap-1">
-                                                        <i class="fa-solid fa-gear text-xs"></i>
-                                                        Config
+                                                <div class="w-24 text-center">
+                                                    <button class="bg-brand-primary text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-brand-secondary transition-all shadow-sm flex items-center gap-2 mx-auto">
+                                                        <i class="fa-solid fa-cog"></i>
+                                                        Setup
                                                     </button>
                                                 </div>
                                             </div>
@@ -387,12 +479,14 @@
 
                                     <!-- Beneficial Owners Section -->
                                     <div class="field-section">
-                                        <div class="section-header bg-gray-50 border-b border-gray-200 px-6 py-2.5 flex items-center justify-between cursor-pointer" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fa-solid fa-chevron-right text-xs text-gray-400 section-chevron"></i>
-                                                <span class="font-medium text-brand-primary">Beneficial Owners</span>
-                                                <span class="bg-white border border-gray-200 text-gray-400 px-2 py-0.5 rounded-full text-xs">3 fields</span>
+                                        <div class="section-header bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-all" onclick="toggleSection(this)">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fa-solid fa-chevron-right text-base text-brand-secondary section-chevron transition-transform"></i>
+                                                <i class="fa-solid fa-users text-brand-cta"></i>
+                                                <span class="font-bold text-brand-primary text-base">Beneficial Owners</span>
+                                                <span class="bg-white border-2 border-purple-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">Collapsed</span>
                                             </div>
+                                            <div class="text-xs text-gray-600 font-medium">Click to expand</div>
                                         </div>
                                         <div class="section-content collapsed">
                                             <!-- Fields would go here -->
@@ -401,12 +495,14 @@
 
                                     <!-- Bank Information Section -->
                                     <div class="field-section">
-                                        <div class="section-header bg-gray-50 border-b border-gray-200 px-6 py-2.5 flex items-center justify-between cursor-pointer" onclick="toggleSection(this)">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fa-solid fa-chevron-right text-xs text-gray-400 section-chevron"></i>
-                                                <span class="font-medium text-brand-primary">Bank Information</span>
-                                                <span class="bg-white border border-gray-200 text-gray-400 px-2 py-0.5 rounded-full text-xs">4 fields</span>
+                                        <div class="section-header bg-gradient-to-r from-green-50 to-teal-50 border-b-2 border-green-200 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-green-100 hover:to-teal-100 transition-all" onclick="toggleSection(this)">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fa-solid fa-chevron-right text-base text-brand-secondary section-chevron transition-transform"></i>
+                                                <i class="fa-solid fa-landmark text-brand-cta"></i>
+                                                <span class="font-bold text-brand-primary text-base">Bank Information</span>
+                                                <span class="bg-white border-2 border-green-300 text-brand-secondary px-3 py-1 rounded-full text-xs font-bold">Collapsed</span>
                                             </div>
+                                            <div class="text-xs text-gray-600 font-medium">Click to expand</div>
                                         </div>
                                         <div class="section-content collapsed">
                                             <!-- Fields would go here -->
@@ -490,11 +586,13 @@
             function setRequirement(button, type) {
                 const toggle = button.closest('.requirement-toggle');
                 toggle.querySelectorAll('button').forEach(btn => {
-                    btn.classList.remove('active', 'hidden-active');
+                    btn.classList.remove('active', 'optional-active', 'hidden-active');
                 });
                 
                 if (type === 'hidden') {
                     button.classList.add('hidden-active');
+                } else if (type === 'optional') {
+                    button.classList.add('optional-active');
                 } else {
                     button.classList.add('active');
                 }

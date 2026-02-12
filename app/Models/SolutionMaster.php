@@ -24,4 +24,14 @@ class SolutionMaster extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function countries()
+    {
+        return $this->belongsToMany(
+            Country::class,
+            'country_solution_master',
+            'solution_master_id',
+            'country_id'
+        )->withTimestamps();
+    }
 }
