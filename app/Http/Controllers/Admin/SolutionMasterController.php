@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcquirerMaster;
 use App\Models\Country;
 use App\Models\PaymentMethodMaster;
 use App\Models\SolutionMaster;
@@ -19,7 +20,7 @@ class SolutionMasterController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters']);
+        $query = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters', 'acquirerMasters']);
 
         // Filter by search
         if ($request->filled('search')) {
@@ -49,8 +50,9 @@ class SolutionMasterController extends Controller
         $categories = Category::all();
         $countries = Country::orderBy('name')->get();
         $paymentMethods = PaymentMethodMaster::where('is_active', true)->orderBy('name')->get();
+        $acquirers = AcquirerMaster::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.masters.solution-master', compact('solutions', 'categories', 'countries', 'paymentMethods'));
+        return view('admin.masters.solution-master', compact('solutions', 'categories', 'countries', 'paymentMethods', 'acquirers'));
     }
 
     /**
@@ -82,7 +84,7 @@ class SolutionMasterController extends Controller
             });
         }
 
-        $solutions = $query->with(['countries', 'paymentMethodMasters'])->get();
+        $solutions = $query->with(['countries', 'paymentMethodMasters', 'acquirerMasters'])->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -118,7 +120,7 @@ class SolutionMasterController extends Controller
                 $solution->description,
                 $solution->countries->pluck('name')->implode(', '),
                 $this->implodeArray($solution->tags),
-                $this->implodeArray($solution->acquirers),
+                $solution->acquirerMasters->pluck('name')->implode(', '),
                 $solution->paymentMethodMasters->pluck('display_label')->implode(', '),
                 $this->implodeArray($solution->alternative_methods),
                 $solution->requirements,
@@ -176,6 +178,8 @@ class SolutionMasterController extends Controller
             'countries.*' => 'exists:countries,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'acquirers' => 'nullable|array',
+            'acquirers.*' => 'exists:acquirer_masters,id',
             'payment_methods' => 'nullable|array',
             'payment_methods.*' => 'exists:payment_method_masters,id',
             'alternative_methods' => 'nullable|array',
@@ -200,6 +204,7 @@ class SolutionMasterController extends Controller
         ]);
 
         $solution->countries()->sync($request->countries ?? []);
+        $solution->acquirerMasters()->sync($request->acquirers ?? []);
         $solution->paymentMethodMasters()->sync($request->payment_methods ?? []);
 
         return redirect()->route('admin.masters.solution-master')->with('success', 'Solution created successfully.');
@@ -237,6 +242,8 @@ class SolutionMasterController extends Controller
             'countries.*' => 'exists:countries,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'acquirers' => 'nullable|array',
+            'acquirers.*' => 'exists:acquirer_masters,id',
             'payment_methods' => 'nullable|array',
             'payment_methods.*' => 'exists:payment_method_masters,id',
             'alternative_methods' => 'nullable|array',
@@ -260,6 +267,7 @@ class SolutionMasterController extends Controller
         ]);
 
         $solution->countries()->sync($request->countries ?? []);
+        $solution->acquirerMasters()->sync($request->acquirers ?? []);
         $solution->paymentMethodMasters()->sync($request->payment_methods ?? []);
 
         return redirect()->route('admin.masters.solution-master')->with('success', 'Solution updated successfully.');

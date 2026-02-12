@@ -419,7 +419,11 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="text-gray-600">
-                                                {{ !empty($solution->acquirers) ? implode(', ', $solution->acquirers) : '—' }}
+                                                @if ($solution->acquirerMasters->isNotEmpty())
+                                                    {{ $solution->acquirerMasters->pluck('name')->implode(', ') }}
+                                                @else
+                                                    &mdash;
+                                                @endif
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
@@ -438,7 +442,7 @@
                                                     data-status="{{ $solution->status }}"
                                                     data-description="{{ $solution->description }}"
                                                     data-tags='@json($solution->tags ?? [])'
-                                                    data-acquirers='@json($solution->acquirers ?? [])'
+                                                    data-acquirers='@json($solution->acquirerMasters->pluck("id"))'
                                                     data-payment-methods='@json($solution->paymentMethodMasters->pluck("id"))'
                                                     data-alternative-methods='@json($solution->alternative_methods ?? [])'
                                                     data-requirements="{{ $solution->requirements }}"
@@ -590,26 +594,13 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Select Acquirers</label>
                                 <div class="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                                    <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="elavon"
-                                            class="w-4 h-4 border-gray-400 rounded">
-                                        <span class="text-sm text-gray-700">Elavon</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="surfboard"
-                                            class="w-4 h-4 border-gray-400 rounded">
-                                        <span class="text-sm text-gray-700">Surfboard</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="stripe"
-                                            class="w-4 h-4 border-gray-400 rounded">
-                                        <span class="text-sm text-gray-700">Stripe</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="acquirers[]" value="aib"
-                                            class="w-4 h-4 border-gray-400 rounded">
-                                        <span class="text-sm text-gray-700">AIB Merchant Services</span>
-                                    </label>
+                                    @foreach ($acquirers as $acquirer)
+                                        <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                                            <input type="checkbox" name="acquirers[]" value="{{ $acquirer->id }}"
+                                                class="w-4 h-4 border-gray-400 rounded">
+                                            <span class="text-sm text-gray-700">{{ $acquirer->name }}</span>
+                                        </label>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -872,7 +863,7 @@
             }
             renderTags();
 
-            const acquirers = new Set(JSON.parse(data.acquirers || '[]'));
+            const acquirers = new Set(JSON.parse(data.acquirers || '[]').map(String));
             document.querySelectorAll('input[name="acquirers[]"]').forEach((input) => {
                 input.checked = acquirers.has(input.value);
             });
