@@ -34,4 +34,14 @@ class SolutionMaster extends Model
             'country_id'
         )->withTimestamps();
     }
+
+    public function paymentMethodMasters()
+    {
+        return $this->belongsToMany(
+            PaymentMethodMaster::class,
+            'pm_master_solution_master',
+            'solution_master_id',
+            'payment_method_master_id'
+        )->withTimestamps();
+    }
 }

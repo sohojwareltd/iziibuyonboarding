@@ -44,6 +44,16 @@ class PaymentMethodMaster extends Model
         )->withTimestamps();
     }
 
+    public function solutionMasters()
+    {
+        return $this->belongsToMany(
+            SolutionMaster::class,
+            'pm_master_solution_master',
+            'payment_method_master_id',
+            'solution_master_id'
+        )->withTimestamps();
+    }
+
 
     /**
      * Override getAttributeValue to automatically decode JSON strings to arrays
