@@ -138,6 +138,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solution</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acquirer(s)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KYC Link</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -150,6 +151,13 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->partner->title ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->solution->name ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->acquirer_names }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @if($onboarding->kyc_link)
+                                            <button type="button" class="copy-kyc-btn text-brand-cta hover:text-brand-ctaHover font-medium" data-kyc-link="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}" title="Copy KYC Link">
+                                                <i class="fa-solid fa-copy"></i> Copy
+                                            </button>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
                                             $statusColors = [
@@ -192,6 +200,60 @@
                 </section>
             </div>
         </main>
+
+        <script>
+            // Copy KYC Link functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                const copyButtons = document.querySelectorAll('.copy-kyc-btn');
+                
+                copyButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const link = this.getAttribute('data-kyc-link');
+                        const icon = this.querySelector('i');
+                        
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(link).then(function() {
+                                showCopySuccess(icon);
+                            }).catch(function() {
+                                copyViaTextarea(link, icon);
+                            });
+                        } else {
+                            copyViaTextarea(link, icon);
+                        }
+                    });
+                });
+
+                function copyViaTextarea(text, icon) {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        showCopySuccess(icon);
+                    } catch (err) {
+                        alert('Failed to copy link');
+                    }
+                    document.body.removeChild(textarea);
+                }
+
+                function showCopySuccess(icon) {
+                    const originalClass = icon.className;
+                    icon.className = 'fa-solid fa-check';
+                    icon.parentElement.classList.add('text-green-600');
+                    icon.parentElement.classList.remove('text-brand-cta', 'hover:text-brand-ctaHover');
+                    
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                        icon.parentElement.classList.remove('text-green-600');
+                        icon.parentElement.classList.add('text-brand-cta', 'hover:text-brand-ctaHover');
+                    }, 2000);
+                }
+            });
+        </script>
 
     </body>
 @endsection

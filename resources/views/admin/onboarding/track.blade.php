@@ -287,9 +287,27 @@
                                         <div class="col-span-2">
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">KYC Link</label>
                                             @if($onboarding->kyc_link)
-                                                <a href="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}" target="_blank" class="text-accent hover:underline font-medium text-sm break-all">{{ route('merchant.kyc.start', $onboarding->kyc_link) }}</a>
+                                                <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between gap-4">
+                                                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                                                        <i class="fa-solid fa-link text-gray-400 shrink-0"></i>
+                                                        <a href="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}" target="_blank" class="font-mono text-sm text-accent hover:underline truncate" id="kyc-link-text">{{ route('merchant.kyc.start', $onboarding->kyc_link) }}</a>
+                                                    </div>
+                                                    <button type="button" class="copy-kyc-link-btn bg-brand-primary text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 hover:bg-brand-secondary transition-colors shrink-0" data-kyc-link="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}">
+                                                        <i class="fa-regular fa-copy text-xs"></i>
+                                                        Copy Link
+                                                    </button>
+                                                </div>
                                             @else
-                                                <div class="text-gray-400 text-sm">Not generated yet</div>
+                                                <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between gap-4">
+                                                    <div class="flex items-center gap-3 flex-1">
+                                                        <i class="fa-solid fa-link text-gray-300"></i>
+                                                        <span class="font-mono text-sm text-gray-400 italic">Link will be generated after sending</span>
+                                                    </div>
+                                                    <button type="button" disabled class="bg-gray-200 text-gray-400 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 cursor-not-allowed shrink-0">
+                                                        <i class="fa-regular fa-copy text-xs"></i>
+                                                        Copy Link
+                                                    </button>
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
@@ -492,6 +510,55 @@
         </main>
 
         <script>
+            // Copy KYC Link with feedback
+            document.addEventListener('DOMContentLoaded', function() {
+                const copyBtn = document.querySelector('.copy-kyc-link-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const link = this.getAttribute('data-kyc-link');
+                        const btn = this;
+
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(link).then(function() {
+                                showCopySuccess(btn);
+                            }).catch(function() {
+                                copyViaTextarea(link, btn);
+                            });
+                        } else {
+                            copyViaTextarea(link, btn);
+                        }
+                    });
+                }
+
+                function copyViaTextarea(text, btn) {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        showCopySuccess(btn);
+                    } catch (err) {
+                        alert('Failed to copy link');
+                    }
+                    document.body.removeChild(textarea);
+                }
+
+                function showCopySuccess(btn) {
+                    const originalHTML = btn.innerHTML;
+                    const originalClass = btn.className;
+                    btn.innerHTML = '<i class="fa-solid fa-check text-xs"></i> Copied!';
+                    btn.className = 'copy-kyc-link-btn bg-green-600 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 shrink-0';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.className = originalClass;
+                    }, 2000);
+                }
+            });
+
             function switchTab(tabName) {
                 const tabs = document.querySelectorAll('.tab-btn');
                 const contents = document.querySelectorAll('.tab-content');
