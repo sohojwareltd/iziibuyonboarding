@@ -167,6 +167,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $onboarding->updated_at->diffForHumans() }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                                        <a href="{{ route('admin.onboarding.track', $onboarding) }}" class="text-brand-secondary hover:text-brand-primary font-medium">View</a>
                                         <a href="{{ route('admin.onboarding.edit', $onboarding) }}" class="text-brand-primary hover:text-brand-secondary font-medium">Edit</a>
                                         <form method="POST" action="{{ route('admin.onboarding.destroy', $onboarding) }}" class="inline-block" onsubmit="return confirm('Sure?');">
                                             @csrf

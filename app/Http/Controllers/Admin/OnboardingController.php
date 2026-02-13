@@ -168,9 +168,45 @@ class OnboardingController extends Controller
         return $this->create();
     }
 
-    public function track(): View
+    public function track(Onboarding $onboarding): View
     {
-        return view('admin.onboarding.track');
+        $onboarding->load(['solution.category', 'partner', 'priceList', 'creator', 'approver']);
+
+        // Resolve acquirer codes to AcquirerMaster records
+        $acquirerRecords = collect();
+        if (!empty($onboarding->acquirers)) {
+            $acquirerRecords = AcquirerMaster::whereIn('name', $onboarding->acquirers)
+                ->orWhereIn('id', array_filter($onboarding->acquirers, 'is_numeric'))
+                ->get();
+        }
+
+        // Resolve country
+        $country = Country::where('code', $onboarding->country_of_operation)
+            ->orWhere('name', $onboarding->country_of_operation)
+            ->first();
+
+        // Resolve payment method codes to names
+        $paymentMethodNames = collect();
+        if (!empty($onboarding->payment_methods)) {
+            $paymentMethodNames = PaymentMethodMaster::whereIn('name', $onboarding->payment_methods)
+                ->orWhereIn('id', array_filter($onboarding->payment_methods, 'is_numeric'))
+                ->pluck('display_label');
+        }
+
+        // KYC completion percentage (simple heuristic based on filled fields)
+        $kycFields = ['legal_business_name', 'trading_name', 'registration_number', 'business_website',
+            'merchant_contact_email', 'merchant_phone_number', 'country_of_operation',
+            'payment_methods', 'acquirers'];
+        $filled = collect($kycFields)->filter(fn($f) => !empty($onboarding->$f))->count();
+        $kycPercent = round(($filled / count($kycFields)) * 100);
+
+        return view('admin.onboarding.track', compact(
+            'onboarding',
+            'acquirerRecords',
+            'country',
+            'paymentMethodNames',
+            'kycPercent'
+        ));
     }
 }
 

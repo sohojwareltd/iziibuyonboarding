@@ -37,7 +37,8 @@ Route::prefix('admin')
                     Route::get('/create', [OnboardingController::class, 'create'])->name('create');
                     Route::post('/', [OnboardingController::class, 'store'])->name('store');
                     Route::get('/start', [OnboardingController::class, 'start'])->name('start');
-                    Route::get('/track', [OnboardingController::class, 'track'])->name('track');
+                    Route::get('/track', fn() => redirect()->route('admin.onboarding.index'))->name('track.redirect');
+                    Route::get('/track/{onboarding}', [OnboardingController::class, 'track'])->name('track');
                     Route::get('/{onboarding}/edit', [OnboardingController::class, 'edit'])->name('edit');
                     Route::put('/{onboarding}', [OnboardingController::class, 'update'])->name('update');
                     Route::delete('/{onboarding}', [OnboardingController::class, 'destroy'])->name('destroy');

@@ -66,8 +66,21 @@
         <x-admin.topbar :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => '#'],
             ['label' => 'Merchant Onboarding', 'url' => route('admin.onboarding.index')],
-            ['label' => 'Onboarding Details', 'url' => route('admin.onboarding.track')],
+            ['label' => 'Onboarding Details', 'url' => route('admin.onboarding.track', $onboarding)],
         ]" />
+
+        @php
+            $statusColors = [
+                'draft' => ['bg' => 'bg-gray-50', 'border' => 'border-gray-200', 'text' => 'text-gray-700', 'icon' => 'fa-file-pen'],
+                'sent' => ['bg' => 'bg-blue-50', 'border' => 'border-blue-200', 'text' => 'text-blue-700', 'icon' => 'fa-paper-plane'],
+                'in-review' => ['bg' => 'bg-yellow-50', 'border' => 'border-yellow-200', 'text' => 'text-yellow-700', 'icon' => 'fa-clock'],
+                'approved' => ['bg' => 'bg-green-50', 'border' => 'border-green-200', 'text' => 'text-green-700', 'icon' => 'fa-check-circle'],
+                'rejected' => ['bg' => 'bg-red-50', 'border' => 'border-red-200', 'text' => 'text-red-700', 'icon' => 'fa-times-circle'],
+                'active' => ['bg' => 'bg-green-50', 'border' => 'border-green-200', 'text' => 'text-green-700', 'icon' => 'fa-circle-check'],
+                'suspended' => ['bg' => 'bg-orange-50', 'border' => 'border-orange-200', 'text' => 'text-orange-700', 'icon' => 'fa-ban'],
+            ];
+            $currentStatus = $statusColors[$onboarding->status] ?? $statusColors['draft'];
+        @endphp
 
         <!-- MAIN CONTENT WRAPPER -->
         <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral flex flex-col">
@@ -76,14 +89,27 @@
                 <div class="max-w-[1280px] mx-auto space-y-6">
                     <!-- Page Header Section -->
                     <div class="space-y-3">
-                        <h1 class="text-2xl font-bold text-brand-primary">Onboarding Details — Nordic Retail Group AS</h1>
+                        <h1 class="text-2xl font-bold text-brand-primary">Onboarding Details — {{ $onboarding->legal_business_name }}</h1>
                         <div class="flex items-center gap-3 flex-wrap">
-                            <span class="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">ID: MOB-839201</span>
-                            <span class="bg-blue-50 border border-blue-200 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">🇳🇴 Norway</span>
-                            <span class="bg-purple-50 border border-purple-200 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">POS, E-commerce</span>
-                            <span class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
-                                <i class="fa-solid fa-clock text-xs"></i>
-                                Awaiting Acquirer Review
+                            <span class="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">ID: {{ $onboarding->request_id }}</span>
+
+                            @if($country)
+                                <span class="bg-blue-50 border border-blue-200 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">{{ $country->code }} {{ $country->name }}</span>
+                            @else
+                                <span class="bg-blue-50 border border-blue-200 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">{{ $onboarding->country_of_operation }}</span>
+                            @endif
+
+                            @if($onboarding->solution)
+                                <span class="bg-purple-50 border border-purple-200 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">{{ $onboarding->solution->name }}</span>
+                            @endif
+
+                            @if($paymentMethodNames->isNotEmpty())
+                                <span class="bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium">{{ $paymentMethodNames->join(', ') }}</span>
+                            @endif
+
+                            <span class="{{ $currentStatus['bg'] }} border {{ $currentStatus['border'] }} {{ $currentStatus['text'] }} px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                                <i class="fa-solid {{ $currentStatus['icon'] }} text-xs"></i>
+                                {{ ucfirst(str_replace('-', ' ', $onboarding->status)) }}
                             </span>
                         </div>
                     </div>
@@ -110,50 +136,45 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-5">
-                                            <div class="flex items-center gap-4">
-                                                <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">EL</div>
-                                                <span class="font-medium text-gray-900">Elavon</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                            <span class="bg-blue-50 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">Email</span>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
-                                                <i class="fa-solid fa-exclamation-circle text-xs"></i>
-                                                More Info Required
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-5 text-gray-600">MID-9928371</td>
-                                        <td class="px-6 py-5 text-gray-600">Oct 24, 14:30</td>
-                                        <td class="px-6 py-5 text-right">
-                                            <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-5">
-                                            <div class="flex items-center gap-4">
-                                                <div class="w-8 h-8 bg-indigo-100 rounded flex items-center justify-center text-xs font-bold text-indigo-600">SB</div>
-                                                <span class="font-medium text-gray-900">Surfboard</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                            <span class="bg-purple-50 text-purple-800 px-2 py-1 rounded-full text-xs font-semibold">API</span>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
-                                                <i class="fa-solid fa-check-circle text-xs"></i>
-                                                Approved
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-5 text-gray-600">APP-772819</td>
-                                        <td class="px-6 py-5 text-gray-600">Oct 23, 09:15</td>
-                                        <td class="px-6 py-5 text-right">
-                                            <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
-                                        </td>
-                                    </tr>
+                                    @forelse($acquirerRecords as $acquirer)
+                                        @php
+                                            $initials = strtoupper(substr($acquirer->name, 0, 2));
+                                            $modeLabel = ucfirst($acquirer->mode ?? 'N/A');
+                                            $modeColors = [
+                                                'email' => 'bg-blue-50 text-blue-800',
+                                                'api' => 'bg-purple-50 text-purple-800',
+                                            ];
+                                            $modeClass = $modeColors[strtolower($acquirer->mode ?? '')] ?? 'bg-gray-50 text-gray-800';
+                                            $colorSets = ['bg-gray-100 text-gray-600', 'bg-indigo-100 text-indigo-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600'];
+                                            $colorSet = $colorSets[$loop->index % count($colorSets)];
+                                        @endphp
+                                        <tr>
+                                            <td class="px-6 py-5">
+                                                <div class="flex items-center gap-4">
+                                                    <div class="w-8 h-8 {{ explode(' ', $colorSet)[0] }} rounded flex items-center justify-center text-xs font-bold {{ explode(' ', $colorSet)[1] }}">{{ $initials }}</div>
+                                                    <span class="font-medium text-gray-900">{{ $acquirer->name }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="{{ $modeClass }} px-2 py-1 rounded-full text-xs font-semibold">{{ $modeLabel }}</span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="{{ $currentStatus['bg'] }} {{ $currentStatus['text'] }} px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
+                                                    <i class="fa-solid {{ $currentStatus['icon'] }} text-xs"></i>
+                                                    {{ ucfirst(str_replace('-', ' ', $onboarding->status)) }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-5 text-gray-600">{{ $onboarding->request_id }}</td>
+                                            <td class="px-6 py-5 text-gray-600">{{ $onboarding->updated_at->format('M d, H:i') }}</td>
+                                            <td class="px-6 py-5 text-right">
+                                                <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">No acquirers assigned to this onboarding.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -203,39 +224,73 @@
                                 <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
                                         <h3 class="text-lg font-semibold text-gray-800">General Information</h3>
-                                        <button class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
+                                        <a href="{{ route('admin.onboarding.edit', $onboarding) }}" class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
                                             <i class="fa-solid fa-pen mr-2"></i> Edit Section
-                                        </button>
+                                        </a>
                                     </div>
                                     
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                                         <div>
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Legal Name</label>
-                                            <div class="text-gray-900 font-medium">TechNova Solutions L.L.C</div>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->legal_business_name }}</div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Trade Name</label>
-                                            <div class="text-gray-900 font-medium">TechNova</div>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->trading_name ?? '—' }}</div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registration Number</label>
-                                            <div class="text-gray-900 font-medium">CN-3829102</div>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->registration_number ?? '—' }}</div>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Date of Incorporation</label>
-                                            <div class="text-gray-900 font-medium">15 Jan 2020</div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Country of Operation</label>
+                                            <div class="text-gray-900 font-medium">{{ $country->name ?? $onboarding->country_of_operation }}</div>
                                         </div>
-                                        <div class="col-span-2">
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registered Address</label>
-                                            <div class="text-gray-900 font-medium">Office 204, Building 5, Dubai Internet City, Dubai, UAE</div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Solution</label>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->solution->name ?? '—' }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Partner</label>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->partner->title ?? '—' }}</div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Website URL</label>
-                                            <a href="#" class="text-accent hover:underline font-medium">https://technova.ae</a>
+                                            @if($onboarding->business_website)
+                                                <a href="{{ $onboarding->business_website }}" target="_blank" class="text-accent hover:underline font-medium">{{ $onboarding->business_website }}</a>
+                                            @else
+                                                <div class="text-gray-900 font-medium">—</div>
+                                            @endif
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Tax Registration (TRN)</label>
-                                            <div class="text-gray-900 font-medium">100293847561234</div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Contact Email</label>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->merchant_contact_email }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Phone Number</label>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->merchant_phone_number ?? '—' }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Payment Methods</label>
+                                            <div class="text-gray-900 font-medium">{{ $paymentMethodNames->isNotEmpty() ? $paymentMethodNames->join(', ') : ($onboarding->payment_method_names ?: '—') }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Acquirer(s)</label>
+                                            <div class="text-gray-900 font-medium">{{ $acquirerRecords->pluck('name')->join(', ') ?: ($onboarding->acquirer_names ?: '—') }}</div>
+                                        </div>
+                                        @if($onboarding->priceList)
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Price List</label>
+                                            <div class="text-gray-900 font-medium">{{ $onboarding->priceList->name }}</div>
+                                        </div>
+                                        @endif
+                                        <div class="col-span-2">
+                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">KYC Link</label>
+                                            @if($onboarding->kyc_link)
+                                                <a href="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}" target="_blank" class="text-accent hover:underline font-medium text-sm break-all">{{ route('merchant.kyc.start', $onboarding->kyc_link) }}</a>
+                                            @else
+                                                <div class="text-gray-400 text-sm">Not generated yet</div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -249,69 +304,64 @@
                                         </button>
                                     </div>
                                     
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        <!-- Doc Card 1 -->
-                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                            <div class="flex items-start justify-between mb-3">
-                                                <div class="w-10 h-10 bg-red-50 text-red-500 rounded flex items-center justify-center text-xl">
-                                                    <i class="fa-solid fa-file-pdf"></i>
-                                                </div>
-                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                            </div>
-                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Trade_License.pdf</div>
-                                            <div class="text-xs text-gray-500">Uploaded: Oct 24, 2023</div>
-                                        </div>
-                                        <!-- Doc Card 2 -->
-                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                            <div class="flex items-start justify-between mb-3">
-                                                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded flex items-center justify-center text-xl">
-                                                    <i class="fa-solid fa-file-pdf"></i>
-                                                </div>
-                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                            </div>
-                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Bank_Statement.pdf</div>
-                                            <div class="text-xs text-gray-500">Uploaded: Oct 23, 2023</div>
-                                        </div>
-                                        <!-- Doc Card 3 -->
-                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
-                                            <div class="flex items-start justify-between mb-3">
-                                                <div class="w-10 h-10 bg-green-50 text-green-500 rounded flex items-center justify-center text-xl">
-                                                    <i class="fa-solid fa-file-pdf"></i>
-                                                </div>
-                                                <button class="text-gray-400 hover:text-accent"><i class="fa-solid fa-download"></i></button>
-                                            </div>
-                                            <div class="text-sm font-medium text-gray-800 truncate mb-1">Passport_Copy.pdf</div>
-                                            <div class="text-xs text-gray-500">Uploaded: Oct 22, 2023</div>
-                                        </div>
-                                    </div>
+                                    <p class="text-gray-500 text-sm">Documents will appear here once uploaded by the merchant through the KYC form.</p>
                                 </div>
 
                                 <!-- Tab Content: Beneficial Owners -->
                                 <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Beneficial Owners</h3>
-                                    <div class="space-y-4">
-                                        <div class="border border-gray-200 rounded-lg p-4">
-                                            <div class="font-medium text-gray-800 mb-2">Ahmed Al Mansouri</div>
-                                            <div class="text-sm text-gray-600">Ownership: 60% • Nationality: UAE</div>
-                                        </div>
-                                    </div>
+                                    <p class="text-gray-500 text-sm">Beneficial owner information will be available once the merchant completes the KYC form.</p>
                                 </div>
 
                                 <!-- Tab Content: Bank Info -->
                                 <div id="content-bank" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Bank Information</h3>
-                                    <p class="text-gray-500">Bank information content will be displayed here.</p>
+                                    <p class="text-gray-500 text-sm">Bank information will be available once the merchant completes the KYC form.</p>
                                 </div>
 
                                 <!-- Tab Content: Activity Log -->
                                 <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-6">Activity Timeline</h3>
                                     <div class="space-y-4">
+                                        @if($onboarding->kyc_completed_at)
+                                            <div class="flex gap-4">
+                                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                                                <div class="flex-1">
+                                                    <div class="text-sm font-medium text-gray-800">KYC Completed</div>
+                                                    <div class="text-xs text-gray-500">{{ $onboarding->kyc_completed_at->format('M d, Y - h:i A') }}</div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if($onboarding->approved_at)
+                                            <div class="flex gap-4">
+                                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                                                <div class="flex-1">
+                                                    <div class="text-sm font-medium text-gray-800">Onboarding Approved</div>
+                                                    <div class="text-xs text-gray-500">{{ $onboarding->approved_at->format('M d, Y - h:i A') }}
+                                                        @if($onboarding->approver) by {{ $onboarding->approver->name }} @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if($onboarding->sent_at)
+                                            <div class="flex gap-4">
+                                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                                <div class="flex-1">
+                                                    <div class="text-sm font-medium text-gray-800">KYC Link Sent to Merchant</div>
+                                                    <div class="text-xs text-gray-500">{{ $onboarding->sent_at->format('M d, Y - h:i A') }}</div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         <div class="flex gap-4">
                                             <div class="w-2 h-2 bg-accent rounded-full mt-2"></div>
                                             <div class="flex-1">
-                                                <div class="text-sm font-medium text-gray-800">KYC Submitted</div>
-                                                <div class="text-xs text-gray-500">Oct 24, 2023 - 2:30 PM</div>
+                                                <div class="text-sm font-medium text-gray-800">Onboarding Created</div>
+                                                <div class="text-xs text-gray-500">{{ $onboarding->created_at->format('M d, Y - h:i A') }}
+                                                    @if($onboarding->creator) by {{ $onboarding->creator->name }} @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -329,68 +379,110 @@
                                 <div class="mb-4">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-xs text-gray-500">KYC Completion</span>
-                                        <span class="text-xs font-medium text-brand-secondary">85%</span>
+                                        <span class="text-xs font-medium text-brand-secondary">{{ $kycPercent }}%</span>
                                     </div>
                                     <div class="w-full bg-gray-100 rounded-full h-2">
-                                        <div class="bg-brand-secondary h-2 rounded-full" style="width: 85%"></div>
+                                        <div class="bg-brand-secondary h-2 rounded-full" style="width: {{ $kycPercent }}%"></div>
                                     </div>
                                 </div>
 
-                                <!-- Acquirer Notes -->
+                                <!-- Internal Notes -->
+                                @if($onboarding->internal_notes)
                                 <div class="mb-4">
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Acquirer Notes</label>
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Internal Notes</label>
                                     <div class="bg-yellow-50 border border-yellow-200 rounded px-3 py-2.5 text-xs text-yellow-800">
                                         <i class="fa-solid fa-exclamation-circle mr-1.5"></i>
-                                        Missing bank statement for last 3<br>
-                                        months. Please request update.
+                                        {{ $onboarding->internal_notes }}
                                     </div>
                                 </div>
+                                @endif
+
+                                @if($onboarding->rejection_reason)
+                                <div class="mb-4">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rejection Reason</label>
+                                    <div class="bg-red-50 border border-red-200 rounded px-3 py-2.5 text-xs text-red-800">
+                                        <i class="fa-solid fa-times-circle mr-1.5"></i>
+                                        {{ $onboarding->rejection_reason }}
+                                    </div>
+                                </div>
+                                @endif
 
                                 <!-- Merchant Contact -->
                                 <div class="mb-4">
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Merchant Contact</label>
                                     <div class="flex items-center gap-2 mb-2">
-                                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-6 h-6 rounded-full">
-                                        <span class="text-sm font-medium text-brand-primary">Jan Johansen</span>
+                                        <div class="w-6 h-6 bg-brand-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                            {{ strtoupper(substr($onboarding->legal_business_name, 0, 1)) }}
+                                        </div>
+                                        <span class="text-sm font-medium text-brand-primary">{{ $onboarding->legal_business_name }}</span>
                                     </div>
                                     <div class="pl-8 space-y-1">
-                                        <p class="text-xs text-gray-500">jan.johansen@nordicretail.no</p>
-                                        <p class="text-xs text-gray-500">+47 99 88 77 66</p>
+                                        <p class="text-xs text-gray-500">{{ $onboarding->merchant_contact_email }}</p>
+                                        @if($onboarding->merchant_phone_number)
+                                            <p class="text-xs text-gray-500">{{ $onboarding->merchant_phone_number }}</p>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <!-- Internal Tags -->
+                                @if(!empty($onboarding->internal_tags))
                                 <div class="border-t border-gray-100 pt-4">
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Internal Tags</label>
                                     <div class="flex flex-wrap gap-2">
-                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">High Volume</span>
-                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">Retail</span>
+                                        @foreach($onboarding->internal_tags as $tag)
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">{{ $tag }}</span>
+                                        @endforeach
                                     </div>
                                 </div>
+                                @endif
+
+                                <!-- Revision Count -->
+                                @if($onboarding->revision_count > 0)
+                                <div class="border-t border-gray-100 pt-4 mt-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-500">Revisions</span>
+                                        <span class="text-xs font-medium text-brand-secondary">{{ $onboarding->revision_count }}</span>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
                             <!-- Recent Activity -->
                             <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
                                 <h3 class="text-sm font-semibold text-brand-primary mb-4">Recent Activity</h3>
                                 <div class="border-l-2 border-gray-100 pl-4 space-y-6">
-                                    <div class="relative">
-                                        <div class="absolute -left-[21px] w-3 h-3 bg-yellow-400 rounded-full border-4 border-white"></div>
-                                        <div class="text-xs text-gray-500 mb-1">Today, 10:30 AM</div>
-                                        <div class="text-sm font-medium text-brand-primary">Elavon requested more info</div>
-                                    </div>
+                                    @if($onboarding->kyc_completed_at)
                                     <div class="relative">
                                         <div class="absolute -left-[21px] w-3 h-3 bg-green-500 rounded-full border-4 border-white"></div>
-                                        <div class="text-xs text-gray-500 mb-1">Yesterday, 14:15 PM</div>
-                                        <div class="text-sm font-medium text-brand-primary">Surfboard approved API app</div>
+                                        <div class="text-xs text-gray-500 mb-1">{{ $onboarding->kyc_completed_at->format('M d, H:i') }}</div>
+                                        <div class="text-sm font-medium text-brand-primary">KYC form completed</div>
                                     </div>
+                                    @endif
+
+                                    @if($onboarding->approved_at)
+                                    <div class="relative">
+                                        <div class="absolute -left-[21px] w-3 h-3 bg-green-500 rounded-full border-4 border-white"></div>
+                                        <div class="text-xs text-gray-500 mb-1">{{ $onboarding->approved_at->format('M d, H:i') }}</div>
+                                        <div class="text-sm font-medium text-brand-primary">Onboarding approved</div>
+                                    </div>
+                                    @endif
+
+                                    @if($onboarding->sent_at)
+                                    <div class="relative">
+                                        <div class="absolute -left-[21px] w-3 h-3 bg-blue-500 rounded-full border-4 border-white"></div>
+                                        <div class="text-xs text-gray-500 mb-1">{{ $onboarding->sent_at->format('M d, H:i') }}</div>
+                                        <div class="text-sm font-medium text-brand-primary">KYC link sent to merchant</div>
+                                    </div>
+                                    @endif
+
                                     <div class="relative">
                                         <div class="absolute -left-[21px] w-3 h-3 bg-brand-secondary rounded-full border-4 border-white"></div>
-                                        <div class="text-xs text-gray-500 mb-1">Oct 22, 16:45 PM</div>
-                                        <div class="text-sm font-medium text-brand-primary">KYC submitted to acquirers</div>
+                                        <div class="text-xs text-gray-500 mb-1">{{ $onboarding->created_at->format('M d, H:i') }}</div>
+                                        <div class="text-sm font-medium text-brand-primary">Onboarding created</div>
                                     </div>
                                 </div>
                                 <div class="border-t border-gray-100 pt-4 mt-4">
-                                    <a href="#" class="text-brand-secondary text-xs font-medium">View full activity log →</a>
+                                    <button onclick="switchTab('activity')" class="text-brand-secondary text-xs font-medium">View full activity log →</button>
                                 </div>
                             </div>
                         </aside>

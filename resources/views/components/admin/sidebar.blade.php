@@ -71,8 +71,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('admin.onboarding.track') }}"
-                                   class="{{ request()->routeIs('admin.onboarding.track') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                <a href="{{ route('admin.onboarding.index') }}"
+                                   class="{{ request()->routeIs('admin.onboarding.index') || request()->routeIs('admin.onboarding.track') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Onboarding Requests
                                 </a>
                             </li>
