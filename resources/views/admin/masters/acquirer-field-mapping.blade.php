@@ -406,7 +406,7 @@
 
                                 <!-- Column Headers -->
                                 <div class="overflow-x-auto">
-                                    <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-5 py-3 flex items-center gap-3 min-w-[880px]">
+                                    <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-5 py-3 flex items-center gap-3 min-w-[880px] sticky top-0 z-10 shadow-sm">
                                         <div class="w-8 flex items-center justify-center">
                                             <i class="fa-solid fa-grip-vertical text-[10px] opacity-40"></i>
                                         </div>
@@ -475,7 +475,7 @@
                                     @endphp
 
                                     <!-- Field Sections -->
-                                    <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl overflow-hidden min-w-[880px]">
+                                    <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl overflow-hidden min-w-[880px] divide-y divide-gray-100">
                                         @foreach ($kycSections as $sIndex => $section)
                                             @php
                                                 $color = $sectionColors[$sIndex % count($sectionColors)];
@@ -525,7 +525,7 @@
                                                         @php
                                                             $dtStyle = $dataTypeStyles[$field->data_type] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-code'];
                                                         @endphp
-                                                        <div class="field-row px-5 py-3.5 flex items-center gap-3 border-b border-gray-100" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
+                                                        <div class="field-row px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
                                                             <div class="w-8 flex items-center justify-center">
                                                                 <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
                                                             </div>
@@ -554,7 +554,7 @@
                                                                     {{ Str::limit($field->data_type, 8) }}
                                                                 </span>
                                                             </div>
-                                                            <div class="w-48">
+                                                            <div class="w-52">
                                                                 <div class="requirement-toggle" data-field-id="{{ $field->id }}">
                                                                     <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
                                                                     <button class="{{ !$field->is_required ? 'optional-active' : '' }}" onclick="setRequirement(this, 'optional')">Optional</button>
