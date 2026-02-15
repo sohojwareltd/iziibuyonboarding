@@ -159,7 +159,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             Partner <span class="text-red-500">*</span>
                                         </label>
-                                        <select name="partner_id"
+                                        <select name="partner_id" id="partner-select"
                                             class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
                                             <option value="">Select Partner</option>
                                             @foreach ($partners as $partner)
@@ -171,23 +171,23 @@
                                         </select>
                                     </div>
                                     <!-- Partner Info Card -->
-                                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4 space-y-4">
+                                    <div id="partner-info-card" class="bg-gray-50 border border-gray-200 rounded-md p-4">
                                         <div class="grid grid-cols-2 gap-4 text-xs">
                                             <div>
-                                                <div class="text-gray-500 mb-1">Partner Type</div>
-                                                <div class="font-medium text-gray-900">Channel Partner</div>
+                                                <div class="text-gray-500 mb-1">Partner Name</div>
+                                                <div id="partner-name" class="font-medium text-gray-900">Select a partner</div>
                                             </div>
                                             <div>
                                                 <div class="text-gray-500 mb-1">Commission Plan</div>
-                                                <div class="font-medium text-gray-900">Kickback Tier 1 (0.2%)</div>
+                                                <div id="partner-commission" class="font-medium text-gray-900">-</div>
                                             </div>
                                             <div>
                                                 <div class="text-gray-500 mb-1">Status</div>
-                                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Active</span>
+                                                <span id="partner-status-badge" class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded">-</span>
                                             </div>
                                             <div>
                                                 <div class="text-gray-500 mb-1">Referral ID</div>
-                                                <div class="font-mono font-medium text-gray-900">PART-8821</div>
+                                                <div id="partner-referral" class="font-mono font-medium text-gray-900">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -557,6 +557,18 @@
                 @endforeach
             };
 
+            // Partner data mapping
+            const partnersData = {
+                @foreach ($partners as $partner)
+                    {{ $partner->id }}: {
+                        title: '{{ $partner->title }}',
+                        commission_plan: '{{ $partner->commission_plan ?? "Standard" }}',
+                        status: '{{ $partner->status ?? "active" }}',
+                        referral_id: '{{ $partner->referral_id ?? "N/A" }}'
+                    },
+                @endforeach
+            };
+
             // Solution data mapping
             const solutionsData = {
                 @foreach ($solutions as $solution)
@@ -699,6 +711,48 @@
                     
                     const key = method.toLowerCase().replace(/[\\s-]/g, '_');
                     return icons[key] || '<i class="fa-solid fa-credit-card text-sm text-gray-400"></i>';
+                }
+
+                // Partner selection handler
+                const partnerSelect = document.getElementById('partner-select');
+                if (partnerSelect) {
+                    partnerSelect.addEventListener('change', function() {
+                        updatePartnerInfo(this.value);
+                    });
+                    // Initialize with selected value on load
+                    if (partnerSelect.value) {
+                        updatePartnerInfo(partnerSelect.value);
+                    }
+                }
+
+                function updatePartnerInfo(partnerId) {
+                    const data = partnersData[partnerId];
+                    if (data) {
+                        document.getElementById('partner-name').textContent = data.title;
+                        document.getElementById('partner-commission').textContent = data.commission_plan || 'Standard';
+                        document.getElementById('partner-referral').textContent = data.referral_id || 'N/A';
+                        
+                        const statusBadge = document.getElementById('partner-status-badge');
+                        const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                        statusBadge.textContent = statusText;
+                        
+                        // Update badge color based on status
+                        statusBadge.className = 'text-xs font-medium px-2 py-0.5 rounded';
+                        if (data.status === 'active') {
+                            statusBadge.classList.add('bg-green-100', 'text-green-800');
+                        } else if (data.status === 'inactive') {
+                            statusBadge.classList.add('bg-red-100', 'text-red-800');
+                        } else {
+                            statusBadge.classList.add('bg-yellow-100', 'text-yellow-800');
+                        }
+                    } else {
+                        // Reset if no selection
+                        document.getElementById('partner-name').textContent = 'Select a partner';
+                        document.getElementById('partner-commission').textContent = '-';
+                        document.getElementById('partner-referral').textContent = '-';
+                        document.getElementById('partner-status-badge').textContent = '-';
+                        document.getElementById('partner-status-badge').className = 'bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded';
+                    }
                 }
 
                 // Solution selection handler
