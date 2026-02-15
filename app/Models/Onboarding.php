@@ -10,6 +10,7 @@ class Onboarding extends Model
     protected $fillable = [
         'solution_id',
         'partner_id',
+        'merchant_user_id',
         'legal_business_name',
         'trading_name',
         'registration_number',
@@ -46,6 +47,14 @@ class Onboarding extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the merchant user associated with this onboarding.
+     */
+    public function merchantUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'merchant_user_id');
+    }
 
     /**
      * Get the solution associated with the onboarding.
