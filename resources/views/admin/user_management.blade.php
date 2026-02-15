@@ -323,11 +323,10 @@
                                                     <i class="fa-solid fa-edit"></i>
                                                 </button>
                                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                                    class="inline"
-                                                    onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                    class="inline delete-user-form" data-user-name="{{ $user->name }} {{ $user->last_name }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800"
+                                                    <button type="button" onclick="openDeleteModal(this)" class="text-red-600 hover:text-red-800"
                                                         title="Delete">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </button>
@@ -539,7 +538,56 @@
             </div>
         </div>
 
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="fixed inset-0 bg-black/40 z-[70] hidden flex items-center justify-center p-4" onclick="closeDeleteModal()">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full" onclick="event.stopPropagation()">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-trash-can text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Delete User</h3>
+                            <p class="text-sm text-gray-500">Are you sure you want to delete <span id="delete-user-name" class="font-medium text-gray-700"></span>?</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="button" onclick="confirmDelete()" class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
+            let deleteTargetForm = null;
+
+            function openDeleteModal(trigger) {
+                const form = trigger.closest('form');
+                if (!form) return;
+                deleteTargetForm = form;
+
+                const name = form.getAttribute('data-user-name') || 'this user';
+                const nameEl = document.getElementById('delete-user-name');
+                if (nameEl) {
+                    nameEl.textContent = name.trim() || 'this user';
+                }
+
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+                deleteTargetForm = null;
+            }
+
+            function confirmDelete() {
+                if (deleteTargetForm) {
+                    deleteTargetForm.submit();
+                }
+            }
+
             function showNotification(message, type) {
                 let container = document.getElementById('toast-container');
                 if (!container) {
