@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\KycLinkMail;
 use App\Models\AcquirerMaster;
 use App\Models\Country;
 use App\Models\Onboarding;
@@ -12,6 +13,7 @@ use App\Models\PriceListMaster;
 use App\Models\SolutionMaster;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -75,7 +77,7 @@ class OnboardingController extends Controller
 
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : 'draft';
-        $userId = auth()->id() ?? User::query()->value('id');
+        $userId = auth()->id() ?? User::first()?->id ?? 1;
 
         $onboarding = Onboarding::create([
             ...$validated,
@@ -85,6 +87,22 @@ class OnboardingController extends Controller
             'sent_at' => $status === 'sent' ? now() : null,
             'kyc_link' => $status === 'sent' ? Onboarding::generateKycLink() : null,
         ]);
+
+        // Send email if action is 'send'
+        if ($action === 'send' && $onboarding->kyc_link) {
+            try {
+                Mail::to($onboarding->merchant_contact_email)
+                    ->send(new KycLinkMail($onboarding));
+                
+                return redirect()
+                    ->route('admin.onboarding.index')
+                    ->with('success', 'Onboarding created and KYC link sent to ' . $onboarding->merchant_contact_email);
+            } catch (\Exception $e) {
+                return redirect()
+                    ->route('admin.onboarding.index')
+                    ->with('warning', 'Onboarding created but failed to send email: ' . $e->getMessage());
+            }
+        }
 
         return redirect()
             ->route('admin.onboarding.index')
@@ -141,6 +159,7 @@ class OnboardingController extends Controller
 
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : $onboarding->status;
+        $shouldSendEmail = $action === 'send' && $onboarding->status !== 'sent';
 
         $onboarding->update([
             ...$validated,
@@ -148,6 +167,22 @@ class OnboardingController extends Controller
             'sent_at' => $status === 'sent' && is_null($onboarding->sent_at) ? now() : $onboarding->sent_at,
             'kyc_link' => $status === 'sent' && is_null($onboarding->kyc_link) ? Onboarding::generateKycLink() : $onboarding->kyc_link,
         ]);
+
+        // Send email if action is 'send' and wasn't sent before
+        if ($shouldSendEmail && $onboarding->kyc_link) {
+            try {
+                Mail::to($onboarding->merchant_contact_email)
+                    ->send(new KycLinkMail($onboarding));
+                
+                return redirect()
+                    ->route('admin.onboarding.index')
+                    ->with('success', 'Onboarding updated and KYC link sent to ' . $onboarding->merchant_contact_email);
+            } catch (\Exception $e) {
+                return redirect()
+                    ->route('admin.onboarding.index')
+                    ->with('warning', 'Onboarding updated but failed to send email: ' . $e->getMessage());
+            }
+        }
 
         return redirect()
             ->route('admin.onboarding.index')

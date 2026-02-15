@@ -79,6 +79,10 @@
             background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
         }
 
+        .toast-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+        }
+
         .toast-icon {
             width: 32px;
             height: 32px;
@@ -275,6 +279,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const successMessage = params.get('success');
                 const errorMessage = params.get('error');
+                const warningMessage = params.get('warning');
                 if (successMessage) {
                     showNotification(successMessage, 'success');
                     params.delete('success');
@@ -283,7 +288,11 @@
                     showNotification(errorMessage, 'error');
                     params.delete('error');
                 }
-                if (successMessage || errorMessage) {
+                if (warningMessage) {
+                    showNotification(warningMessage, 'warning');
+                    params.delete('warning');
+                }
+                if (successMessage || errorMessage || warningMessage) {
                     const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
                     window.history.replaceState({}, '', newUrl);
                 }
@@ -350,13 +359,18 @@
 
                 const notification = document.createElement('div');
                 const isSuccess = type === 'success';
-                notification.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'}`;
+                const isWarning = type === 'warning';
+                const typeClass = isSuccess ? 'toast-success' : isWarning ? 'toast-warning' : 'toast-error';
+                const icon = isSuccess ? 'fa-check' : isWarning ? 'fa-exclamation-triangle' : 'fa-xmark';
+                const title = isSuccess ? 'Success' : isWarning ? 'Warning' : 'Error';
+                
+                notification.className = `toast ${typeClass}`;
                 notification.innerHTML = `
                     <div class="toast-icon">
-                        <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} text-sm"></i>
+                        <i class="fa-solid ${icon} text-sm"></i>
                     </div>
                     <div>
-                        <div class="toast-title">${isSuccess ? 'Success' : 'Error'}</div>
+                        <div class="toast-title">${title}</div>
                         <div class="toast-message">${message}</div>
                     </div>
                 `;
