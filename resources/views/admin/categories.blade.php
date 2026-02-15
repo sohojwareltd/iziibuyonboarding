@@ -271,7 +271,7 @@
                                         @forelse ($categories as $index => $category)
                                             <tr class="hover:bg-gray-50">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $index + 1 }}</td>
+                                                    {{ ($categories->currentPage() - 1) * $categories->perPage() + $loop->iteration }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <span
                                                         class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -308,13 +308,18 @@
                             </div>
 
                             <!-- Pagination -->
-                            <div
-                                class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div class="text-sm text-gray-500">
-                                    Showing <span class="font-medium text-gray-900">{{ count($categories) }}</span>
-                                    categories
+                            @if ($categories->hasPages())
+                                <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                    <div class="text-sm text-gray-500 text-center sm:text-left">
+                                        Showing <span class="font-medium text-gray-900">{{ ($categories->currentPage() - 1) * $categories->perPage() + 1 }}</span> to <span
+                                            class="font-medium text-gray-900">{{ min($categories->currentPage() * $categories->perPage(), $categories->total()) }}</span> of <span
+                                            class="font-medium text-gray-900">{{ $categories->total() }}</span> results
+                                    </div>
+                                    <div class="flex flex-wrap items-center justify-center gap-2">
+                                        {{ $categories->links('pagination::tailwind') }}
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -46,7 +46,7 @@ class SolutionMasterController extends Controller
             });
         }
 
-        $solutions = $query->get();
+        $solutions = $query->paginate(10)->withQueryString();
         $categories = Category::all();
         $countries = Country::orderBy('name')->get();
         $paymentMethods = PaymentMethodMaster::where('is_active', true)->orderBy('name')->get();

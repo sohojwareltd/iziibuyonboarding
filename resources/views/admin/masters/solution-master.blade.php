@@ -572,25 +572,18 @@
                         </div>
 
                         <!-- Pagination -->
-                        <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <div class="text-sm text-gray-500 text-center sm:text-left">
-                                Showing <span class="font-medium text-gray-900">1</span> to <span
-                                    class="font-medium text-gray-900">10</span> of <span
-                                    class="font-medium text-gray-900">42</span> results
+                        @if ($solutions->hasPages())
+                            <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div class="text-sm text-gray-500 text-center sm:text-left">
+                                    Showing <span class="font-medium text-gray-900">{{ ($solutions->currentPage() - 1) * $solutions->perPage() + 1 }}</span> to <span
+                                        class="font-medium text-gray-900">{{ min($solutions->currentPage() * $solutions->perPage(), $solutions->total()) }}</span> of <span
+                                        class="font-medium text-gray-900">{{ $solutions->total() }}</span> results
+                                </div>
+                                <div class="flex flex-wrap items-center justify-center gap-2">
+                                    {{ $solutions->links('pagination::tailwind') }}
+                                </div>
                             </div>
-                            <div class="flex flex-wrap items-center justify-center gap-2">
-                                <button
-                                    class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm opacity-50 cursor-not-allowed">Previous</button>
-                                <button class="bg-brand-primary text-white px-3 py-1.5 rounded text-sm">1</button>
-                                <button
-                                    class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">2</button>
-                                <button
-                                    class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">3</button>
-                                <span class="text-gray-400 px-2">...</span>
-                                <button
-                                    class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm hover:bg-gray-50">Next</button>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
