@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
 use App\Http\Controllers\Admin\AcquirerMasterController;
 use App\Http\Controllers\Admin\KYCFieldMasterController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Merchant\KycController;
 
@@ -68,6 +69,7 @@ Route::prefix('admin')
                     Route::get('/price-list-master/export', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'export'])->name('price-list-master.export');
                 });
 
+            Route::resource('partners', PartnerController::class);
             Route::resource('categories', CategoryController::class);
             
             // User Management Routes

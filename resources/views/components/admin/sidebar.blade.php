@@ -80,7 +80,7 @@
                     </div>
                 </li>
                 <li>
-                    <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                    <a href="{{ route('admin.partners.index') }}" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
                         <i class="fa-solid fa-handshake w-5 mr-3"></i>Partners
                     </a>
                 </li>

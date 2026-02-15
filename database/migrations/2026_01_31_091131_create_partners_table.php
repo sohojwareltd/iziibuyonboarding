@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug')->unique();
+            $table->string('commission_plan')->nullable();
+            $table->string('status')->default('active');
+            $table->string('referral_id')->unique()->nullable();
             $table->timestamps();
         });
     }
