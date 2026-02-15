@@ -83,15 +83,24 @@ Route::prefix('merchant')
         Route::prefix('kyc')
             ->name('kyc.')
             ->group(function () {
+                // Welcome page - accessible without authentication
                 Route::get('/{kyc_link}', [KycController::class, 'welcome'])->name('start');
-                Route::get('/{kyc_link}/company', [KycController::class, 'company'])->name('company');
-                Route::get('/{kyc_link}/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
-                Route::get('/{kyc_link}/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
-                Route::get('/{kyc_link}/contact-person', [KycController::class, 'contactPerson'])->name('contactPerson');
-                Route::get('/{kyc_link}/purpose-of-service', [KycController::class, 'purposeOfService'])->name('purposeOfService');
-                Route::get('/{kyc_link}/sales-channels', [KycController::class, 'salesChannels'])->name('salesChannels');
-                Route::get('/{kyc_link}/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
-                Route::get('/{kyc_link}/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
-                Route::get('/{kyc_link}/review', [KycController::class, 'review'])->name('review');
+                
+                // Authentication endpoints - accessible without merchant.role middleware
+                Route::get('/check-auth', [KycController::class, 'checkAuth'])->name('check-auth');
+                Route::post('/login', [KycController::class, 'login'])->name('login');
+                
+                // Protected KYC pages - require merchant role
+                Route::middleware('merchant.role')->group(function () {
+                    Route::get('/{kyc_link}/company', [KycController::class, 'company'])->name('company');
+                    Route::get('/{kyc_link}/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
+                    Route::get('/{kyc_link}/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
+                    Route::get('/{kyc_link}/contact-person', [KycController::class, 'contactPerson'])->name('contactPerson');
+                    Route::get('/{kyc_link}/purpose-of-service', [KycController::class, 'purposeOfService'])->name('purposeOfService');
+                    Route::get('/{kyc_link}/sales-channels', [KycController::class, 'salesChannels'])->name('salesChannels');
+                    Route::get('/{kyc_link}/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
+                    Route::get('/{kyc_link}/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
+                    Route::get('/{kyc_link}/review', [KycController::class, 'review'])->name('review');
+                });
             });
     });

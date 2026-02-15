@@ -17,6 +17,7 @@ return new class extends Migration
             // Section 1: Core Configuration
             $table->foreignId('solution_id')->constrained('solution_masters')->cascadeOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('partners')->cascadeOnDelete();
+            $table->foreignId('merchant_user_id')->nullable()->constrained('users')->cascadeOnDelete();
             
             // Section 2: Merchant Details
             $table->string('legal_business_name');

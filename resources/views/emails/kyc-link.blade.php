@@ -57,10 +57,7 @@
         </table>
     @endcomponent
 
-    ---
-
     {{-- What's Next Section --}}
-    ### 📌 What Happens Next?
 
     <table style="width: 100%; margin-top: 20px;">
         <tr>
@@ -104,8 +101,6 @@
             </td>
         </tr>
     </table>
-
-    ---
 
     {{-- Help Section --}}
     @component('mail::panel', ['style' => 'background: #fef3c7; border-left-color: #f59e0b;'])

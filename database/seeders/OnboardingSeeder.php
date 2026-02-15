@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Onboarding;
 use App\Models\Partner;
 use App\Models\PriceListMaster;
+use App\Models\Role;
 use App\Models\SolutionMaster;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -91,6 +92,10 @@ class OnboardingSeeder extends Seeder
 
         $statuses = ['draft', 'sent', 'in-review', 'approved', 'active'];
         $adminUser = $users->first();
+        $merchantRole = Role::firstOrCreate(
+            ['name' => 'Merchant'],
+            ['description' => 'Merchant user']
+        );
         $partner = $partners->first();
         $priceList = $priceLists->first();
 
@@ -98,15 +103,25 @@ class OnboardingSeeder extends Seeder
             $requestId = Onboarding::generateRequestId();
             $status = $statuses[$index % count($statuses)];
             $isApproved = in_array($status, ['approved', 'active']);
+            $merchantEmail = strtolower(str_replace(' ', '.', $name)) . '@merchant.com';
+            $merchantUser = User::firstOrCreate(
+                ['email' => $merchantEmail],
+                [
+                    'name' => $name,
+                    'role_id' => $merchantRole->id,
+                    'password' => bcrypt('password'),
+                ]
+            );
 
             $onboarding = Onboarding::create([
                 'solution_id' => $solutions->random()->id,
                 'partner_id' => $partners->random()->id ?? $partner?->id,
+                'merchant_user_id' => $merchantUser->id,
                 'legal_business_name' => $name,
                 'trading_name' => $this->generateTradingName($name),
                 'registration_number' => strtoupper(chr(rand(65, 90)) . rand(100000000, 999999999)),
                 'business_website' => 'www.' . strtolower(str_replace(' ', '', $name)) . '.com',
-                'merchant_contact_email' => strtolower(str_replace(' ', '.', $name)) . '@merchant.com',
+                'merchant_contact_email' => $merchantEmail,
                 'merchant_phone_number' => '+44 ' . rand(7000, 7999) . ' ' . rand(100000, 999999),
                 'country_of_operation' => $countries[rand(0, count($countries) - 1)],
                 'payment_methods' => $paymentMethods[$index % count($paymentMethods)],

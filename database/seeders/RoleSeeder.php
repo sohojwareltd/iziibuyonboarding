@@ -18,12 +18,12 @@ class RoleSeeder extends Seeder
                 'description' => 'System administrator',
             ],
             [
-                'name' => 'Manager',
-                'description' => 'Operations manager',
+                'name' => 'Merchant',
+                'description' => 'Merchant user',
             ],
             [
-                'name' => 'Reviewer',
-                'description' => 'KYC reviewer',
+                'name' => 'User',
+                'description' => 'Internal KYC reviewer',
             ],
         ];
 

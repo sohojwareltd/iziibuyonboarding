@@ -10,10 +10,13 @@ use App\Models\Onboarding;
 use App\Models\Partner;
 use App\Models\PaymentMethodMaster;
 use App\Models\PriceListMaster;
+use App\Models\Role;
 use App\Models\SolutionMaster;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -78,12 +81,25 @@ class OnboardingController extends Controller
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : 'draft';
         $userId = auth()->id() ?? User::first()?->id ?? 1;
+        $merchantRole = Role::firstOrCreate(
+            ['name' => 'Merchant'],
+            ['description' => 'Merchant user']
+        );
+        $merchantUser = User::firstOrCreate(
+            ['email' => $validated['merchant_contact_email']],
+            [
+                'name' => $validated['legal_business_name'],
+                'role_id' => $merchantRole->id,
+                'password' => Hash::make(Str::random(16)),
+            ]
+        );
 
         $onboarding = Onboarding::create([
             ...$validated,
             'request_id' => Onboarding::generateRequestId(),
             'status' => $status,
             'created_by' => $userId,
+            'merchant_user_id' => $merchantUser->id,
             'sent_at' => $status === 'sent' ? now() : null,
             'kyc_link' => $status === 'sent' ? Onboarding::generateKycLink() : null,
         ]);
@@ -160,10 +176,23 @@ class OnboardingController extends Controller
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : $onboarding->status;
         $shouldSendEmail = $action === 'send' && $onboarding->status !== 'sent';
+        $merchantRole = Role::firstOrCreate(
+            ['name' => 'Merchant'],
+            ['description' => 'Merchant user']
+        );
+        $merchantUser = User::firstOrCreate(
+            ['email' => $validated['merchant_contact_email']],
+            [
+                'name' => $validated['legal_business_name'],
+                'role_id' => $merchantRole->id,
+                'password' => Hash::make(Str::random(16)),
+            ]
+        );
 
         $onboarding->update([
             ...$validated,
             'status' => $status,
+            'merchant_user_id' => $merchantUser->id,
             'sent_at' => $status === 'sent' && is_null($onboarding->sent_at) ? now() : $onboarding->sent_at,
             'kyc_link' => $status === 'sent' && is_null($onboarding->kyc_link) ? Onboarding::generateKycLink() : $onboarding->kyc_link,
         ]);
