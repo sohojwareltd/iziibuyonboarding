@@ -44,6 +44,74 @@
         .nav-item {
             padding-left: 24px;
         }
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            min-width: 260px;
+            max-width: 420px;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.75rem;
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            animation: toast-in 0.25s ease-out;
+            pointer-events: auto;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 @endsection
 
@@ -177,10 +245,10 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                         <a href="{{ route('admin.onboarding.track', $onboarding) }}" class="text-brand-secondary hover:text-brand-primary font-medium">View</a>
                                         <a href="{{ route('admin.onboarding.edit', $onboarding) }}" class="text-brand-primary hover:text-brand-secondary font-medium">Edit</a>
-                                        <form method="POST" action="{{ route('admin.onboarding.destroy', $onboarding) }}" class="inline-block" onsubmit="return confirm('Sure?');">
+                                        <form method="POST" action="{{ route('admin.onboarding.destroy', $onboarding) }}" class="inline-block delete-onboarding-form" data-merchant-name="{{ $onboarding->legal_business_name }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                                            <button type="button" onclick="openDeleteModal(this)" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -204,6 +272,22 @@
         <script>
             // Copy KYC Link functionality
             document.addEventListener('DOMContentLoaded', function() {
+                const params = new URLSearchParams(window.location.search);
+                const successMessage = params.get('success');
+                const errorMessage = params.get('error');
+                if (successMessage) {
+                    showNotification(successMessage, 'success');
+                    params.delete('success');
+                }
+                if (errorMessage) {
+                    showNotification(errorMessage, 'error');
+                    params.delete('error');
+                }
+                if (successMessage || errorMessage) {
+                    const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+                    window.history.replaceState({}, '', newUrl);
+                }
+
                 const copyButtons = document.querySelectorAll('.copy-kyc-btn');
                 
                 copyButtons.forEach(btn => {
@@ -245,6 +329,8 @@
                     icon.className = 'fa-solid fa-check';
                     icon.parentElement.classList.add('text-green-600');
                     icon.parentElement.classList.remove('text-brand-cta', 'hover:text-brand-ctaHover');
+
+                    showNotification('KYC link copied', 'success');
                     
                     setTimeout(() => {
                         icon.className = originalClass;
@@ -253,7 +339,80 @@
                     }, 2000);
                 }
             });
+
+            function showNotification(message, type) {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const notification = document.createElement('div');
+                const isSuccess = type === 'success';
+                notification.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'}`;
+                notification.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="toast-title">${isSuccess ? 'Success' : 'Error'}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                `;
+                container.appendChild(notification);
+                setTimeout(() => notification.remove(), isSuccess ? 3200 : 4500);
+            }
+
+            let deleteTargetForm = null;
+
+            function openDeleteModal(trigger) {
+                const form = trigger.closest('form');
+                if (!form) return;
+                deleteTargetForm = form;
+
+                const name = form.getAttribute('data-merchant-name') || 'this onboarding request';
+                const nameEl = document.getElementById('delete-merchant-name');
+                if (nameEl) {
+                    nameEl.textContent = name;
+                }
+
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+                deleteTargetForm = null;
+            }
+
+            function confirmDelete() {
+                if (deleteTargetForm) {
+                    deleteTargetForm.submit();
+                }
+            }
         </script>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="fixed inset-0 bg-black/40 z-[70] hidden flex items-center justify-center p-4" onclick="closeDeleteModal()">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full" onclick="event.stopPropagation()">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-trash-can text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Delete Onboarding</h3>
+                            <p class="text-sm text-gray-500">Are you sure you want to delete <span id="delete-merchant-name" class="font-medium text-gray-700"></span>?</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="button" onclick="confirmDelete()" class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </body>
 @endsection

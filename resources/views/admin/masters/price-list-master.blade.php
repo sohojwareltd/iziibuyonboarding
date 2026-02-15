@@ -159,6 +159,74 @@
         #filter-panel .filter-group {
             margin-bottom: 0;
         }
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            min-width: 280px;
+            max-width: 420px;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.75rem;
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            animation: toast-in 0.25s ease-out;
+            pointer-events: auto;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 @endpush
 
@@ -196,7 +264,7 @@
                                 <!-- Search Bar and Filter Button -->
                                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                                     <div class="relative flex-1 max-w-[384px]">
-                                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                        {{-- <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                         <input type="text" name="search" placeholder="Search price lists..."
                                             value="{{ request('search') }}"
                                             class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
@@ -947,12 +1015,27 @@
         }
 
         function showNotification(message, type) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg text-white max-w-md z-[100] ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            notification.style.whiteSpace = 'pre-wrap';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), type === 'success' ? 3000 : 5000);
+            const isSuccess = type === 'success';
+            notification.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'}`;
+            notification.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} text-sm"></i>
+                </div>
+                <div>
+                    <div class="toast-title">${isSuccess ? 'Success' : 'Error'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(notification);
+            setTimeout(() => notification.remove(), isSuccess ? 3200 : 4500);
         }
 
         document.getElementById('price-list-form').addEventListener('submit', function(e) {
