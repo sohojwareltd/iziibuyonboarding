@@ -66,6 +66,20 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        @media (max-width: 640px) {
+            .active-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            .filter-badge {
+                flex-shrink: 0;
+            }
         }
 
         .filter-badge {
@@ -227,6 +241,19 @@
                 transform: translateY(0);
             }
         }
+        
+        /* Mobile responsive improvements - xs breakpoint at 475px */
+        @media (min-width: 475px) {
+            .xs\\:inline {
+                display: inline !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            #price-list-drawer {
+                max-width: 100%;
+            }
+        }
     </style>
 @endpush
 
@@ -240,19 +267,19 @@
         ]"   />
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-            <div class="p-8">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+            <div class="p-4 md:p-8">
             
                 <!-- Page Content -->
-                <div class="bg-brand-neutral p-8">
+                <div class="bg-brand-neutral p-4 md:p-8">
                     <div class="max-w-[1280px] mx-auto">
                         <!-- Page Title and Add Button -->
-                        <div class="flex items-center justify-between mb-8">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                             <div>
                                 <h1 class="text-2xl font-semibold text-brand-primary mb-1">Price List Master</h1>
                                 <p class="text-sm text-gray-500">Manage global pricing strategies, commissions, and fees.</p>
                             </div>
-                            <button onclick="openDrawer()" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
+                            <button onclick="openDrawer()" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2 self-start md:self-auto">
                                 <i class="fa-solid fa-plus text-sm"></i>
                                 <span class="font-medium">Add Price List</span>
                             </button>
@@ -262,31 +289,31 @@
                         <div class="bg-white border border-gray-200 rounded-t-xl p-4">
                             <form method="GET" action="{{ route('admin.masters.price-list-master') }}" class="space-y-4">
                                 <!-- Search Bar and Filter Button -->
-                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                                    <div class="relative flex-1 max-w-[384px]">
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                                    <div class="relative flex-1 sm:max-w-[384px] w-full">
                                         {{-- <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                         <input type="text" name="search" placeholder="Search price lists..."
                                             value="{{ request('search') }}"
                                             class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
                                     </div>
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 w-full sm:w-auto">
                                         <button type="button" onclick="toggleFilters()"
-                                            class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center gap-2 whitespace-nowrap">
+                                            class="bg-white border-2 border-gray-200 text-gray-600 px-4 sm:px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center justify-center gap-2 whitespace-nowrap flex-1 sm:flex-none">
                                             <i class="fa-solid fa-filter text-sm"></i>
-                                            <span>Advanced Filters</span>
+                                            <span class="hidden xs:inline">Advanced </span><span>Filters</span>
                                             <i id="filter-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
                                         </button>
                                         <a href="{{ route('admin.masters.price-list-master.export', request()->query()) }}"
-                                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                            class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                             <i class="fa-solid fa-download text-sm"></i>
-                                            Export
+                                            <span class="hidden xs:inline">Export</span>
                                         </a>
                                     </div>
                                 </div>
 
                                 <!-- Active Filters Display -->
                                 @if (request()->has('search') || request()->has('type') || request()->has('status') || request()->has('currency') || request()->has('assignment_level'))
-                                    <div class="active-filters">
+                                    <div class="active-filters overflow-x-auto">
                                         @if (request('search'))
                                             <div class="filter-badge">
                                                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -338,9 +365,9 @@
                                 <!-- Filter Panel -->
                                 <div id="filter-panel"
                                     class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
-                                    <div class="flex flex-col sm:flex-row items-end gap-3">
+                                    <div class="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
                                         <!-- Type Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-layer-group"></i>
                                                 Type
@@ -358,7 +385,7 @@
                                         </div>
 
                                         <!-- Status Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-circle-half-stroke"></i>
                                                 Status
@@ -376,7 +403,7 @@
                                         </div>
 
                                         <!-- Currency Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-coins"></i>
                                                 Currency
@@ -393,7 +420,7 @@
                                         </div>
 
                                         <!-- Scope Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-sitemap"></i>
                                                 Scope
@@ -415,14 +442,16 @@
                                         </div>
 
                                         <!-- Filter Controls -->
-                                        <div class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
-                                            <button type="button" class="filter-btn-reset !p-2.5 !px-3 flex-1 sm:flex-none"
+                                        <div class="flex gap-2 flex-shrink-0 w-full lg:w-auto">
+                                            <button type="button" class="filter-btn-reset !py-2.5 !px-4 flex-1 lg:flex-none"
                                                 onclick="clearAllFilters()" title="Clear All">
-                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                                <i class="fa-solid fa-xmark text-sm"></i>
+                                                <span class="ml-1.5 text-xs font-medium">Clear</span>
                                             </button>
-                                            <button type="submit" class="filter-btn-apply !p-2.5 !px-4 flex-1 sm:flex-none"
+                                            <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none"
                                                 title="Apply Filters">
-                                                <i class="fa-solid fa-check text-xs"></i>
+                                                <i class="fa-solid fa-check text-sm"></i>
+                                                <span class="ml-1.5 text-xs font-medium">Apply</span>
                                             </button>
                                         </div>
                                     </div>
@@ -432,7 +461,8 @@
 
                         <!-- Table -->
                         <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-[#f5f6fa]">
                                     <tr>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">
@@ -505,13 +535,12 @@
                                     @endforelse
                                 </tbody>
                             </table>
-
-                            <!-- Pagination -->
-                            <div class="bg-white border-t border-gray-200 px-4 py-4 flex items-center justify-between">
-                                <div class="text-sm text-gray-500">
+                        </div>
+                            <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div class="text-sm text-gray-500 text-center sm:text-left">
                                     Showing <span class="font-medium text-gray-900">{{ ($priceLists->currentPage() - 1) * $priceLists->perPage() + 1 }}</span> to <span class="font-medium text-gray-900">{{ min($priceLists->currentPage() * $priceLists->perPage(), $priceLists->total()) }}</span> of <span class="font-medium text-gray-900">{{ $priceLists->total() }}</span> results
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex flex-wrap items-center justify-center gap-2">
                                     {{ $priceLists->links('pagination::tailwind') }}
                                 </div>
                             </div>
@@ -525,7 +554,7 @@
         <div id="price-list-drawer" class="drawer-closed overflow-y-auto">
             <div class="flex flex-col h-full">
                 <!-- Drawer Header -->
-                <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <div class="border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-brand-primary" id="drawer-title">Add Price List</h2>
                     <button onclick="closeDrawer()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
                         <i class="fa-solid fa-xmark"></i>
@@ -533,7 +562,7 @@
                 </div>
 
                 <!-- Drawer Content -->
-                <form id="price-list-form" class="flex-1 overflow-y-auto bg-[#f7f8fa] p-6 flex flex-col">
+                <form id="price-list-form" class="flex-1 overflow-y-auto bg-[#f7f8fa] p-4 sm:p-6 flex flex-col">
                     <input type="hidden" id="assignment_level" name="assignment_level" value="global">
                     <input type="hidden" id="assignment_rules" name="assignment_rules" value="[]">
                     <input type="hidden" id="price_lines" name="price_lines" value="[]">
@@ -726,10 +755,10 @@
                 </div>
 
                 <!-- Drawer Footer -->
-                <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white">
-                    <button type="button" onclick="closeDrawer()" class="text-[#4055a8] font-medium hover:text-[#2d3a74]">Cancel</button>
-                    <div class="flex gap-3">
-                        <button type="submit" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
+                <div class="border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white gap-3">
+                    <button type="button" onclick="closeDrawer()" class="text-[#4055a8] font-medium hover:text-[#2d3a74] text-center order-2 sm:order-1">Cancel</button>
+                    <div class="flex gap-3 order-1 sm:order-2">
+                        <button type="submit" class="bg-brand-accent text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors w-full sm:w-auto">
                             Save Price List
                         </button>
                     </div>

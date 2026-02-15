@@ -66,6 +66,20 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        @media (max-width: 640px) {
+            .active-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            .filter-badge {
+                flex-shrink: 0;
+            }
         }
 
         .filter-badge {
@@ -164,6 +178,19 @@
                 transform: translateY(0);
             }
         }
+        
+        /* Mobile responsive improvements - xs breakpoint at 475px */
+        @media (min-width: 475px) {
+            .xs\\:inline {
+                display: inline !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            #country-drawer {
+                max-width: 100%;
+            }
+        }
     </style>
 @endpush
 
@@ -177,14 +204,14 @@
     ]" />
 
     <!-- MAIN CONTENT AREA -->
-    <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-        <div class="p-8">
+    <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+        <div class="p-4 md:p-8">
 
             <!-- Page Content -->
-            <div class="bg-brand-neutral p-8">
+            <div class="bg-brand-neutral p-4 md:p-8">
                 <div class="max-w-[1280px] mx-auto">
                     <!-- Page Title and Add Button -->
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                         <div>
                             <h1 class="text-2xl font-semibold text-brand-primary mb-1">Country Master</h1>
                             <p class="text-sm text-gray-500">Manage all countries available on the platform.</p>
@@ -192,7 +219,7 @@
 
                         
                         <button onclick="openAddCountry()"
-                            class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
+                            class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2 self-start md:self-auto">
                             <i class="fa-solid fa-plus text-sm"></i>
                             <span class="font-medium">Add Country</span>
                         </button>
@@ -202,31 +229,31 @@
                     <div class="bg-white border border-gray-200 rounded-t-xl p-4">
                         <form method="GET" action="{{ route('admin.masters.countrys.index') }}" class="space-y-4">
                             <!-- Search Bar -->
-                            <div class="flex items-center justify-between gap-4">
-                                <div class="relative flex-1 max-w-[384px]">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                                <div class="relative flex-1 sm:max-w-[384px] w-full">
                                     {{-- <i
                                         class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                     <input type="text" name="search" placeholder="Search countries by name or code..."
                                         value="{{ request('search') }}"
-                                        class="form-input pl-10 bg-white border-gray-200 focus:bg-white">
+                                        class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 w-full sm:w-auto">
                                     <button type="submit"
-                                        class="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-500 transition-colors flex items-center gap-2">
+                                        class="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-500 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-search text-sm"></i>
-                                        Search
+                                        <span>Search</span>
                                     </button>
                                     <a href="{{ route('admin.masters.country.export', request()->query()) }}"
-                                        class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                        class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-download text-sm"></i>
-                                        Export
+                                        <span class="hidden xs:inline">Export</span>
                                     </a>
                                 </div>
                             </div>
 
                             <!-- Active Filters Display -->
                             @if (request()->has('search') && request('search'))
-                                <div class="active-filters">
+                                <div class="active-filters overflow-x-auto">
                                     <div class="filter-badge">
                                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                                         <span>{{ request('search') }}</span>
@@ -241,7 +268,8 @@
 
                     <!-- Table -->
                     <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th
@@ -310,11 +338,12 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
 
                         <!-- Pagination -->
                         @if ($countries->hasPages())
-                            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-between">
-                                <div class="text-xs text-gray-500">
+                            <div class="bg-gray-50 border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div class="text-xs text-gray-500 text-center sm:text-left">
                                     Showing <span
                                         class="font-medium text-gray-900">{{ ($countries->currentPage() - 1) * $countries->perPage() + 1 }}</span>
                                     to <span
@@ -336,7 +365,7 @@
     <div id="country-drawer" class="drawer-closed overflow-y-auto">
         <div class="flex flex-col h-full">
             <!-- Drawer Header -->
-            <div class="border-b border-gray-200 px-6 py-5 flex items-center justify-between">
+            <div class="border-b border-gray-200 px-4 sm:px-6 py-5 flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-brand-primary" id="drawer-title">Add Country</h2>
                 <button onclick="closeDrawer()"
                     class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
@@ -345,7 +374,7 @@
             </div>
 
             <!-- Drawer Content -->
-            <form id="country-form" class="flex-1 overflow-y-auto p-6 flex flex-col">
+            <form id="country-form" class="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col">
                 <input type="hidden" id="country_id" name="country_id">
 
                 <div class="space-y-6 flex-1">
@@ -366,7 +395,7 @@
                 </div>
 
                 <!-- Form Footer -->
-                <div class="pt-6 mt-6 border-t border-gray-200 flex gap-3">
+                <div class="pt-6 mt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
                     <button type="button" onclick="closeDrawer()"
                         class="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition-colors">
                         Cancel

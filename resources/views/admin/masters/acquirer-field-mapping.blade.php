@@ -9,6 +9,9 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    screens: {
+                        'xs': '475px',
+                    },
                     colors: {
                         brand: {
                             primary: '#2D3A74',
@@ -237,6 +240,12 @@
             font-size: 0.8125rem;
             background: #FAFBFC;
         }
+
+        /* Prevent horizontal scroll on mobile */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
     </style>
 @endsection
 
@@ -258,27 +267,27 @@
         @endphp
 
         <!-- MAIN CONTENT AREA -->
-        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral pb-24">
-            <div class="p-4 md:p-8">
-                <div class="bg-brand-neutral">
-                    <div class="max-w-[1400px] mx-auto">
+        <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral pb-24 overflow-x-hidden">
+            <div class="p-4 md:p-8 overflow-x-hidden">
+                <div class="bg-brand-neutral overflow-x-hidden">
+                    <div class="max-w-[1400px] mx-auto overflow-x-hidden">
 
                         <!-- Page Header -->
                         <div class="mb-6">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="bg-gradient-to-br from-brand-cta to-orange-500 text-white w-12 h-12 rounded-xl shadow-lg flex items-center justify-center">
+                                <div class="flex items-center gap-4 min-w-0 flex-1">
+                                    <div class="bg-gradient-to-br from-brand-cta to-orange-500 text-white w-12 h-12 rounded-xl shadow-lg flex items-center justify-center flex-shrink-0">
                                         <i class="fa-solid fa-sliders text-lg"></i>
                                     </div>
-                                    <div>
+                                    <div class="min-w-0 flex-1">
                                         <h1 class="text-2xl font-bold text-brand-primary leading-tight">Acquirer Field Mapping</h1>
                                         <p class="text-sm text-brand-text mt-0.5">Configure which KYC fields are required per acquirer and country</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-3 flex-shrink-0">
                                     <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2">
                                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                        Last saved: Feb 11, 2026
+                                        <span class="hidden xs:inline">Last saved: </span>Feb 11, 2026
                                     </div>
                                 </div>
                             </div>
@@ -367,15 +376,15 @@
                         </div>
 
                         <!-- Main Content: Field Mapping and Preview -->
-                        <div class="flex flex-col lg:flex-row gap-6 items-start">
+                        <div class="flex flex-col lg:flex-row gap-6 items-start overflow-x-hidden">
                             <!-- Left Panel: Field Mapping Configuration -->
-                            <div class="flex-1 min-w-0">
+                            <div class="flex-1 min-w-0 overflow-x-hidden">
                                 <!-- Toolbar -->
-                                <div class="bg-white border border-gray-200 rounded-t-xl px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="bg-white border border-gray-200 rounded-t-xl px-3 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <div class="field-search">
+                                        <div class="field-search w-full sm:w-auto">
                                             <i class="fa-solid fa-magnifying-glass"></i>
-                                            <input id="field-search-input" type="text" class="form-input text-sm w-52" placeholder="Search fields..." oninput="filterFields(this.value)">
+                                            <input id="field-search-input" type="text" class="form-input text-sm w-full sm:w-52" placeholder="Search fields..." oninput="filterFields(this.value)">
                                         </div>
                                         <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
                                         <button onclick="toggleAllSections(true)" class="text-xs text-gray-500 hover:text-brand-primary font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-gray-50 transition-all" title="Expand All">
@@ -387,26 +396,26 @@
                                             Collapse
                                         </button>
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         <button class="text-xs text-gray-500 hover:text-green-600 font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-green-50 transition-all">
                                             <i class="fa-solid fa-check-double text-[10px]"></i>
-                                            All Mandatory
+                                            <span class="hidden xs:inline">All Mandatory</span>
                                         </button>
                                         <button class="text-xs text-gray-500 hover:text-red-600 font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-red-50 transition-all">
                                             <i class="fa-solid fa-eye-slash text-[10px]"></i>
-                                            Hide All
+                                            <span class="hidden xs:inline">Hide All</span>
                                         </button>
-                                        <div class="h-5 w-px bg-gray-200"></div>
+                                        <div class="h-5 w-px bg-gray-200 hidden sm:block"></div>
                                         <button class="text-xs text-gray-500 hover:text-brand-primary font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-gray-50 transition-all">
                                             <i class="fa-solid fa-file-export text-[10px]"></i>
-                                            Export
+                                            <span class="hidden xs:inline">Export</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Column Headers -->
-                                <div class="overflow-x-auto">
-                                    <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-5 py-3 flex items-center gap-3 min-w-[880px] sticky top-0 z-10 shadow-sm">
+                                <div class="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+                                    <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-3 sm:px-5 py-3 flex items-center gap-3 min-w-[880px] sticky top-0 z-10 shadow-sm">
                                         <div class="w-8 flex items-center justify-center">
                                             <i class="fa-solid fa-grip-vertical text-[10px] opacity-40"></i>
                                         </div>
@@ -488,7 +497,7 @@
                                             @endphp
                                             <div class="field-section" data-section-name="{{ Str::lower($section->name) }}">
                                                 {{-- Section Header --}}
-                                                <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this)">
+                                                <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-3 sm:px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this)">
                                                     <div class="flex items-center gap-3">
                                                         <i class="fa-solid {{ $isFirst ? 'fa-chevron-down' : 'fa-chevron-right' }} text-xs text-brand-secondary section-chevron"></i>
                                                         <div class="w-7 h-7 bg-white/70 rounded-lg flex items-center justify-center shadow-sm">
@@ -525,7 +534,7 @@
                                                         @php
                                                             $dtStyle = $dataTypeStyles[$field->data_type] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-code'];
                                                         @endphp
-                                                        <div class="field-row px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
+                                                        <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
                                                             <div class="w-8 flex items-center justify-center">
                                                                 <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
                                                             </div>
@@ -584,7 +593,7 @@
                                                             </div>
                                                         </div>
                                                     @empty
-                                                        <div class="px-5 py-10 text-center">
+                                                        <div class="px-3 sm:px-5 py-10 text-center">
                                                             <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                                                                 <i class="fa-solid fa-inbox text-gray-300 text-lg"></i>
                                                             </div>
@@ -701,17 +710,17 @@
         </main>
 
         <!-- Bottom Footer -->
-        <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-4 md:px-8 py-3 flex items-center justify-between z-40">
-            <div class="flex items-center gap-3">
+        <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-4 md:px-8 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-40">
+            <div class="flex items-center justify-center sm:justify-start gap-3">
                 <button class="text-gray-500 hover:text-brand-primary font-medium text-sm transition-colors">Cancel</button>
                 <span class="text-xs text-gray-300">|</span>
                 <span class="text-xs text-gray-400" id="change-indicator">No unsaved changes</span>
             </div>
-            <div class="flex items-center gap-3">
-                <button class="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                <button class="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm order-2 sm:order-1">
                     Save Draft
                 </button>
-                <button class="bg-gradient-to-r from-brand-cta to-orange-500 text-white px-6 py-2 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all text-sm">
+                <button class="bg-gradient-to-r from-brand-cta to-orange-500 text-white px-6 py-2 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all text-sm order-1 sm:order-2">
                     <i class="fa-solid fa-check mr-1.5"></i>
                     Save Mapping
                 </button>
