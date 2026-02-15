@@ -181,6 +181,20 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        @media (max-width: 640px) {
+            .active-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            .filter-badge {
+                flex-shrink: 0;
+            }
         }
 
         .filter-badge {
@@ -342,6 +356,13 @@
                 transform: translateY(0);
             }
         }
+        
+        /* Mobile responsive improvements - xs breakpoint at 475px */
+        @media (min-width: 475px) {
+            .xs\\:inline {
+                display: inline !important;
+            }
+        }
     </style>
 @endsection
 
@@ -382,34 +403,34 @@
                         <div class="bg-white border border-gray-200 rounded-t-xl p-4">
                             <form method="GET" action="{{ route('admin.masters.acquirer-master') }}" class="space-y-4">
                                 <!-- Search Bar and Filter Button -->
-                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                                    <div class="relative flex-1 max-w-[384px]">
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                                    <div class="relative flex-1 sm:max-w-[384px] w-full">
                                         <i
                                             class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                                         <input type="text" name="search" placeholder="Search acquirers..."
                                             value="{{ request('search') }}"
                                             class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
                                     </div>
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 w-full sm:w-auto">
                                         <button type="button" onclick="toggleFilters()"
-                                            class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center gap-2 whitespace-nowrap">
+                                            class="bg-white border-2 border-gray-200 text-gray-600 px-4 sm:px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center justify-center gap-2 whitespace-nowrap flex-1 sm:flex-none">
                                             <i class="fa-solid fa-filter text-sm"></i>
-                                            <span>Advanced Filters</span>
+                                            <span class="hidden xs:inline">Advanced </span><span>Filters</span>
                                             <i id="filter-arrow"
                                                 class="fa-solid fa-chevron-down text-xs transition-transform"></i>
                                         </button>
 
                                         <a href="{{ route('admin.masters.acquirer-master.export', request()->query()) }}"
-                                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                            class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                             <i class="fa-solid fa-download text-sm"></i>
-                                            Export
+                                            <span class="hidden xs:inline">Export</span>
                                         </a>
                                     </div>
                                 </div>
 
                                 <!-- Active Filters Display -->
                                 @if (request()->has('search') || request()->has('mode') || request()->has('status') || request()->has('country'))
-                                    <div class="active-filters">
+                                    <div class="active-filters overflow-x-auto">
                                         @if (request('search'))
                                             <div class="filter-badge">
                                                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -452,9 +473,9 @@
                                 <!-- Filter Panel -->
                                 <div id="filter-panel"
                                     class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
-                                    <div class="flex flex-col sm:flex-row items-end gap-3">
+                                    <div class="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
                                         <!-- Mode Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-cog"></i>
                                                 Mode
@@ -470,7 +491,7 @@
                                         </div>
 
                                         <!-- Status Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-circle-half-stroke"></i>
                                                 Status
@@ -487,7 +508,7 @@
                                         </div>
 
                                         <!-- Country Filter -->
-                                        <div class="filter-group flex-1 w-full sm:w-auto">
+                                        <div class="filter-group flex-1 w-full">
                                             <label>
                                                 <i class="fa-solid fa-map-pin"></i>
                                                 Country
@@ -505,15 +526,17 @@
                                         </div>
 
                                         <!-- Filter Controls -->
-                                        <div class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
-                                            <button type="button" class="filter-btn-reset !p-2.5 !px-3 flex-1 sm:flex-none"
+                                        <div class="flex gap-2 flex-shrink-0 w-full lg:w-auto">
+                                            <button type="button" class="filter-btn-reset !py-2.5 !px-4 flex-1 lg:flex-none"
                                                 onclick="clearAllFilters()" title="Clear All">
-                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                                <i class="fa-solid fa-xmark text-sm"></i>
+                                                <span class="ml-1.5 text-xs font-medium">Clear</span>
                                             </button>
                                             <button type="submit"
-                                                class="filter-btn-apply !p-2.5 !px-4 flex-1 sm:flex-none"
+                                                class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none"
                                                 title="Apply Filters">
-                                                <i class="fa-solid fa-check text-xs"></i>
+                                                <i class="fa-solid fa-check text-sm"></i>
+                                                <span class="ml-1.5 text-xs font-medium">Apply</span>
                                             </button>
                                         </div>
                                     </div>

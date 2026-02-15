@@ -300,8 +300,8 @@
                             <!-- Search Bar and Filter Button -->
                             <div class="flex items-center justify-between gap-4">
                                 <div class="relative flex-1 max-w-[384px]">
-                                    <i
-                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                    {{-- <i
+                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                     <input type="text" name="search" placeholder="Search solutions by name..."
                                         value="{{ request('search') }}"
                                         class="form-input pl-10 bg-white border-gray-200 focus:bg-white">
