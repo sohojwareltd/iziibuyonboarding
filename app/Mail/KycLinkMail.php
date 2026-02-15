@@ -48,6 +48,9 @@ class KycLinkMail extends Mailable
                 'requestId' => $this->onboarding->request_id,
                 'solutionName' => $this->onboarding->solution?->name ?? 'N/A',
                 'partnerName' => $this->onboarding->partner?->title ?? 'Direct',
+                'merchantEmail' => $this->onboarding->merchant_contact_email,
+                'merchantName' => $this->onboarding->legal_business_name,
+                'welcomePageUrl' => route('merchant.kyc.start', $this->onboarding->kyc_link),
             ]
         );
     }

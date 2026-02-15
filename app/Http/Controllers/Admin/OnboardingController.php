@@ -90,7 +90,7 @@ class OnboardingController extends Controller
             [
                 'name' => $validated['legal_business_name'],
                 'role_id' => $merchantRole->id,
-                'password' => Hash::make(Str::random(16)),
+                'password' => Hash::make('password123'),
             ]
         );
 
@@ -185,7 +185,7 @@ class OnboardingController extends Controller
             [
                 'name' => $validated['legal_business_name'],
                 'role_id' => $merchantRole->id,
-                'password' => Hash::make(Str::random(16)),
+                'password' => Hash::make('password123'),
             ]
         );
 
