@@ -125,6 +125,74 @@
             border-color: #2D3A74;
             box-shadow: 0 0 0 1px #2D3A74;
         }
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            min-width: 260px;
+            max-width: 420px;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.75rem;
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            animation: toast-in 0.25s ease-out;
+            pointer-events: auto;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 @endsection
 
@@ -345,6 +413,30 @@
 
     </body>
     <script>
+        function showNotification(message, type) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const notification = document.createElement('div');
+            const isSuccess = type === 'success';
+            notification.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'}`;
+            notification.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} text-sm"></i>
+                </div>
+                <div>
+                    <div class="toast-title">${isSuccess ? 'Success' : 'Error'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(notification);
+            setTimeout(() => notification.remove(), isSuccess ? 3200 : 4500);
+        }
+
         // Helper function to generate slug
         function generateSlug(text) {
             return text
@@ -476,6 +568,33 @@
         }
 
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', setupSlugGeneration);
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSlugGeneration();
+
+            const flashSuccess = @json(session('success'));
+            const flashError = @json(session('error'));
+            if (flashSuccess) {
+                showNotification(flashSuccess, 'success');
+            }
+            if (flashError) {
+                showNotification(flashError, 'error');
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const successMessage = params.get('success');
+            const errorMessage = params.get('error');
+            if (successMessage) {
+                showNotification(successMessage, 'success');
+                params.delete('success');
+            }
+            if (errorMessage) {
+                showNotification(errorMessage, 'error');
+                params.delete('error');
+            }
+            if (successMessage || errorMessage) {
+                const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+                window.history.replaceState({}, '', newUrl);
+            }
+        });
     </script>
 @endsection
