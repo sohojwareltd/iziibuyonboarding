@@ -18,6 +18,12 @@
             transition: transform 0.3s ease-in-out;
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
         }
+        
+        @media (max-width: 640px) {
+            #solution-drawer {
+                max-width: 100%;
+            }
+        }
 
         #solution-drawer.drawer-open {
             transform: translateX(0) !important;
@@ -92,6 +98,20 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        @media (max-width: 640px) {
+            .active-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            .filter-badge {
+                flex-shrink: 0;
+            }
         }
 
         .filter-badge {
@@ -261,6 +281,13 @@
                 transform: translateY(0);
             }
         }
+        
+        /* Mobile responsive improvements - xs breakpoint at 475px */
+        @media (min-width: 475px) {
+            .xs\\:inline {
+                display: inline !important;
+            }
+        }
     </style>
 @endpush
 
@@ -274,21 +301,21 @@
     ]" />
 
     <!-- MAIN CONTENT AREA -->
-    <main id="main-content" class="ml-[260px] pt-16 min-h-screen bg-brand-neutral">
-        <div class="p-8">
+    <main id="main-content" class="md:ml-[260px] ml-0 pt-16 min-h-screen bg-brand-neutral">
+        <div class="p-4 md:p-8">
 
             <!-- Page Content -->
-            <div class="bg-brand-neutral p-8">
+            <div class="bg-brand-neutral p-4 md:p-8">
                 <div class="max-w-[1280px] mx-auto">
                     <!-- Page Title and Add Button -->
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                         <div>
                             <h1 class="text-2xl font-semibold text-brand-primary mb-1">Solution Master</h1>
                             <p class="text-sm text-gray-500">Manage and configure merchant solutions, acquirers, and payment
                                 methods.</p>
                         </div>
                         <button onclick="openDrawer()"
-                            class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2">
+                            class="bg-brand-accent text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-orange-500 transition-colors flex items-center gap-2 self-start md:self-auto">
                             <i class="fa-solid fa-plus text-sm"></i>
                             <span class="font-medium">Add Solution</span>
                         </button>
@@ -298,33 +325,33 @@
                     <div class="bg-white border border-gray-200 rounded-t-xl p-4">
                         <form method="GET" action="{{ route('admin.masters.solution-master') }}" class="space-y-4">
                             <!-- Search Bar and Filter Button -->
-                            <div class="flex items-center justify-between gap-4">
-                                <div class="relative flex-1 max-w-[384px]">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                                <div class="relative flex-1 sm:max-w-[384px] w-full">
                                     {{-- <i
                                         class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                     <input type="text" name="search" placeholder="Search solutions by name..."
                                         value="{{ request('search') }}"
-                                        class="form-input pl-10 bg-white border-gray-200 focus:bg-white">
+                                        class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 w-full sm:w-auto">
                                     <button type="button" onclick="toggleFilters()"
-                                        class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center gap-2">
+                                        class="bg-white border-2 border-gray-200 text-gray-600 px-4 sm:px-5 py-2.5 rounded-lg text-sm font-semibold hover:border-orange-300 hover:text-brand-accent transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-filter text-sm"></i>
                                         <span>Filters</span>
                                         <i id="filter-arrow"
                                             class="fa-solid fa-chevron-down text-xs transition-transform"></i>
                                     </button>
                                     <a href="{{ route('admin.masters.solution-master.export', request()->query()) }}"
-                                        class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                        class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-download text-sm"></i>
-                                        Export
+                                        <span class="hidden xs:inline">Export</span>
                                     </a>
                                 </div>
                             </div>
 
                             <!-- Active Filters Display -->
                             @if (request()->has('search') || request()->has('category') || request()->has('status') || request()->has('country'))
-                                <div class="active-filters">
+                                <div class="active-filters overflow-x-auto">
                                     @if (request('search'))
                                         <div class="filter-badge">
                                             <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -368,9 +395,9 @@
                             <!-- Filter Panel -->
                             <div id="filter-panel"
                                 class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
-                                <div class="flex items-end gap-3">
+                                <div class="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
                                     <!-- Category Filter -->
-                                    <div class="filter-group flex-1">
+                                    <div class="filter-group flex-1 w-full">
                                         <label>
                                             <i class="fa-solid fa-tag"></i>
                                             Category
@@ -388,7 +415,7 @@
                                     </div>
 
                                     <!-- Status Filter -->
-                                    <div class="filter-group flex-1">
+                                    <div class="filter-group flex-1 w-full">
                                         <label>
                                             <i class="fa-solid fa-circle-half-stroke"></i>
                                             Status
@@ -407,7 +434,7 @@
                                     </div>
 
                                     <!-- Country Filter -->
-                                    <div class="filter-group flex-1">
+                                    <div class="filter-group flex-1 w-full">
                                         <label>
                                             <i class="fa-solid fa-map-pin"></i>
                                             Country
@@ -425,13 +452,15 @@
                                     </div>
 
                                     <!-- Filter Controls -->
-                                    <div class="flex gap-2 flex-shrink-0">
-                                        <button type="button" class="filter-btn-reset !p-2.5 !px-3"
+                                    <div class="flex gap-2 flex-shrink-0 w-full lg:w-auto">
+                                        <button type="button" class="filter-btn-reset !py-2.5 !px-4 flex-1 lg:flex-none"
                                             onclick="clearAllFilters()" title="Clear All">
-                                            <i class="fa-solid fa-xmark text-xs"></i>
+                                            <i class="fa-solid fa-xmark text-sm"></i>
+                                            <span class="ml-1.5 text-xs font-medium">Clear</span>
                                         </button>
-                                        <button type="submit" class="filter-btn-apply !p-2.5 !px-4" title="Apply Filters">
-                                            <i class="fa-solid fa-check text-xs"></i>
+                                        <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none" title="Apply Filters">
+                                            <i class="fa-solid fa-check text-sm"></i>
+                                            <span class="ml-1.5 text-xs font-medium">Apply</span>
                                         </button>
                                     </div>
                                 </div>
@@ -441,8 +470,8 @@
 
                     <!-- Table -->
                     <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">\n                            <thead class="bg-gray-50">
                                 <tr>
                                     <th
                                         class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -540,15 +569,16 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
 
                         <!-- Pagination -->
-                        <div class="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between">
-                            <div class="text-sm text-gray-500">
+                        <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="text-sm text-gray-500 text-center sm:text-left">
                                 Showing <span class="font-medium text-gray-900">1</span> to <span
                                     class="font-medium text-gray-900">10</span> of <span
                                     class="font-medium text-gray-900">42</span> results
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center justify-center gap-2">
                                 <button
                                     class="border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm opacity-50 cursor-not-allowed">Previous</button>
                                 <button class="bg-brand-primary text-white px-3 py-1.5 rounded text-sm">1</button>
@@ -569,10 +599,10 @@
 
     <!-- Right Drawer for Add/Edit Solution -->
     <div id="solution-drawer"
-        class="fixed top-0 right-0 w-full max-w-[480px] h-screen bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
+        class="fixed top-0 right-0 w-full sm:max-w-[480px] h-screen bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
         <div class="flex flex-col h-full">
             <!-- Drawer Header -->
-            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
+            <div class="border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h2 class="text-lg font-semibold text-brand-primary">Add New Solution</h2>
                 <button onclick="closeDrawer()"
                     class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
@@ -587,8 +617,7 @@
                 <div id="form-method"></div>
                 <input type="hidden" name="status" id="solution-status" value="published">
 
-                <div class="flex-1 overflow-y-auto p-6">
-                    <div class="space-y-8">
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6">\n                    <div class="space-y-8">
                         <!-- Solution Information Section -->
                         <div class="space-y-4">
                             <div class="border-b border-gray-200 pb-2">
@@ -754,16 +783,16 @@
                 </div>
 
                 <!-- Drawer Footer -->
-                <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white sticky bottom-0">
+                <div class="border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white sticky bottom-0 gap-3">
                     <button type="button" onclick="closeDrawer()"
-                        class="text-gray-600 font-medium hover:text-gray-800">Cancel</button>
-                    <div class="flex gap-3">
+                        class="text-gray-600 font-medium hover:text-gray-800 order-2 sm:order-1 text-center">Cancel</button>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 order-1 sm:order-2">
                         <button type="button" onclick="setStatusAndSubmit('draft')"
-                            class="border-2 border-brand-accent text-brand-accent px-5 py-3 rounded-lg font-medium hover:bg-orange-50 transition-colors">
+                            class="border-2 border-brand-accent text-brand-accent px-5 py-3 rounded-lg font-medium hover:bg-orange-50 transition-colors whitespace-nowrap">
                             Save Draft
                         </button>
                         <button type="button" onclick="setStatusAndSubmit('published')"
-                            class="bg-brand-accent text-white px-5 py-3 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors">
+                            class="bg-brand-accent text-white px-5 py-3 rounded-lg font-medium shadow-sm hover:bg-orange-500 transition-colors whitespace-nowrap">
                             Save Solution
                         </button>
                     </div>
