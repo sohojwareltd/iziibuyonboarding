@@ -44,6 +44,51 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
+
+        
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .nav-item-active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 20px;
+        }
+
+        .nav-item {
+            padding-left: 24px;
+        }
+
+        .nav-item-sub {
+            padding-left: 44px;
+        }
+
+        .nav-item-sub-active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #FF7C00;
+            padding-left: 40px;
+        }
+
+        .drawer-open {
+            transform: translateX(0);
+        }
+
+        .drawer-closed {
+            transform: translateX(100%);
+        }
+
         select {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -342,7 +387,7 @@
                         </div>
 
                         <!-- Configuration Controls -->
-                        <div class="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
+                        {{-- <div class="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
                             <div class="flex flex-col sm:flex-row sm:items-end gap-4">
                                 <div class="w-full sm:w-64">
                                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
@@ -373,7 +418,7 @@
                                     Load Mapping
                                 </button>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Main Content: Field Mapping and Preview -->
                         <div class="flex flex-col lg:flex-row gap-6 items-start overflow-x-hidden">
@@ -396,7 +441,7 @@
                                             Collapse
                                         </button>
                                     </div>
-                                    <div class="flex flex-wrap items-center gap-2">
+                                    {{-- <div class="flex flex-wrap items-center gap-2">
                                         <button class="text-xs text-gray-500 hover:text-green-600 font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-green-50 transition-all">
                                             <i class="fa-solid fa-check-double text-[10px]"></i>
                                             <span class="hidden xs:inline">All Mandatory</span>
@@ -410,7 +455,7 @@
                                             <i class="fa-solid fa-file-export text-[10px]"></i>
                                             <span class="hidden xs:inline">Export</span>
                                         </button>
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                                 <!-- Column Headers -->
@@ -609,7 +654,7 @@
                             </div>
 
                             <!-- Right Panel: Live Preview (Sticky) -->
-                            <div class="w-full lg:w-[340px] flex-shrink-0 lg:sticky lg:top-20">
+                            {{-- <div class="w-full lg:w-[340px] flex-shrink-0 lg:sticky lg:top-20">
                                 <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                                     <!-- Preview Header -->
                                     <div class="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -626,9 +671,9 @@
 
                                     <!-- Preview Content -->
                                     <div class="p-4 bg-gradient-to-b from-gray-50 to-gray-100 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                                        {{-- Phone-like frame --}}
+                                       
                                         <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                                            {{-- Mini header --}}
+                                            
                                             <div class="bg-brand-primary px-4 py-3">
                                                 <div class="text-white text-xs font-semibold">KYC Application Form</div>
                                                 <div class="text-white/60 text-[10px] mt-0.5">Merchant view</div>
@@ -692,7 +737,7 @@
                                                     @endif
                                                 @endforeach
 
-                                                {{-- Mini submit button --}}
+                                                
                                                 <div class="pt-3 border-t border-gray-100">
                                                     <div class="bg-gray-200 text-gray-400 text-center py-2 rounded-lg text-xs font-semibold">
                                                         Submit Application
@@ -702,7 +747,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -710,7 +755,7 @@
         </main>
 
         <!-- Bottom Footer -->
-        <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-4 md:px-8 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-40">
+        {{-- <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-4 md:px-8 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-40">
             <div class="flex items-center justify-center sm:justify-start gap-3">
                 <button class="text-gray-500 hover:text-brand-primary font-medium text-sm transition-colors">Cancel</button>
                 <span class="text-xs text-gray-300">|</span>
@@ -725,7 +770,7 @@
                     Save Mapping
                 </button>
             </div>
-        </div>
+        </div> --}}
 
         <script>
             // Toggle individual section
