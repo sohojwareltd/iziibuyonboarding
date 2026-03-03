@@ -18,7 +18,7 @@
             transition: transform 0.3s ease-in-out;
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         @media (max-width: 640px) {
             #solution-drawer {
                 max-width: 100%;
@@ -100,7 +100,7 @@
             gap: 0.5rem;
             padding-bottom: 0.25rem;
         }
-        
+
         @media (max-width: 640px) {
             .active-filters {
                 flex-wrap: nowrap;
@@ -108,7 +108,7 @@
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin;
             }
-            
+
             .filter-badge {
                 flex-shrink: 0;
             }
@@ -281,7 +281,7 @@
                 transform: translateY(0);
             }
         }
-        
+
         /* Mobile responsive improvements - xs breakpoint at 475px */
         @media (min-width: 475px) {
             .xs\\:inline {
@@ -458,7 +458,8 @@
                                             <i class="fa-solid fa-xmark text-sm"></i>
                                             <span class="ml-1.5 text-xs font-medium">Clear</span>
                                         </button>
-                                        <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none" title="Apply Filters">
+                                        <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none"
+                                            title="Apply Filters">
                                             <i class="fa-solid fa-check text-sm"></i>
                                             <span class="ml-1.5 text-xs font-medium">Apply</span>
                                         </button>
@@ -471,113 +472,118 @@
                     <!-- Table -->
                     <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">\n                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Solution Name</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Category</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Country</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Acquirers</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Status</th>
-                                    <th
-                                        class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($solutions as $solution)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-brand-primary">{{ $solution->name }}</div>
-                                            <div class="text-xs text-gray-400 mt-0.5">Updated
-                                                {{ $solution->updated_at->diffForHumans() }}</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span
-                                                class="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-medium">{{ $solution->category->name }}</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-gray-600">
-                                                @if ($solution->countries->isNotEmpty())
-                                                    {{ $solution->countries->pluck('name')->implode(', ') }}
-                                                @else
-                                                    &mdash;
-                                                @endif
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-gray-600">
-                                                @if ($solution->acquirerMasters->isNotEmpty())
-                                                    {{ $solution->acquirerMasters->pluck('name')->implode(', ') }}
-                                                @else
-                                                    &mdash;
-                                                @endif
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span
-                                                class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit {{ $solution->status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                                <span
-                                                    class="w-1.5 h-1.5 rounded-full {{ $solution->status === 'published' ? 'bg-green-600' : 'bg-yellow-600' }}"></span>
-                                                {{ ucfirst($solution->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <button data-id="{{ $solution->id }}" data-name="{{ $solution->name }}"
-                                                    data-category-id="{{ $solution->category_id }}"
-                                                    data-countries='@json($solution->countries->pluck("id"))'
-                                                    data-status="{{ $solution->status }}"
-                                                    data-description="{{ $solution->description }}"
-                                                    data-tags='@json($solution->tags ?? [])'
-                                                    data-acquirers='@json($solution->acquirerMasters->pluck("id"))'
-                                                    data-payment-methods='@json($solution->paymentMethodMasters->pluck("id"))'
-                                                    data-alternative-methods='@json($solution->alternative_methods ?? [])'
-                                                    data-requirements="{{ $solution->requirements }}"
-                                                    data-pricing-plan="{{ $solution->pricing_plan }}"
-                                                    onclick="editSolution(this)"
-                                                    class="text-gray-400 hover:text-brand-primary p-2">
-                                                    <i class="fa-solid fa-pen text-sm"></i>
-                                                </button>
-                                                <button onclick="deleteSolution({{ $solution->id }})"
-                                                    class="text-gray-400 hover:text-red-500 p-2">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
+                            <table class="min-w-full divide-y divide-gray-200"> <thead class="bg-gray-50">
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center">
-                                            <div class="flex flex-col items-center justify-center">
-                                                <i class="fa-solid fa-inbox text-4xl text-gray-300 mb-3"></i>
-                                                <p class="text-gray-500 font-medium">No solutions found</p>
-                                                <p class="text-sm text-gray-400">Create your first solution to get started
-                                                </p>
-                                            </div>
-                                        </td>
+                                        <th
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Solution Name</th>
+                                        <th
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Category</th>
+                                        <th
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Country</th>
+                                        <th
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Acquirers</th>
+                                        <th
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
                                     </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse($solutions as $solution)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-brand-primary">{{ $solution->name }}</div>
+                                                <div class="text-xs text-gray-400 mt-0.5">Updated
+                                                    {{ $solution->updated_at->diffForHumans() }}</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-medium">{{ $solution->category->name }}</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-gray-600">
+                                                    @if ($solution->countries->isNotEmpty())
+                                                        {{ $solution->countries->pluck('name')->implode(', ') }}
+                                                    @else
+                                                        &mdash;
+                                                    @endif
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-gray-600">
+                                                    @if ($solution->acquirerMasters->isNotEmpty())
+                                                        {{ $solution->acquirerMasters->pluck('name')->implode(', ') }}
+                                                    @else
+                                                        &mdash;
+                                                    @endif
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit {{ $solution->status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                                    <span
+                                                        class="w-1.5 h-1.5 rounded-full {{ $solution->status === 'published' ? 'bg-green-600' : 'bg-yellow-600' }}"></span>
+                                                    {{ ucfirst($solution->status) }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <button data-id="{{ $solution->id }}"
+                                                        data-name="{{ $solution->name }}"
+                                                        data-category-id="{{ $solution->category_id }}"
+                                                        data-countries='@json($solution->countries->pluck('id'))'
+                                                        data-status="{{ $solution->status }}"
+                                                        data-description="{{ $solution->description }}"
+                                                        data-tags='@json($solution->tags ?? [])'
+                                                        data-acquirers='@json($solution->acquirerMasters->pluck('id'))'
+                                                        data-payment-methods='@json($solution->paymentMethodMasters->pluck('id'))'
+                                                        data-alternative-methods='@json($solution->alternative_methods ?? [])'
+                                                        data-requirements="{{ $solution->requirements }}"
+                                                        data-pricing-plan="{{ $solution->pricing_plan }}"
+                                                        onclick="editSolution(this)"
+                                                        class="text-gray-400 hover:text-brand-primary p-2">
+                                                        <i class="fa-solid fa-pen text-sm"></i>
+                                                    </button>
+                                                    <button onclick="deleteSolution({{ $solution->id }})"
+                                                        class="text-gray-400 hover:text-red-500 p-2">
+                                                        <i class="fa-solid fa-trash text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-8 text-center">
+                                                <div class="flex flex-col items-center justify-center">
+                                                    <i class="fa-solid fa-inbox text-4xl text-gray-300 mb-3"></i>
+                                                    <p class="text-gray-500 font-medium">No solutions found</p>
+                                                    <p class="text-sm text-gray-400">Create your first solution to get
+                                                        started
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
 
                         <!-- Pagination -->
                         @if ($solutions->hasPages())
-                            <div class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div
+                                class="bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                                 <div class="text-sm text-gray-500 text-center sm:text-left">
-                                    Showing <span class="font-medium text-gray-900">{{ ($solutions->currentPage() - 1) * $solutions->perPage() + 1 }}</span> to <span
-                                        class="font-medium text-gray-900">{{ min($solutions->currentPage() * $solutions->perPage(), $solutions->total()) }}</span> of <span
-                                        class="font-medium text-gray-900">{{ $solutions->total() }}</span> results
+                                    Showing <span
+                                        class="font-medium text-gray-900">{{ ($solutions->currentPage() - 1) * $solutions->perPage() + 1 }}</span>
+                                    to <span
+                                        class="font-medium text-gray-900">{{ min($solutions->currentPage() * $solutions->perPage(), $solutions->total()) }}</span>
+                                    of <span class="font-medium text-gray-900">{{ $solutions->total() }}</span> results
                                 </div>
                                 <div class="flex flex-wrap items-center justify-center gap-2">
                                     {{ $solutions->links('pagination::tailwind') }}
@@ -595,7 +601,8 @@
         class="fixed top-0 right-0 w-full sm:max-w-[480px] h-screen bg-white shadow-2xl z-50 drawer-closed transition-transform duration-300 ease-in-out overflow-y-auto">
         <div class="flex flex-col h-full">
             <!-- Drawer Header -->
-            <div class="border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
+            <div
+                class="border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h2 class="text-lg font-semibold text-brand-primary">Add New Solution</h2>
                 <button onclick="closeDrawer()"
                     class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
@@ -610,7 +617,8 @@
                 <div id="form-method"></div>
                 <input type="hidden" name="status" id="solution-status" value="published">
 
-                <div class="flex-1 overflow-y-auto p-4 sm:p-6">\n                    <div class="space-y-8">
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+                    <div class="space-y-8">
                         <!-- Solution Information Section -->
                         <div class="space-y-4">
                             <div class="border-b border-gray-200 pb-2">
@@ -661,12 +669,14 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Countries</label>
-                                <div id="countries-list" class="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                                <div id="countries-list"
+                                    class="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                                     @foreach ($countries as $country)
                                         <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
                                             <input type="checkbox" name="countries[]" value="{{ $country->id }}"
                                                 class="w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-700">{{ $country->name }} ({{ $country->code }})</span>
+                                            <span class="text-sm text-gray-700">{{ $country->name }}
+                                                ({{ $country->code }})</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -707,19 +717,21 @@
                                     $groupedPaymentMethods = $paymentMethods->groupBy('category');
                                 @endphp
                                 @foreach ($groupedPaymentMethods as $category => $methods)
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">{{ ucfirst($category) }}s</label>
-                                    <div class="flex gap-2 flex-wrap">
-                                        @foreach ($methods as $pm)
+                                    <div>
                                         <label
-                                            class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-                                            <input type="checkbox" name="payment_methods[]" value="{{ $pm->id }}"
-                                                class="w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-900">{{ $pm->display_label }}</span>
-                                        </label>
-                                        @endforeach
+                                            class="block text-xs font-semibold text-gray-500 uppercase mb-2">{{ ucfirst($category) }}s</label>
+                                        <div class="flex gap-2 flex-wrap">
+                                            @foreach ($methods as $pm)
+                                                <label
+                                                    class="border-2 border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
+                                                    <input type="checkbox" name="payment_methods[]"
+                                                        value="{{ $pm->id }}"
+                                                        class="w-4 h-4 border-gray-400 rounded">
+                                                    <span class="text-sm text-gray-900">{{ $pm->display_label }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                </div>
                                 @endforeach
 
                                 <div>
@@ -776,7 +788,8 @@
                 </div>
 
                 <!-- Drawer Footer -->
-                <div class="border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white sticky bottom-0 gap-3">
+                <div
+                    class="border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white sticky bottom-0 gap-3">
                     <button type="button" onclick="closeDrawer()"
                         class="text-gray-600 font-medium hover:text-gray-800 order-2 sm:order-1 text-center">Cancel</button>
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 order-1 sm:order-2">
