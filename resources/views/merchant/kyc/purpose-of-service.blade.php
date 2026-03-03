@@ -29,10 +29,9 @@
 
     <!-- Header -->
     <header class="mb-8">
-        <h1 class="text-[24px] font-semibold text-primary mb-2">Purpose of Service</h1>
+        <h1 class="text-[24px] font-semibold text-primary mb-2">{{ $section->name }}</h1>
         <p class="text-gray-600 text-sm max-w-2xl">
-            Describe how you intend to use 2iZii’s payment services and provide details required by acquirers
-            and regulatory bodies.
+            {{ $section->description }}
         </p>
     </header>
 
@@ -41,141 +40,28 @@
         <!-- 3. PURPOSE OF SERVICE CARD -->
         <section id="purpose-card" class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 mb-24">
 
-            <!-- A. SERVICE DESCRIPTION -->
-            <div id="section-description">
-                <x-input.textarea id="service-desc" label="Purpose of Payment Service" required rows="4" 
-                    placeholder="Describe how your business plans to use the payment services..."
-                    class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
-            </div>
-
-            <!-- B. PAYMENT SERVICE DETAILS -->
-            <div id="section-payment-details" class="mt-2">
-                <h3 class="text-sm font-semibold text-primary mb-4 uppercase tracking-wider opacity-80">Payment
-                    Service Details</h3>
+            @if ($fields->isNotEmpty())
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Expected Monthly Transaction Volume -->
-                    <div>
-                        <div class="relative">
-                            <x-input.select id="monthly-volume" label="Expected Monthly Transaction Volume" required placeholder="Select volume range"
-                                class="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-accent focus:ring-1 focus:ring-accent outline-none bg-white">
-                                <option value="under-50k">Under 50,000 NOK</option>
-                                <option value="50k-250k">50,000–250,000 NOK</option>
-                                <option value="250k-1m">250,000–1,000,000 NOK</option>
-                                <option value="above-1m">Above 1,000,000 NOK</option>
-                            </x-input.select>
+                    @foreach ($fields as $field)
+                        @php
+                            $colSpan = in_array($field->data_type, ['textarea', 'address', 'file'])
+                                ? 'md:col-span-2'
+                                : '';
+                        @endphp
+                        <div class="{{ $colSpan }}">
+                            <x-kyc-field :field="$field" :value="old($field->internal_key)" />
                         </div>
-                    </div>
-
-                    <!-- Expected Monthly Transaction Count -->
-                    <div>
-                        <x-input.number id="monthly-count" label="Expected Monthly Transaction Count" required 
-                            placeholder="e.g., 120 transactions per month"
-                            class="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none" />
-                    </div>
-
-                    <!-- Average Transaction Size -->
-                    <div>
-                        <div class="relative">
-                            <label for="avg-size" class="block text-sm font-medium text-gray-700 mb-1">
-                                Average Transaction Size <span class="text-red-500">*</span>
-                            </label>
-                           
-                            <x-input.number id="avg-size" required placeholder="e.g., 400"
-                                class="w-full rounded-md border border-gray-300 pl-14 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none" />
-                        </div>
-                    </div>
-
-                    <!-- Maximum Transaction Size -->
-                    <div>
-                        <div class="relative">
-                            <label for="max-size" class="block text-sm font-medium text-gray-700 mb-1">
-                                Maximum Transaction Size <span class="text-red-500">*</span>
-                            </label>
-                            
-                            <x-input.number id="max-size" required placeholder="e.g., 5000"
-                                class="w-full rounded-md border border-gray-300 pl-14 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none" />
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
-            </div>
-
-            <!-- C. BUSINESS MODEL DETAILS -->
-            <div id="section-business-model" class="mt-4">
-                <h3 class="text-sm font-semibold text-primary mb-4 uppercase tracking-wider opacity-80">Business
-                    Model Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-
-                    <!-- Business Model Type -->
-                    <div>
-                        <x-input.select id="business-model" label="Business Model Type" required placeholder="Select business model"
-                            class="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-accent focus:ring-1 focus:ring-accent outline-none bg-white">
-                            <option value="retail">Retail</option>
-                            <option value="fnb">Food & Beverage</option>
-                            <option value="ecommerce">E-commerce</option>
-                            <option value="services">Services</option>
-                            <option value="subscription">Subscription</option>
-                            <option value="marketplace">Marketplace</option>
-                            <option value="other">Other</option>
-                        </x-input.select>
-                    </div>
-
-                    <!-- Conditional 'Other' Input -->
-                    <div id="other-specify-container" class="hidden">
-                        <x-input.text id="other-model" label="Specify Other Model" required placeholder="Please specify"
-                            class="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none" />
-                    </div>
-
-                    <div class="hidden md:block"></div>
-
-                    <!-- Toggles Container -->
-                    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                        <!-- Recurring Billing Toggle -->
-                        <div class="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <div>
-                                <span class="block text-sm font-medium text-gray-900">Recurring billing?</span>
-                                <span class="block text-xs text-gray-500 mt-0.5">Does your business provide
-                                    subscription services?</span>
-                            </div>
-                            <div
-                                class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="recurring" id="recurring"
-                                    class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 transition-all duration-300" />
-                                <label for="recurring"
-                                    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
-                            </div>
-                        </div>
-
-                        <!-- Store Card Info Toggle -->
-                        <div
-                            class="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <div>
-                                <span class="block text-sm font-medium text-gray-900">Store card
-                                    information?</span>
-                                <span class="block text-xs text-gray-500 mt-0.5">Required for compliance
-                                    verification.</span>
-                            </div>
-                            <div
-                                class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="store-card" id="store-card"
-                                    class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 transition-all duration-300" />
-                                <label for="store-card"
-                                    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
-                            </div>
-                        </div>
-                    </div>
+            @else
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                    <p class="text-yellow-800 font-medium">No fields configured for this section</p>
+                    <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC fields.
+                    </p>
                 </div>
-            </div>
+            @endif
 
-            <!-- D. ADDITIONAL INFORMATION -->
-            <div id="section-additional" class="mt-4">
-                <div class="mb-2">
-                    <span class="text-sm font-medium text-gray-700">Additional Notes</span>
-                    <span class="text-gray-400 font-normal text-sm"> (optional)</span>
-                </div>
-                <x-input.textarea id="additional-notes" rows="3" placeholder="Any other details relevant to your application..."
-                    class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
-            </div>
         </section>
 
         <footer id="footer"

@@ -1,300 +1,84 @@
-<x-merchant.kyc>
+﻿<x-merchant.kyc>
 
     @push('css')
         <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F7F8FA;
-        }
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #F7F8FA;
+            }
 
-        /* Custom scrollbar for main content */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+            /* Custom scrollbar for main content */
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
 
-        ::-webkit-scrollbar-thumb {
-            background: #E5E7EB;
-            border-radius: 3px;
-        }
+            ::-webkit-scrollbar-thumb {
+                background: #E5E7EB;
+                border-radius: 3px;
+            }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #D1D5DB;
-        }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #D1D5DB;
+            }
 
-        /* Checkbox/Radio custom styles */
-        .custom-checkbox:checked {
-            background-color: #2D3A74;
-            border-color: #2D3A74;
-        }
-    </style>
+            /* Checkbox/Radio custom styles */
+            .custom-checkbox:checked {
+                background-color: #2D3A74;
+                border-color: #2D3A74;
+            }
+        </style>
     @endpush
     <!-- HEADER -->
     <header id="page-header" class="mb-8">
-        <h1 class="text-2xl font-semibold text-primary mb-2">Authorized Signatories</h1>
-        <p class="text-slate-500 text-sm">Provide details of individuals legally authorized to sign agreements
-            on behalf of the company.</p>
+        <h1 class="text-2xl font-semibold text-primary mb-2">{{ $section->name }}</h1>
+        <p class="text-slate-500 text-sm">{{ $section->description }}</p>
     </header>
-
-    <!-- INFO BANNER -->
-    <div id="info-banner"
-        class="mb-8 bg-accent-light border-l-4 border-accent-border p-4 rounded-r-md flex items-start gap-3">
-        <i class="fa-solid fa-triangle-exclamation text-accent-border mt-0.5"></i>
-        <p class="text-sm text-slate-700 font-medium">Acquirers require details of individuals with legal
-            signing authority for compliance verification.</p>
-    </div>
 
     <form id="authorized-signatories-form">
         <div id="authorized-signatories-container">
-        <!-- SIGNATORY CARD 1 -->
-        <section id="signatory-card-1" class="authorized-signatory-card bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+            @if ($fields->isNotEmpty())
+                <!-- SIGNATORY CARD 1 -->
+                <section id="signatory-card-1"
+                    class="authorized-signatory-card bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
 
-            <!-- Card Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 pb-4 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-slate-800">Authorized Signatory #1</h2>
-                <button class="remove-signatory-btn text-slate-400 hover:text-red-500 transition-colors" title="Remove Signatory" type="button">
-                    <i class="fa-regular fa-trash-can text-lg"></i>
-                </button>
-            </div>
-
-            <!-- SECTION A: PERSONAL INFO -->
-            <div class="mb-8">
-                <h3
-                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                    Personal Information</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
-                    <!-- First Name -->
-                    <div>
-                        <x-input.text label="First Name" id="first_name" name="first_name" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. John" />
-                    </div>
-                    <!-- Last Name -->
-                    <div>
-                        <x-input.text label="Last Name" id="last_name" name="last_name" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. Doe" />
-                    </div>
-                    <!-- Email -->
-                    <div>
-                        <x-input.email label="Email Address" id="email" name="email" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="john.doe@company.com" />
-                    </div>
-                    <!-- Phone -->
-                    <div>
-                        <x-input.tel label="Phone Number" id="phone" name="phone" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="+1 234 567 8900" />
-                    </div>
-                    <!-- DOB -->
-                    <div>
-                        <x-input.date label="Date of Birth" id="dob" name="dob" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
-                    </div>
-                    <!-- Nationality -->
-                    <div>
-                        <x-input.select label="Nationality" id="nationality" name="nationality" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
-                            <option value="US">United States</option>
-                            <option value="GB">United Kingdom</option>
-                            <option value="CA">Canada</option>
-                        </x-input.select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION B: ROLE & AUTHORIZATION -->
-            <div class="mb-8">
-                <h3
-                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                    Role & Authorization Details</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
-                    <!-- Role -->
-                    <div>
-                        <x-input.select label="Role in Company" id="role" name="role" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
-                            <option>Director</option>
-                            <option>Legal Representative</option>
-                            <option>Managing Director</option>
-                            <option>Owner</option>
-                            <option>Other</option>
-                        </x-input.select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-
-                    <!-- Start Date -->
-                    <div>
-                        <x-input.date label="Start Date in Role" id="start_date" name="start_date" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
-                    </div>
-
-                    <!-- Authorization Type -->
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Authorization Type*</label>
-                        <div class="flex flex-wrap gap-4">
-                            <x-input.checkbox id="auth_sole" name="auth_sole" label="Sole Signatory"
-                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
-                            <x-input.checkbox id="auth_joint" name="auth_joint" label="Joint Signatory"
-                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
-                            <x-input.checkbox id="auth_limited" name="auth_limited" label="Limited Authority"
-                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
-                            <x-input.checkbox id="auth_poa" name="auth_poa" label="Power of Attorney"
-                                class="rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" />
-                        </div>
-                    </div>
-
-                    <!-- Is Beneficial Owner -->
+                    <!-- Card Header -->
                     <div
-                        class="col-span-2 flex items-center justify-between p-3 bg-slate-50 rounded border border-gray-100">
-                        <div>
-                            <span class="text-sm font-medium text-slate-700">Is this person also a Beneficial
-                                Owner?</span>
-                            <p class="text-xs text-slate-500 mt-0.5">If yes, their information will be linked to the
-                                Beneficial Owners section.</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_beneficial_owner" value="1" class="sr-only peer" />
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION C: IDENTIFICATION DETAILS -->
-            <div class="mb-8">
-                <h3
-                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                    Identification Details</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
-                    <!-- ID Type -->
-                    <div>
-                        <x-input.select label="Identification Type" id="id_type" name="id_type" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
-                            <option>Passport</option>
-                            <option>National ID Card</option>
-                            <option>Driver's License</option>
-                        </x-input.select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-                    <!-- ID Number -->
-                    <div>
-                        <x-input.text label="Identification Number" id="id_number" name="id_number" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="ID Number" />
-                    </div>
-                    <!-- Expiry -->
-                    <div>
-                        <x-input.date label="ID Expiry Date" id="id_expiry" name="id_expiry" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm text-slate-600" />
-                    </div>
-                    <!-- Country of Issue -->
-                    <div>
-                        <x-input.select label="Country of Issue" id="id_country" name="id_country" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
-                            <option>United States</option>
-                            <option>United Kingdom</option>
-                            <option>France</option>
-                            <option>Germany</option>
-                        </x-input.select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION D: RESIDENTIAL ADDRESS -->
-            <div class="mb-8">
-                <h3
-                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                    Residential Address</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-6">
-                    <!-- Address 1 -->
-                    <div class="col-span-2">
-                        <x-input.text label="Address Line 1" id="address_line1" name="address_line1" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="Street address, P.O. box" />
-                    </div>
-                    <!-- Address 2 -->
-                    <div class="col-span-2">
-                        <x-input.text label="Address Line 2" id="address_line2" name="address_line2"
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="Apartment, suite, unit, building, floor, etc." />
-                    </div>
-                    <!-- City -->
-                    <div>
-                        <x-input.text label="City" id="city" name="city" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. New York" />
-                    </div>
-                    <!-- Postal Code -->
-                    <div>
-                        <x-input.text label="Postal Code" id="postal_code" name="postal_code" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-                            placeholder="e.g. 10001" />
-                    </div>
-                    <!-- Country -->
-                    <div class="col-span-2">
-                        <x-input.select label="Country" id="country" name="country" required
-                            class="w-full h-10 px-3 border border-gray-300 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm bg-white appearance-none cursor-pointer pr-10">
-                            <option>United States</option>
-                            <option>United Kingdom</option>
-                            <option>Canada</option>
-                        </x-input.select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500 -mt-9">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION E: DOCUMENT UPLOADS -->
-            <div>
-                <h3
-                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                    Document Uploads</h3>
-
-                <!-- Upload Area -->
-                <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-slate-50/50">
-                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
-                    <p class="text-sm font-medium text-slate-700 mb-1">Click to upload or drag and drop</p>
-                    <p class="text-xs text-slate-500">ID Document, Proof of Address, Authorization Document,
-                        Signature Specimen</p>
-                    <p class="text-xs text-slate-400 mt-2">PDF, PNG, JPG up to 10MB</p>
-                    <input type="file" class="hidden" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <!-- Uploaded Files Preview (Example) -->
-                <div class="mt-4 space-y-2">
-                    <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-file-pdf text-red-500"></i>
-                            <div>
-                                <p class="text-sm font-medium text-slate-700">passport_john_doe.pdf</p>
-                                <p class="text-xs text-slate-500">2.4 MB</p>
-                            </div>
-                        </div>
-                        <button class="text-slate-400 hover:text-red-500 transition-colors">
-                            <i class="fa-solid fa-xmark"></i>
+                        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 pb-4 border-b border-gray-100">
+                        <h2 class="text-lg font-semibold text-slate-800">Authorized Signatory #1</h2>
+                        <button class="remove-signatory-btn text-slate-400 hover:text-red-500 transition-colors"
+                            title="Remove Signatory" type="button" style="display: none;">
+                            <i class="fa-regular fa-trash-can text-lg"></i>
                         </button>
                     </div>
-                </div>
-            </div>
 
-        </section>
+                    <!-- Dynamic Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach ($fields as $field)
+                            @php
+                                $colSpan = in_array($field->data_type, ['textarea', 'address', 'file'])
+                                    ? 'md:col-span-2'
+                                    : '';
+                            @endphp
+                            <div class="{{ $colSpan }}">
+                                <x-kyc-field :field="$field" nameOverride="{{ $field->internal_key }}[0]"
+                                    :value="old($field->internal_key . '.0')" />
+                            </div>
+                        @endforeach
+                    </div>
+
+                </section>
+            @else
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                    <p class="text-yellow-800 font-medium">No fields configured for this section</p>
+                    <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC fields.
+                    </p>
+                </div>
+            @endif
         </div>
 
         <div class="text-center mb-8 mt-4">

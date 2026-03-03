@@ -1,9 +1,8 @@
 <x-merchant.kyc>
     <!-- Header Section -->
     <header id="page-header" class="mb-8">
-        <h1 class="text-xl sm:text-2xl font-semibold text-brand-dark mb-2">Board Members / General Manager</h1>
-        <p class="text-gray-600 text-sm">Provide details of individuals responsible for running the company (Directors,
-            Board Members, or General Manager).</p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-brand-dark mb-2">{{ $section->name }}</h1>
+        <p class="text-gray-600 text-sm">{{ $section->description }}</p>
     </header>
 
     <!-- Alert Banner -->
@@ -21,7 +20,8 @@
     <form id="bm-form">
         <div id="board-members-container" class="space-y-6">
 
-            <div class="board-member-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6" data-bm-index="1">
+            <div class="board-member-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6"
+                data-bm-index="1">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-brand-dark">Board Member #1</h3>
                     <button type="button"
@@ -33,167 +33,27 @@
                 <!-- Card Body -->
                 <div class="p-4 sm:p-6">
 
-                    <!-- Section: Personal Information -->
-                    <div class="mb-8">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Personal Information
-                        </h3>
+                    @if ($fields->isNotEmpty())
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
-                            <div>
-                                <x-input.text id="bm-first-name-1" label="First Name" required placeholder="Enter first name"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.text id="bm-last-name-1" label="Last Name" required placeholder="Enter last name"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.date id="bm-dob-1" label="Date of Birth" required class="h-11 px-3 text-gray-600" />
-                            </div>
-                            <div>
-                                <x-input.select id="bm-nationality-1" label="Nationality" required placeholder="Select nationality" class="h-11 px-3">
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="CA">Canada</option>
-                                </x-input.select>
-                            </div>
-                            <div>
-                                <label for="bm-email-1" class="block text-sm font-medium text-gray-700 mb-1.5">Email Address <span
-                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <x-input.email id="bm-email-1" placeholder="example@company.com" class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <label for="bm-phone-1" class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number <span
-                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <x-input.tel id="bm-phone-1" placeholder="+1 (555) 000-0000" class="h-11 px-3" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section: Role Information -->
-                    <div class="mb-8 border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Role Information</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
-                            <div>
-                                <x-input.text id="bm-position-1" label="Position in Company" required placeholder="e.g. Director"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.date id="bm-role-start-1" label="Start Date in Role" required class="h-11 px-3 text-gray-600" />
-                            </div>
-
-                            <!-- Toggle -->
-                            <div class="col-span-2 mt-2">
-                                <div
-                                    class="flex items-center justify-between bg-gray-50 p-4 rounded-md border border-gray-200">
-                                    <div>
-                                        <div class="text-sm font-medium text-brand-dark">Is this person the General
-                                            Manager?</div>
-                                        <div class="text-xs text-gray-500 mt-1">Enable this if the individual holds the
-                                            GM position for the entity.</div>
-                                    </div>
-                                    <div
-                                        class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                        <input type="checkbox" name="toggle" id="toggle-gm-1"
-                                            class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" />
-                                        <label for="toggle-gm-1"
-                                            class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                                    </div>
+                            @foreach ($fields as $field)
+                                @php
+                                    $colSpan = in_array($field->data_type, ['textarea', 'address', 'file'])
+                                        ? 'col-span-2'
+                                        : '';
+                                @endphp
+                                <div class="{{ $colSpan }}">
+                                    <x-kyc-field :field="$field" :value="old($field->internal_key . '.0')" :nameOverride="$field->internal_key . '[0]'" />
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
-                    </div>
-
-                    <!-- Section: Identification Details -->
-                    <div class="mb-8 border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Identification
-                            Details
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
-                            <div>
-                                <x-input.select id="bm-id-type-1" label="Identification Type" required placeholder="Select ID type" class="h-11 px-3">
-                                    <option value="passport">Passport</option>
-                                    <option value="national_id">National ID</option>
-                                    <option value="drivers_license">Driver's License</option>
-                                </x-input.select>
-                            </div>
-                            <div>
-                                <x-input.text id="bm-id-number-1" label="Identification Number" required placeholder="Enter ID number"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.date id="bm-id-expiry-1" label="ID Expiry Date" required class="h-11 px-3 text-gray-600" />
-                            </div>
-                            <div>
-                                <x-input.select id="bm-issue-country-1" label="Country of Issue" required placeholder="Select country" class="h-11 px-3">
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                </x-input.select>
-                            </div>
+                    @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                            <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                            <p class="text-yellow-800 font-medium">No fields configured for this section</p>
+                            <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC
+                                fields.</p>
                         </div>
-                    </div>
-
-                    <!-- Section: Residential Address -->
-                    <div class="mb-8 border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Residential Address
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
-                            <div class="col-span-2">
-                                <x-input.text id="bm-address-line1-1" label="Address Line 1" required
-                                    placeholder="Street address, P.O. box" class="h-11 px-3" />
-                            </div>
-                            <div class="col-span-2">
-                                <label for="bm-address-line2-1" class="block text-sm font-medium text-gray-700 mb-1.5">Address Line 2 <span
-                                    class="text-gray-400 text-xs font-normal">(optional)</span></label>
-                                <x-input.text id="bm-address-line2-1" placeholder="Apartment, suite, unit, building, floor"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.text id="bm-city-1" label="City" required placeholder="Enter city" class="h-11 px-3" />
-                            </div>
-                            <div>
-                                <x-input.text id="bm-postal-1" label="Postal Code" required placeholder="Enter postal code"
-                                    class="h-11 px-3" />
-                            </div>
-                            <div class="col-span-2">
-                                <x-input.select id="bm-country-1" label="Country" required placeholder="Select country" class="h-11 px-3">
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="CA">Canada</option>
-                                </x-input.select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section: Document Uploads -->
-                    <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Document Uploads</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Identity <span
-                                        class="text-red-500">*</span></label>
-                                <div
-                                    class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
-                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span
-                                            class="text-brand-blue font-medium">browse</span></p>
-                                    <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-                                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Address <span
-                                        class="text-red-500">*</span></label>
-                                <div
-                                    class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-blue transition-colors cursor-pointer bg-gray-50">
-                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                                    <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span
-                                            class="text-brand-blue font-medium">browse</span></p>
-                                    <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-                                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
 
                 </div>
             </div>
@@ -343,61 +203,61 @@
             });
 
             function createBOCard(index) {
-                const template = document.querySelector('.board-member-card');
-                const clone = template.cloneNode(true);
+                // Clone the first board member card
+                const firstCard = document.querySelector('.board-member-card');
+                const newCard = firstCard.cloneNode(true);
 
-                clone.setAttribute('data-bm-index', index);
-                clone.querySelector('h3').textContent = `Board Member #${index}`;
+                // Update the card index and title
+                newCard.setAttribute('data-bm-index', index);
+                newCard.querySelector('h3').textContent = `Board Member #${index}`;
 
-                const resetUploadZone = (zone) => {
-                    zone.classList.remove('bg-green-50', 'border-green-300');
-                    zone.innerHTML = `
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
-                        <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
-                        <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-                        <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                    `;
-                };
+                // Show the remove button
+                newCard.querySelector('.remove-bo-btn').classList.remove('hidden');
 
-                const inputs = clone.querySelectorAll('input');
-                inputs.forEach(input => {
-                    const oldId = input.id;
-                    if (oldId) {
-                        const base = oldId.replace(/-\d+$/, '');
-                        const newId = `${base}-${index}`;
-                        input.id = newId;
-                        const relatedLabel = clone.querySelector(`label[for="${oldId}"]`);
-                        if (relatedLabel) relatedLabel.setAttribute('for', newId);
-                    }
-
-                    if (input.type === 'checkbox') {
-                        input.checked = false;
-                    } else if (input.type === 'file') {
+                // Clear all input values
+                newCard.querySelectorAll('input').forEach(input => {
+                    if (input.type === 'file') {
                         input.value = '';
+                    } else if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
                     } else {
                         input.value = '';
                     }
-
-                    input.classList.remove('error-field');
                 });
 
-                const selects = clone.querySelectorAll('select');
-                selects.forEach(select => {
-                    const oldId = select.id;
-                    if (oldId) {
-                        const base = oldId.replace(/-\d+$/, '');
-                        const newId = `${base}-${index}`;
-                        select.id = newId;
-                        const relatedLabel = clone.querySelector(`label[for="${oldId}"]`);
-                        if (relatedLabel) relatedLabel.setAttribute('for', newId);
-                    }
+                // Reset all select elements to first option
+                newCard.querySelectorAll('select').forEach(select => {
                     select.selectedIndex = 0;
-                    select.classList.remove('error-field');
                 });
 
-                clone.querySelectorAll('.upload-zone').forEach(resetUploadZone);
+                // Clear all textarea values
+                newCard.querySelectorAll('textarea').forEach(textarea => {
+                    textarea.value = '';
+                });
 
-                return clone;
+                // Reset any file upload zones
+                newCard.querySelectorAll('.upload-zone').forEach(zone => {
+                    if (zone.classList.contains('bg-green-50')) {
+                        zone.classList.remove('bg-green-50', 'border-green-300');
+                        const label = zone.closest('div').querySelector('label')?.textContent || 'Upload Document';
+                        zone.innerHTML = `
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-600 mb-1">Drag and drop files here or <span class="text-brand-blue font-medium">browse</span></p>
+                            <p class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+                            <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                        `;
+                    }
+                });
+
+                // Update field names to include array index for better form handling
+                newCard.querySelectorAll('[name]').forEach(field => {
+                    const fieldName = field.getAttribute('name');
+                    // Update name to include index (e.g., field_name[0] becomes field_name[1])
+                    const updatedName = fieldName.replace(/\[\d+\]/, `[${index - 1}]`) || `${fieldName}[${index - 1}]`;
+                    field.setAttribute('name', updatedName);
+                });
+
+                return newCard;
             }
 
             function updateRemoveButtons() {

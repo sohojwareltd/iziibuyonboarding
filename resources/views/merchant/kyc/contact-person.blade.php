@@ -45,9 +45,8 @@
 
     <!-- Header Section -->
     <div id="page-header" class="mb-8">
-        <h1 class="text-xl sm:text-2xl font-semibold text-primary mb-2">Contact Person</h1>
-        <p class="text-gray-500 text-sm">Provide the details of the person who will be the primary contact for
-            this agreement.</p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-primary mb-2">{{ $section->name }}</h1>
+        <p class="text-gray-500 text-sm">{{ $section->description }}</p>
     </div>
 
     <form id="cp-form" action="#" method="POST">
@@ -55,156 +54,24 @@
         <!-- Contact Person Card -->
         <div id="contact-person-card" class="bg-white rounded-lg shadow-sm border border-gray-200/60 p-4 sm:p-6">
 
-            <!-- Section A: Personal Information -->
-            <section id="section-personal-info" class="mb-8">
-                <div class="flex items-center gap-4 mb-6">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">Personal
-                        Information</h3>
-                    <div class="h-px bg-gray-200 w-full"></div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <!-- Full Name -->
-                    <div class="col-span-1">
-                        <label for="cp-full-name" class="block text-sm font-medium text-primary mb-1.5">Full Name <span
-                                class="text-red-500">*</span></label>
-                        <x-input.text id="cp-full-name" required placeholder="e.g. John Doe" class="form-input" />
+            @if($fields->isNotEmpty())
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                @foreach($fields as $field)
+                    @php
+                        $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'col-span-2' : '';
+                    @endphp
+                    <div class="{{ $colSpan }}">
+                        <x-kyc-field :field="$field" :value="old($field->internal_key)" />
                     </div>
-
-                    <!-- Position -->
-                    <div class="col-span-1">
-                        <label for="cp-position" class="block text-sm font-medium text-primary mb-1.5">Position <span
-                                class="text-red-500">*</span></label>
-                        <x-input.text id="cp-position" required placeholder="e.g. Finance Manager" class="form-input" />
-                    </div>
-
-                    <!-- Email Address -->
-                    <div class="col-span-1">
-                        <label for="cp-email" class="block text-sm font-medium text-primary mb-1.5">Email Address <span
-                                class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-gray-400"><i class="fa-regular fa-envelope"></i></span>
-                            <x-input.email id="cp-email" required placeholder="john.doe@company.com" icon="" class="form-input pl-10" />
-                        </div>
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div class="col-span-1">
-                        <label for="cp-phone" class="block text-sm font-medium text-primary mb-1.5">Phone Number <span
-                                class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-gray-400"><i class="fa-solid fa-phone"></i></span>
-                            <x-input.tel id="cp-phone" required placeholder="+1 (555) 000-0000" icon="" class="form-input pl-10" />
-                        </div>
-                    </div>
-
-                    <!-- Preferred Contact Method -->
-                    <div class="col-span-1">
-                        <label for="cp-preferred-method" class="block text-sm font-medium text-primary mb-1.5">Preferred Contact Method <span
-                                class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <x-input.select id="cp-preferred-method" required placeholder="Select method" class="form-input appearance-none cursor-pointer bg-white">
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                                <option value="both">Both</option>
-                            </x-input.select>
-                            <span class="absolute right-4 top-3.5 text-gray-400 pointer-events-none">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Secondary Phone -->
-                    <div class="col-span-1">
-                        <label for="cp-secondary-phone" class="block text-sm font-medium text-primary mb-1.5">Secondary Phone <span
-                                class="text-gray-400 font-normal">(Optional)</span></label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-gray-400"><i class="fa-solid fa-phone"></i></span>
-                            <x-input.tel id="cp-secondary-phone" placeholder="+1 (555) 000-0000" icon="" class="form-input pl-10" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section B: Address Details -->
-            <section id="section-address-details" class="mb-8">
-                <div class="flex items-center gap-4 mb-6">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">Address
-                        Details</h3>
-                    <div class="h-px bg-gray-200 w-full"></div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <!-- Address Line 1 -->
-                    <div class="col-span-1">
-                        <label for="cp-address-line1" class="block text-sm font-medium text-primary mb-1.5">Address Line 1 <span
-                                class="text-red-500">*</span></label>
-                        <x-input.text id="cp-address-line1" required placeholder="Street address, P.O. box" class="form-input" />
-                    </div>
-
-                    <!-- Address Line 2 -->
-                    <div class="col-span-1">
-                        <label for="cp-address-line2" class="block text-sm font-medium text-primary mb-1.5">Address Line 2 <span
-                                class="text-gray-400 font-normal">(Optional)</span></label>
-                        <x-input.text id="cp-address-line2" placeholder="Apartment, suite, unit, etc." class="form-input" />
-                    </div>
-
-                    <!-- City -->
-                    <div class="col-span-1">
-                        <label for="cp-city" class="block text-sm font-medium text-primary mb-1.5">City <span
-                                class="text-red-500">*</span></label>
-                        <x-input.text id="cp-city" required placeholder="City" class="form-input" />
-                    </div>
-
-                    <!-- Postal Code -->
-                    <div class="col-span-1">
-                        <label for="cp-postal" class="block text-sm font-medium text-primary mb-1.5">Postal Code <span
-                                class="text-red-500">*</span></label>
-                        <x-input.text id="cp-postal" required placeholder="ZIP / Postal Code" class="form-input" />
-                    </div>
-
-                    <!-- Country -->
-                    <div class="col-span-2">
-                        <label for="cp-country" class="block text-sm font-medium text-primary mb-1.5">Country <span
-                                class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <x-input.select id="cp-country" required placeholder="Select Country" class="form-input appearance-none cursor-pointer bg-white">
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
-                                <option value="UK">United Kingdom</option>
-                                <option value="DE">Germany</option>
-                                <option value="FR">France</option>
-                            </x-input.select>
-                            <span class="absolute right-4 top-3.5 text-gray-400 pointer-events-none">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section C: Documents -->
-            <section id="section-documents">
-                <div class="flex items-center gap-4 mb-6">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">
-                        Documents</h3>
-                    <div class="h-px bg-gray-200 w-full"></div>
-                </div>
-
-                <div
-                    class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer group">
-                    <div class="mb-3">
-                        <div
-                            class="w-12 h-12 rounded-full bg-blue-50 text-primary mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                        </div>
-                    </div>
-                    <h4 class="text-sm font-medium text-primary mb-1">Upload ID Document</h4>
-                    <p class="text-xs text-gray-500 mb-4">Drag & drop or click to upload</p>
-                    <p class="text-[10px] text-gray-400">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                </div>
-            </section>
+                @endforeach
+            </div>
+            @else
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                <p class="text-yellow-800 font-medium">No fields configured for this section</p>
+                <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC fields.</p>
+            </div>
+            @endif
 
         </div>
 

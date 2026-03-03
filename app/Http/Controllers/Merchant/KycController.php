@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Merchant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Onboarding;
+use App\Models\KycSection;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,47 +24,155 @@ class KycController extends Controller
 
     public function company($kyc_link = null): View
     {
-        return view('merchant.kyc.company', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'company-information')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.company', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function beneficialOwners($kyc_link = null): View
     {
-        return view('merchant.kyc.beneficial-owners', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'beneficial-owners')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.beneficial-owners', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function boardMembers($kyc_link = null): View
     {
-        return view('merchant.kyc.board-members', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'board-members-gm')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.board-members', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function contactPerson($kyc_link = null): View
     {
-        return view('merchant.kyc.contact-person', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'contact-person')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.contact-person', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function purposeOfService($kyc_link = null): View
     {
-        return view('merchant.kyc.purpose-of-service', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'purpose-of-service')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.purpose-of-service', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function salesChannels($kyc_link = null): View
     {
-        return view('merchant.kyc.sales-channels', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'sales-channels')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.sales-channels', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function bankInformation($kyc_link = null): View
     {
-        return view('merchant.kyc.bank-information', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'bank-information')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.bank-information', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function authorizedSignatories($kyc_link = null): View
     {
-        return view('merchant.kyc.authorized-signatories', ['kyc_link' => $kyc_link]);
+        $section = KycSection::where('slug', 'authorized-signatories')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->firstOrFail();
+        
+        return view('merchant.kyc.authorized-signatories', [
+            'kyc_link' => $kyc_link,
+            'section' => $section,
+            'fields' => $section->kycFields
+        ]);
     }
 
     public function review($kyc_link = null): View
     {
-        return view('merchant.kyc.review', ['kyc_link' => $kyc_link]);
+        $sections = KycSection::where('status', 'active')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->where('visible_to_merchant', true)
+                    ->orderBy('sort_order');
+            }])
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('merchant.kyc.review', [
+            'kyc_link' => $kyc_link,
+            'sections' => $sections
+        ]);
     }
 
     /**

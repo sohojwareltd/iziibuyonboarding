@@ -55,175 +55,37 @@
     @endpush
     
     <div id="page-header" class="mb-8">
-        <h1 class="text-xl sm:text-2xl md:text-[28px] font-bold text-brand-dark mb-2">Company Information</h1>
-        <p class="text-sm sm:text-[15px] text-[#6A6A6A]">Provide the primary legal and registration details for your
-            business.</p>
+        <h1 class="text-xl sm:text-2xl md:text-[28px] font-bold text-brand-dark mb-2">{{ $section->name }}</h1>
+        <p class="text-sm sm:text-[15px] text-[#6A6A6A]">{{ $section->description }}</p>
     </div>
 
     <form id="kyc-form">
 
-        <section id="section-registered-details" class="mb-10">
-            <h2 class="text-xl font-semibold text-brand-dark mb-6">Registered Company Details</h2>
+        @if($fields->isNotEmpty())
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-brand-dark mb-6">{{ $section->name }}</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div class="col-span-2">
-                    <x-input.text label="Legal Company Name" placeholder="Enter official registered name"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    @foreach($fields as $field)
+                        @php
+                            // Determine column span based on field type
+                            $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'col-span-2' : '';
+                        @endphp
+                        <div class="{{ $colSpan }}">
+                            <x-kyc-field :field="$field" />
+                        </div>
+                    @endforeach
                 </div>
-
-                <div class="col-span-2">
-                    <x-input.text placeholder="Trading name / Doing business as"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
-                        <x-slot:label>
-                            Trade Name <span class="text-gray-400 text-xs">(Optional)</span>
-                        </x-slot:label>
-                    </x-input.text>
+            </section>
+        @else
+            <section class="mb-10">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                    <p class="text-yellow-800 font-medium">No fields configured for this section</p>
+                    <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC fields.</p>
                 </div>
-
-                <div>
-                    <x-input.text label="Company Registration Number" placeholder="OrgNr / CVR / BRN / VAT ID"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
-                </div>
-
-                <div>
-                    <x-input.date label="Date of Incorporation"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
-                </div>
-
-                <div>
-                    <x-input.select label="Country of Registration" disabled
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm bg-gray-50 cursor-not-allowed"
-                        required :placeholder="false">
-                        <option>Norway</option>
-                    </x-input.select>
-                </div>
-
-                <div>
-                    <x-input.select label="Business Type"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required
-                        placeholder="Select business type">
-                        <option value="">Select business type</option>
-                        <option>Private Limited</option>
-                        <option>OPC</option>
-                        <option>Partnership</option>
-                        <option>Sole Proprietorship</option>
-                        <option>NGO / Non-profit</option>
-                        <option>Public Limited</option>
-                        <option>Others</option>
-                    </x-input.select>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-address" class="mb-10">
-            <h2 class="text-xl font-semibold text-brand-dark mb-6">Registered Address</h2>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div class="col-span-2">
-                    <x-input.text label="Address Line 1" placeholder="Building / Street name"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
-                </div>
-
-                <div class="col-span-2">
-                    <x-input.text placeholder="Apartment, suite, unit, etc."
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
-                        <x-slot:label>
-                            Address Line 2 <span class="text-gray-400 text-xs">(Optional)</span>
-                        </x-slot:label>
-                    </x-input.text>
-                </div>
-
-                <div>
-                    <x-input.text label="City" placeholder="City name"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
-                </div>
-
-                <div>
-                    <x-input.text label="Postal Code" placeholder="Postal code"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required />
-                </div>
-
-                <div>
-                    <x-input.select label="Country" disabled
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm bg-gray-50 cursor-not-allowed"
-                        required :placeholder="false">
-                        <option>Norway</option>
-                    </x-input.select>
-                </div>
-
-                <div class="col-span-2">
-                    <x-input.textarea :rows="3" placeholder="Any additional location information"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm resize-none">
-                        <x-slot:label>
-                            Additional Location Details <span class="text-gray-400 text-xs">(Optional)</span>
-                        </x-slot:label>
-                    </x-input.textarea>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-classification" class="mb-10">
-            <h2 class="text-xl font-semibold text-brand-dark mb-6">Business Classification</h2>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div class="col-span-2">
-                    <x-input.select label="Industry / MCC Code"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required
-                        placeholder="Select industry category">
-                        <option>Retail (5311)</option>
-                        <option>Restaurant (5812)</option>
-                        <option>Professional Services (8999)</option>
-                        <option>Healthcare (8099)</option>
-                    </x-input.select>
-                </div>
-
-                <div class="col-span-2">
-                    <x-input.textarea label="Description of Business Activities" :rows="3"
-                        placeholder="Provide a brief description of your products or services"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm resize-none"
-                        required />
-                </div>
-
-                <div>
-                    <x-input.select label="Expected Monthly Transaction Volume"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm" required
-                        placeholder="Select volume range">
-                        <option>
-                            < 50,000 NOK</option>
-                        <option>50,000–250,000 NOK</option>
-                        <option>250,000–1,000,000 NOK</option>
-                        <option>> 1,000,000 NOK</option>
-                    </x-input.select>
-                </div>
-
-                <div>
-                    <x-input.url placeholder="https://yourbusiness.com"
-                        class="w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm">
-                        <x-slot:label>
-                            Website URL <span class="text-gray-400 text-xs">(Optional)</span>
-                        </x-slot:label>
-                    </x-input.url>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-documents" class="mb-10">
-            <h2 class="text-xl font-semibold text-brand-dark mb-6">Company Verification Documents</h2>
-
-            <div class="space-y-4">
-                <x-input.file-upload label="Certificate of Incorporation" accept=".pdf,.jpg,.jpeg,.png" maxSize="5MB"
-                    required />
-
-                <x-input.file-upload label="Registration Extract / Business License" accept=".pdf,.jpg,.jpeg,.png"
-                    maxSize="5MB" required />
-
-                <x-input.file-upload accept=".pdf,.jpg,.jpeg,.png" maxSize="5MB">
-                    <x-slot:label>
-                        VAT / Tax Registration Document <span class="text-gray-400 text-xs">(If applicable)</span>
-                    </x-slot:label>
-                </x-input.file-upload>
-            </div>
-        </section>
+            </section>
+        @endif
 
         <footer id="footer"
             class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">

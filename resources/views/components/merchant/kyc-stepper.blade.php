@@ -4,31 +4,45 @@
 ])
 
 @php
+    use App\Models\KycSection;
+    use App\Models\KYCFieldMaster;
+
     $kycLink = $kycLink ?? request()->route('kyc_link');
 
-    $steps = [
-        1 => 'Company Information',
-        2 => 'Beneficial Owners',
-        3 => 'Board Members / GM',
-        4 => 'Contact Person',
-        5 => 'Purpose of Service',
-        6 => 'Sales Channels',
-        7 => 'Bank Information',
-        8 => 'Authorized Signatories',
-        9 => 'Review & Submit',
+    // Fetch all active KYC sections with their fields, sorted by sort_order
+    $kycSections = KycSection::where('status', 'active')
+        ->with(['kycFields' => function ($query) {
+            $query->where('status', 'active')->orderBy('sort_order');
+        }])
+        ->orderBy('sort_order')
+        ->get();
+
+    // Map section slugs to actual route names
+    $slugToRouteMap = [
+        'company-information' => 'company',
+        'beneficial-owners' => 'beneficialOwners',
+        'board-members-gm' => 'boardMembers',
+        'contact-person' => 'contactPerson',
+        'purpose-of-service' => 'purposeOfService',
+        'sales-channels' => 'salesChannels',
+        'bank-information' => 'bankInformation',
+        'authorized-signatories' => 'authorizedSignatories',
+        'review' => 'review',
     ];
 
-    $routeStepMap = [
-        'merchant.kyc.company' => 1,
-        'merchant.kyc.beneficialOwners' => 2,
-        'merchant.kyc.boardMembers' => 3,
-        'merchant.kyc.contactPerson' => 4,
-        'merchant.kyc.purposeOfService' => 5,
-        'merchant.kyc.salesChannels' => 6,
-        'merchant.kyc.bankInformation' => 7,
-        'merchant.kyc.authorizedSignatories' => 8,
-        'merchant.kyc.review' => 9,
-    ];
+    // Build steps array from database
+    $steps = [];
+    $routeStepMap = [];
+    
+    foreach ($kycSections as $index => $section) {
+        $stepNumber = $index + 1;
+        $steps[$stepNumber] = $section->name;
+        // Map route names using slug mapping
+        $routeName = $slugToRouteMap[$section->slug] ?? null;
+        if ($routeName) {
+            $routeStepMap['merchant.kyc.' . $routeName] = $stepNumber;
+        }
+    }
 
     $stepRoutes = array_flip($routeStepMap);
 
@@ -50,15 +64,18 @@
     <nav class="flex-1 py-6">
         <ul class="space-y-0">
             @foreach($steps as $num => $label)
-            {{-- @dd($num, $label) --}}
                 @php
                     $isActive = $active === $num;
                     $isCompleted = $num < $active;
                     $routeName = $stepRoutes[$num] ?? null;
                     $routeParams = $routeName ? ['kyc_link' => $kycLink] : [];
+                    // Get the section and its fields
+                    $section = $kycSections[$num - 1] ?? null;
+                    $fields = $section ? $section->kycFields : collect();
+                    $fieldList = $fields->pluck('field_name')->implode(', ');
                 @endphp
                 <li class="relative group {{ $isActive ? 'bg-orange-50/50 border-l-4 border-accent' : '' }}">
-                    <a href="{{ $routeName ? route($routeName, $routeParams) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white">
+                    <a href="{{ $routeName ? route($routeName, $routeParams) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white" title="{{ $fieldList ? 'Fields: ' . $fieldList : '' }}">
                         <span class="flex items-center justify-center w-6 h-6 rounded-full {{ $isCompleted ? 'bg-green-100 text-success' : ($isActive ? 'bg-white border border-gray-step flex h-6 items-center justify-center mr-3 rounded-full text-gray-step text-xs w-6' : 'border border-gray-step text-gray-step bg-white') }} mr-3 text-xs">
                             @if($isCompleted)
                                 <i class="fa-solid fa-check text-xs"></i>
@@ -68,6 +85,20 @@
                         </span>
                         <span>{{ $label }}</span>
                     </a>
+                    @if($fieldList && count($fields) > 0)
+                        <div class="hidden group-hover:block absolute left-full ml-2 top-0 bg-slate-900 text-white text-xs rounded-lg p-3 w-48 z-10 pointer-events-none whitespace-normal">
+                            <p class="font-semibold mb-2">Fields:</p>
+                            <ul class="space-y-1">
+                                @foreach($fields as $field)
+                                    <li class="text-xs">{{ $field->field_name }}
+                                        @if($field->is_required)
+                                            <span class="text-red-400">*</span>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </li>
             @endforeach
         </ul>

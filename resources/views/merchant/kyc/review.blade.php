@@ -48,314 +48,90 @@
         <!-- 2. Accordion List Section -->
         <section id="review-cards-section" class="space-y-4">
 
-            <!-- Card 1: Company Information -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Company Information</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | TechFlow Solutions
-                            Ltd.</span>
+            @forelse($sections as $section)
+                <!-- Dynamic Section Card -->
+                @php
+                    $slugToRouteMap = [
+                        'company-information' => 'company',
+                        'beneficial-owners' => 'beneficialOwners',
+                        'board-members-gm' => 'boardMembers',
+                        'contact-person' => 'contactPerson',
+                        'purpose-of-service' => 'purposeOfService',
+                        'sales-channels' => 'salesChannels',
+                        'bank-information' => 'bankInformation',
+                        'authorized-signatories' => 'authorizedSignatories',
+                    ];
+                    $routeName = $slugToRouteMap[$section->slug] ?? $section->slug;
+                @endphp
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
+                    <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
+                        onclick="toggleAccordion(this)">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                            <h3 class="font-semibold text-primary text-base sm:text-lg">{{ $section->name }}</h3>
+                            <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | {{ $section->description }}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
-                </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.company', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Company
-                                Name</label>
-                            <div class="text-sm text-gray-900">TechFlow Solutions Ltd.</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Registration
-                                Number</label>
-                            <div class="text-sm text-gray-900">HE 123456</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Date of
-                                Incorporation</label>
-                            <div class="text-sm text-gray-900">15 March 2018</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Country of
-                                Incorporation</label>
-                            <div class="text-sm text-gray-900">Cyprus</div>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Registered
-                                Address</label>
-                            <div class="text-sm text-gray-900">123 Innovation Avenue, Tech Park Building A, 4th
-                                Floor, 2023 Nicosia, Cyprus</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <div class="accordion-content border-t border-gray-100 bg-white relative">
+                        <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" 
+                            data-route="{{ route('merchant.kyc.' . $routeName, ['kyc_link' => $kyc_link]) }}">
+                            <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
+                        </button>
+                        <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
+                            @if ($section->kycFields->isNotEmpty())
+                                @foreach ($section->kycFields as $field)
+                                    @php $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : ''; @endphp
+                                    <div class="{{ $colSpan }}">
+                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">{{ $field->label }}</label>
+                                        <div class="text-sm text-gray-900">
+                                            @php
+                                                $value = old($field->internal_key);
+                                                if (!$value && isset($onboarding[$field->internal_key])) {
+                                                    $value = $onboarding[$field->internal_key];
+                                                }
+                                            @endphp
 
-            <!-- Card 2: Beneficial Owners -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Beneficial Owners</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | 2 Owners
-                            Listed</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
-                </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.beneficialOwners', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 pt-12 sm:pt-6">
-                        <div class="bg-gray-50 p-4 rounded border border-gray-100">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full
-                                        Name</label>
-                                    <div class="text-sm text-gray-900 font-medium">Alexander Smith</div>
+                                            @switch($field->data_type)
+                                                @case('checkbox')
+                                                @case('radio')
+                                                    {{ $value ? 'Yes' : 'No' }}
+                                                    @break
+                                                @case('dropdown')
+                                                @case('multi-select')
+                                                @case('country')
+                                                    {{ is_array($value) ? implode(', ', $value) : $value }}
+                                                    @break
+                                                @case('file')
+                                                    @if ($value)
+                                                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                                                            <i class="fa-solid fa-file text-blue-500"></i>
+                                                            {{ basename($value) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-gray-400">No file uploaded</span>
+                                                    @endif
+                                                    @break
+                                                @default
+                                                    {{ $value ?: '—' }}
+                                            @endswitch
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="sm:col-span-2 text-center py-4 text-gray-500 text-sm">
+                                    No fields configured for this section
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ownership
-                                        %</label>
-                                    <div class="text-sm text-gray-900">60%</div>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-xs font-bold text-gray-500 uppercase mb-1">Nationality</label>
-                                    <div class="text-sm text-gray-900">British</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">PEP
-                                        Status</label>
-                                    <div class="text-sm text-gray-900">No</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded border border-gray-100">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full
-                                        Name</label>
-                                    <div class="text-sm text-gray-900 font-medium">Maria Garcia</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ownership
-                                        %</label>
-                                    <div class="text-sm text-gray-900">40%</div>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-xs font-bold text-gray-500 uppercase mb-1">Nationality</label>
-                                    <div class="text-sm text-gray-900">Spanish</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">PEP
-                                        Status</label>
-                                    <div class="text-sm text-gray-900">No</div>
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Card 3: Contact Person -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Contact Person</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | John Doe</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
+            @empty
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+                    <p class="text-yellow-800 font-medium">No KYC sections configured</p>
+                    <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC sections.</p>
                 </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.contactPerson', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full
-                                Name</label>
-                            <div class="text-sm text-gray-900">John Doe</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Position</label>
-                            <div class="text-sm text-gray-900">Chief Financial Officer</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
-                            <div class="text-sm text-gray-900">john.doe@techflow.com</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Phone
-                                Number</label>
-                            <div class="text-sm text-gray-900">+357 99 123 456</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: Purpose & Sales -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Purpose & Sales</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | Software
-                            Development</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
-                </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.purposeOfService', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Business
-                                Activities</label>
-                            <div class="text-sm text-gray-900">Development and licensing of SaaS products for
-                                financial institutions.</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Annual
-                                Turnover</label>
-                            <div class="text-sm text-gray-900">€2,000,000 - €5,000,000</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Sales
-                                Channels</label>
-                            <ul class="text-sm text-gray-900 list-disc list-inside">
-                                <li>Direct Sales Website</li>
-                                <li>Partner Resellers</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 5: Bank Information -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Bank Information</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | Bank of
-                            Cyprus</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
-                </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bank
-                                Name</label>
-                            <div class="text-sm text-gray-900">Bank of Cyprus</div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Currency</label>
-                            <div class="text-sm text-gray-900">EUR</div>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">IBAN</label>
-                            <div class="text-sm text-gray-900 font-mono">CY12 0020 0123 4567 8901 2345 6789
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 6: Documents Uploaded -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
-                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
-                    onclick="toggleAccordion(this)">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                        <h3 class="font-semibold text-primary text-base sm:text-lg">Documents Uploaded</h3>
-                        <span class="text-xs sm:text-sm text-gray-400 font-normal truncate"> | 5 Files</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
-                </div>
-                <div class="accordion-content border-t border-gray-100 bg-white relative">
-                    <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" data-route="{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}">
-                        <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
-                    </button>
-                    <div class="p-4 sm:p-6 mt-8 sm:mt-0">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                            <div
-                                class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
-                                <div class="text-red-500 text-2xl mr-3"><i class="fa-solid fa-file-pdf"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">Certificate_Inc.pdf
-                                    </p>
-                                    <p class="text-xs text-gray-500">2.4 MB • 12 Jan 2024</p>
-                                    <a href="#"
-                                        class="text-xs text-primary hover:underline mt-1 inline-block">View
-                                        Document</a>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
-                                <div class="text-blue-500 text-2xl mr-3"><i class="fa-solid fa-file-image"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">Passport_Smith.jpg
-                                    </p>
-                                    <p class="text-xs text-gray-500">1.8 MB • 12 Jan 2024</p>
-                                    <a href="#"
-                                        class="text-xs text-primary hover:underline mt-1 inline-block">View
-                                        Document</a>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
-                                <div class="text-red-500 text-2xl mr-3"><i class="fa-solid fa-file-pdf"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">Bank_Statement.pdf
-                                    </p>
-                                    <p class="text-xs text-gray-500">3.1 MB • 13 Jan 2024</p>
-                                    <a href="#"
-                                        class="text-xs text-primary hover:underline mt-1 inline-block">View
-                                        Document</a>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
-                                <div class="text-blue-500 text-2xl mr-3"><i class="fa-solid fa-file-image"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">Passport_Garcia.png
-                                    </p>
-                                    <p class="text-xs text-gray-500">2.2 MB • 13 Jan 2024</p>
-                                    <a href="#"
-                                        class="text-xs text-primary hover:underline mt-1 inline-block">View
-                                        Document</a>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-start p-3 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow bg-gray-50">
-                                <div class="text-red-500 text-2xl mr-3"><i class="fa-solid fa-file-pdf"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">
-                                        Articles_Association.pdf</p>
-                                    <p class="text-xs text-gray-500">1.5 MB • 14 Jan 2024</p>
-                                    <a href="#"
-                                        class="text-xs text-primary hover:underline mt-1 inline-block">View
-                                        Document</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            @endforelse
         </section>
 
         <!-- 3. Declaration Section -->
