@@ -136,6 +136,12 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('admin.masters.kyc-section-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.kyc-section-master') || request()->routeIs('admin.masters.kyc-sections.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    KYC Section Master
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('admin.masters.acquirer-field-mapping') }}" 
                                    class="{{ request()->routeIs('admin.masters.acquirer-field-mapping') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Acquirer Field Mapping

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
 use App\Http\Controllers\Admin\AcquirerMasterController;
 use App\Http\Controllers\Admin\KYCFieldMasterController;
+use App\Http\Controllers\Admin\KycSectionController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Merchant\KycController;
@@ -61,6 +62,8 @@ Route::prefix('admin')
                     Route::resource('kyc-fields', KYCFieldMasterController::class);
                     Route::get('/kyc-field-master', [KYCFieldMasterController::class, 'index'])->name('kyc-field-master');
                     Route::get('/kyc-field-master/export', [KYCFieldMasterController::class, 'export'])->name('kyc-field-master.export');
+                    Route::resource('kyc-sections', KycSectionController::class);
+                    Route::get('/kyc-section-master', [KycSectionController::class, 'index'])->name('kyc-section-master');
                     Route::resource('document-types', \App\Http\Controllers\Admin\DocumentTypesMasterController::class);
                     Route::get('/document-type-master', [\App\Http\Controllers\Admin\DocumentTypesMasterController::class, 'index'])->name('document-type-master');
                     Route::get('/acquirer-field-mapping', [MasterController::class, 'acquirerFieldMapping'])->name('acquirer-field-mapping');
