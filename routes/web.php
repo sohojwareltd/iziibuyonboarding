@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\KYCFieldMasterController;
 use App\Http\Controllers\Admin\KycSectionController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
@@ -74,6 +75,11 @@ Route::prefix('admin')
 
             Route::resource('partners', PartnerController::class);
             Route::resource('categories', CategoryController::class);
+            
+            // Settings
+            Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+            Route::post('settings', [SettingController::class, 'store'])->name('settings.store');
+            Route::delete('settings/{setting}', [SettingController::class, 'destroy'])->name('settings.destroy');
             
             // User Management Routes
             Route::resource('users', UserController::class);

@@ -63,17 +63,7 @@
 
             {{-- Brand logo --}}
             <div class="relative z-10">
-                <div class="inline-flex items-center gap-3">
-                    {{-- Use your real logo image if available --}}
-                    <div
-                        class="h-10 w-10 rounded-lg bg-brand-dark flex items-center justify-center text-white font-semibold text-lg">
-                        2i
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-[0.16em] text-brand-textSubtle">It’s almost</span>
-                        <span class="text-xl font-semibold text-brand-dark">2iZii</span>
-                    </div>
-                </div>
+                <x-app-logo variant="dark" size="md" />
             </div>
 
             {{-- Illustration and headline --}}

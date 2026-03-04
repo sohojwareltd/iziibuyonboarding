@@ -28,11 +28,7 @@
 <nav id="sidebar" class="fixed left-0 top-0 w-[260px] h-full bg-brand-primary flex flex-col z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 md:shadow-none shadow-xl">
     <!-- Logo Area -->
     <div class="p-6 pb-8 flex items-center justify-between">
-        <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="2iZii Logo">
-            <path d="M20 10C20 4.47715 24.4772 0 30 0H10C4.47715 0 0 4.47715 0 10V30C0 35.5228 4.47715 40 10 40H30C24.4772 40 20 35.5228 20 30V10Z" fill="white"/>
-            <circle cx="30" cy="10" r="4" fill="#FF7C00"/>
-            <text x="40" y="28" fill="white" font-family="Inter" font-weight="bold" font-size="24">2iZii</text>
-        </svg>
+        <x-app-logo variant="light" class="max-h-10" />
         <button type="button" class="md:hidden text-white/70 hover:text-white transition-colors" aria-label="Close menu" data-sidebar-close>
             <i class="fa-solid fa-xmark text-lg"></i>
         </button>
@@ -164,7 +160,7 @@
             <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">SYSTEM</h3>
             <ul class="space-y-1">
                 <li>
-                    <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'nav-item-active text-white text-sm py-3 block font-semibold px-6' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }}">
                         <i class="fa-solid fa-gear w-5 mr-3"></i>Settings
                     </a>
                 </li>

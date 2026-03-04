@@ -36,10 +36,7 @@
 
             <!-- Logo Area -->
             <div class="relative z-10 flex items-center gap-3">
-                <div class="glass-effect rounded-lg p-1 flex items-center justify-center w-10 h-10">
-                    <i class="fa-solid fa-file-lines text-white text-lg"></i>
-                </div>
-                <div class="text-2xl font-bold tracking-tight text-white">2iZii</div>
+                <x-app-logo variant="light" size="lg" class="h-10" />
             </div>
 
             <!-- Center Content -->
