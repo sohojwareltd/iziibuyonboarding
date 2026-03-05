@@ -38,19 +38,25 @@
         <p class="text-slate-500 text-sm">{{ $section->description }}</p>
     </header>
 
-    <form id="authorized-signatories-form">
+    @php
+        $signatoryGroups = !empty($savedGroups) ? $savedGroups : [0 => []];
+    @endphp
+
+    <form id="authorized-signatories-form" method="POST" action="{{ route('merchant.kyc.section.fields.save', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
         <div id="authorized-signatories-container">
             @if ($fields->isNotEmpty())
-                <!-- SIGNATORY CARD 1 -->
+                @foreach ($signatoryGroups as $groupIndex => $groupValues)
                 <section id="signatory-card-1"
                     class="authorized-signatory-card bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
 
                     <!-- Card Header -->
                     <div
                         class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 pb-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-slate-800">Authorized Signatory #1</h2>
+                        <h2 class="text-lg font-semibold text-slate-800">Authorized Signatory #{{ $loop->iteration }}</h2>
                         <button class="remove-signatory-btn text-slate-400 hover:text-red-500 transition-colors"
-                            title="Remove Signatory" type="button" style="display: none;">
+                            title="Remove Signatory" type="button" style="{{ count($signatoryGroups) > 1 ? 'display:block;' : 'display:none;' }}">
                             <i class="fa-regular fa-trash-can text-lg"></i>
                         </button>
                     </div>
@@ -64,13 +70,15 @@
                                     : '';
                             @endphp
                             <div class="{{ $colSpan }}">
-                                <x-kyc-field :field="$field" nameOverride="{{ $field->internal_key }}[0]"
-                                    :value="old($field->internal_key . '.0')" />
+                                <input type="hidden" name="as_fields[{{ $groupIndex }}][{{ $field->id }}][field_id]" value="{{ $field->id }}">
+                                <input type="hidden" name="as_fields[{{ $groupIndex }}][{{ $field->id }}][key]" value="{{ $field->internal_key }}">
+                                <x-kyc-field :field="$field" :value="$groupValues[$field->id] ?? null" :nameOverride="'as_fields[' . $groupIndex . '][' . $field->id . '][value]'" />
                             </div>
                         @endforeach
                     </div>
 
                 </section>
+                @endforeach
             @else
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
                     <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
@@ -99,17 +107,17 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
                     </button>
 
-                    <a href="{{ route('merchant.kyc.review', ['kyc_link' => $kyc_link]) }}"
+                    <button type="button" onclick="saveAndReview()"
                         class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
                         <span>Review & Submit</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </footer>
@@ -143,7 +151,7 @@
 
     @push('js')
         <script>
-            let signatoryCount = 1;
+            let signatoryCount = document.querySelectorAll('.authorized-signatory-card').length || 1;
             let signatoryToRemove = null;
 
             window.addEventListener('load', function() {
@@ -243,6 +251,10 @@
 
                 const inputs = clone.querySelectorAll('input');
                 inputs.forEach(input => {
+                    if (input.type === 'hidden') {
+                        return;
+                    }
+
                     const oldId = input.id;
                     if (oldId) {
                         const base = oldId.replace(/-\d+$/, '');
@@ -278,6 +290,14 @@
                 });
 
                 clone.querySelectorAll('.upload-zone').forEach(resetUploadZone);
+
+                clone.querySelectorAll('[name]').forEach(field => {
+                    const name = field.getAttribute('name');
+                    if (!name) {
+                        return;
+                    }
+                    field.setAttribute('name', name.replace(/\[\d+\]/, `[${index - 1}]`));
+                });
 
                 return clone;
             }
@@ -320,7 +340,17 @@
                 cards.forEach((card, index) => {
                     card.id = `signatory-card-${index + 1}`;
                     card.querySelector('h2').textContent = `Authorized Signatory #${index + 1}`;
+
+                    card.querySelectorAll('[name]').forEach(field => {
+                        const name = field.getAttribute('name');
+                        if (!name) {
+                            return;
+                        }
+                        field.setAttribute('name', name.replace(/\[\d+\]/, `[${index}]`));
+                    });
                 });
+
+                signatoryCount = cards.length;
             }
 
             function removeFile(btn) {
@@ -353,8 +383,43 @@
                 }, 3000);
             }
 
+            async function submitAuthorizedSignatories(redirectAfterSave = false) {
+                const form = document.getElementById('authorized-signatories-form');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message || 'Unable to save authorized signatories information.', 'error');
+                        return;
+                    }
+
+                    showToast('Authorized signatories information saved.', 'success');
+
+                    if (redirectAfterSave) {
+                        window.location.href = '{{ route('merchant.kyc.review', ['kyc_link' => $kyc_link]) }}';
+                    }
+                } catch (error) {
+                    showToast('Something went wrong while saving.', 'error');
+                }
+            }
+
             function saveDraft() {
-                showToast('Your progress has been saved.', 'success');
+                submitAuthorizedSignatories(false);
+            }
+
+            function saveAndReview() {
+                submitAuthorizedSignatories(true);
             }
         </script>
     @endpush

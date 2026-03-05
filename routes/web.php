@@ -100,7 +100,8 @@ Route::prefix('merchant')
                 Route::post('/login', [KycController::class, 'login'])->name('login');
                 
                 // Protected KYC pages - require merchant role
-                Route::middleware('merchant.role')->group(function () {
+                Route::middleware(['merchant.role', 'merchant.kyc.gate'])->group(function () {
+                    Route::post('/{kyc_link}/sections/{section}/fields', [KycController::class, 'saveSectionFields'])->name('section.fields.save');
                     Route::get('/{kyc_link}/company', [KycController::class, 'company'])->name('company');
                     Route::get('/{kyc_link}/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
                     Route::get('/{kyc_link}/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
@@ -110,6 +111,8 @@ Route::prefix('merchant')
                     Route::get('/{kyc_link}/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
                     Route::get('/{kyc_link}/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
                     Route::get('/{kyc_link}/review', [KycController::class, 'review'])->name('review');
+                    Route::post('/{kyc_link}/review', [KycController::class, 'submitReview'])->name('review.submit');
+                    Route::get('/{kyc_link}/thank-you', [KycController::class, 'thankYou'])->name('thankyou');
                 });
             });
     });

@@ -84,15 +84,22 @@
         </p>
     </div>
 
-    <form id="bo-form">
+    @php
+        $ownerGroups = !empty($savedGroups) ? $savedGroups : [0 => []];
+    @endphp
+
+    <form id="bo-form" method="POST" action="{{ route('merchant.kyc.section.fields.save', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
         <div id="beneficial-owners-container">
 
+            @foreach ($ownerGroups as $groupIndex => $groupValues)
             <div class="beneficial-owner-card bg-white border border-[#E0E0E0] rounded-xl p-4 sm:p-6 mb-6"
-                data-bo-index="1">
+                data-bo-index="{{ $loop->iteration }}">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-brand-dark">Beneficial Owner #1</h3>
+                    <h3 class="text-lg font-semibold text-brand-dark">Beneficial Owner #{{ $loop->iteration }}</h3>
                     <button type="button"
-                        class="remove-bo-btn text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors duration-200 hidden">
+                        class="remove-bo-btn text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors duration-200 {{ count($ownerGroups) > 1 ? '' : 'hidden' }}">
                         <i class="fa-solid fa-trash text-sm"></i>
                     </button>
                 </div>
@@ -108,7 +115,9 @@
                                             : '';
                                     @endphp
                                     <div class="{{ $colSpan }}">
-                                        <x-kyc-field :field="$field" :value="old($field->internal_key . '.0')" :nameOverride="$field->internal_key . '[0]'" />
+                                        <input type="hidden" name="bo_fields[{{ $groupIndex }}][{{ $field->id }}][field_id]" value="{{ $field->id }}">
+                                        <input type="hidden" name="bo_fields[{{ $groupIndex }}][{{ $field->id }}][key]" value="{{ $field->internal_key }}">
+                                        <x-kyc-field :field="$field" :value="$groupValues[$field->id] ?? null" :nameOverride="'bo_fields[' . $groupIndex . '][' . $field->id . '][value]'" />
                                     </div>
                                 @endforeach
                             </div>
@@ -265,6 +274,7 @@
                     </div>
                 @endif
             </div>
+            @endforeach
 
         </div>
 
@@ -286,17 +296,17 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
                     </button>
 
-                    <a href="{{ route('merchant.kyc.boardMembers', ['kyc_link' => $kyc_link]) }}"
+                    <button type="button" onclick="saveAndContinue()"
                         class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
                         <span>Continue</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </footer>
@@ -328,7 +338,7 @@
     </div>
     @push('js')
         <script>
-            let boCount = 1;
+            let boCount = document.querySelectorAll('.beneficial-owner-card').length || 1;
             let boToRemove = null;
 
             window.addEventListener('load', function() {
@@ -422,6 +432,10 @@
 
                 // Clear all input values
                 newCard.querySelectorAll('input').forEach(input => {
+                    if (input.type === 'hidden') {
+                        return;
+                    }
+
                     if (input.type === 'file') {
                         input.value = '';
                     } else if (input.type === 'checkbox' || input.type === 'radio') {
@@ -504,7 +518,17 @@
                 cards.forEach((card, index) => {
                     card.querySelector('h3').textContent = `Beneficial Owner #${index + 1}`;
                     card.setAttribute('data-bo-index', index + 1);
+
+                    card.querySelectorAll('[name]').forEach(field => {
+                        const name = field.getAttribute('name');
+                        if (!name) {
+                            return;
+                        }
+                        field.setAttribute('name', name.replace(/\[\d+\]/, `[${index}]`));
+                    });
                 });
+
+                boCount = cards.length;
             }
 
             function removeFile(btn) {
@@ -537,8 +561,43 @@
                 }, 3000);
             }
 
+            async function submitBeneficialOwners(redirectAfterSave = false) {
+                const form = document.getElementById('bo-form');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message || 'Unable to save beneficial owners information.', 'error');
+                        return;
+                    }
+
+                    showToast('Beneficial owners information saved.', 'success');
+
+                    if (redirectAfterSave) {
+                        window.location.href = '{{ route('merchant.kyc.boardMembers', ['kyc_link' => $kyc_link]) }}';
+                    }
+                } catch (error) {
+                    showToast('Something went wrong while saving.', 'error');
+                }
+            }
+
             function saveDraft() {
-                showToast('Your progress has been saved.', 'success');
+                submitBeneficialOwners(false);
+            }
+
+            function saveAndContinue() {
+                submitBeneficialOwners(true);
             }
         </script>
     @endpush

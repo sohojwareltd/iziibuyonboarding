@@ -32,6 +32,7 @@ class Onboarding extends Model
         'approved_at',
         'kyc_link',
         'kyc_completed_at',
+        'review_declaration_accepted_at',
         'rejection_reason',
         'revision_count',
     ];
@@ -44,6 +45,7 @@ class Onboarding extends Model
         'sent_at' => 'datetime',
         'approved_at' => 'datetime',
         'kyc_completed_at' => 'datetime',
+        'review_declaration_accepted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

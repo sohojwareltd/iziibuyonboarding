@@ -55,7 +55,7 @@ class KYCFieldMasterController extends Controller
     {
         try {
             $validated = $request->validate([
-                'field_name' => 'required|string|max:255|unique:k_y_c_field_masters',
+                'field_name' => 'required|string|max:255',
                 'internal_key' => 'required|string|max:255|unique:k_y_c_field_masters',
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
@@ -108,7 +108,7 @@ class KYCFieldMasterController extends Controller
         
         try {
             $validated = $request->validate([
-                'field_name' => ['required', 'string', 'max:255', Rule::unique('k_y_c_field_masters')->ignore($kycField->id)],
+                'field_name' => ['required', 'string', 'max:255'],
                 'internal_key' => ['required', 'string', 'max:255', Rule::unique('k_y_c_field_masters')->ignore($kycField->id)],
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',

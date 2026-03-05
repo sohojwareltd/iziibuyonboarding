@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin.role' => \App\Http\Middleware\AdminRole::class,
             'merchant.role' => \App\Http\Middleware\MerchantRole::class,
+            'merchant.kyc.gate' => \App\Http\Middleware\KycSubmissionGate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

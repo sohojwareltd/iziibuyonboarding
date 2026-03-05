@@ -59,7 +59,9 @@
         <p class="text-sm sm:text-[15px] text-[#6A6A6A]">{{ $section->description }}</p>
     </div>
 
-    <form id="kyc-form">
+    <form id="kyc-form" method="POST" action="{{ route('merchant.kyc.section.fields.save', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
 
         @if($fields->isNotEmpty())
             <section class="mb-10">
@@ -67,12 +69,13 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     @foreach($fields as $field)
+                   
                         @php
                             // Determine column span based on field type
                             $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'col-span-2' : '';
                         @endphp
                         <div class="{{ $colSpan }}">
-                            <x-kyc-field :field="$field" />
+                            <x-kyc-field :field="$field" :value="$savedValues[$field->id] ?? null" />
                         </div>
                     @endforeach
                 </div>
@@ -97,19 +100,62 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
                     </button>
 
-                    <a href="{{ route('merchant.kyc.beneficialOwners', ['kyc_link' => $kyc_link]) }}"
+                    <button type="button" onclick="saveAndContinue()"
                         class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
                         <span>Continue</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </footer>
     </form>
+
+    @push('js')
+        <script>
+            async function submitCompanySection(redirectAfterSave = false) {
+                const form = document.getElementById('kyc-form');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message || 'Unable to save company information.', 'error');
+                        return;
+                    }
+
+                    showToast('Company information saved.', 'success');
+
+                    if (redirectAfterSave) {
+                        window.location.href = '{{ route('merchant.kyc.beneficialOwners', ['kyc_link' => $kyc_link]) }}';
+                    }
+                } catch (error) {
+                    showToast('Something went wrong while saving.', 'error');
+                }
+            }
+
+            function saveDraft() {
+                submitCompanySection(false);
+            }
+
+            function saveAndContinue() {
+                submitCompanySection(true);
+            }
+        </script>
+    @endpush
 </x-merchant.kyc>

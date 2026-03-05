@@ -43,7 +43,10 @@
             submitting your application to the acquirer(s).</p>
     </section>
 
-    <form id="kyc-form" action="" method="POST" onsubmit="handleFormSubmit(event)">
+    <form id="kyc-form" action="{{ route('merchant.kyc.review.submit', ['kyc_link' => $kyc_link]) }}" method="POST" onsubmit="handleFormSubmit(event)">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
+        <input type="hidden" name="is_draft" id="is-draft" value="0">
 
         <!-- 2. Accordion List Section -->
         <section id="review-cards-section" class="space-y-4">
@@ -77,46 +80,98 @@
                             data-route="{{ route('merchant.kyc.' . $routeName, ['kyc_link' => $kyc_link]) }}">
                             <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                         </button>
-                        <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8 pt-12 sm:pt-6">
-                            @if ($section->kycFields->isNotEmpty())
-                                @foreach ($section->kycFields as $field)
-                                    @php $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : ''; @endphp
-                                    <div class="{{ $colSpan }}">
-                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">{{ $field->label }}</label>
-                                        <div class="text-sm text-gray-900">
-                                            @php
-                                                $value = old($field->internal_key);
-                                                if (!$value && isset($onboarding[$field->internal_key])) {
-                                                    $value = $onboarding[$field->internal_key];
-                                                }
-                                            @endphp
+                        @php
+                            $sectionReview = $reviewData[$section->id] ?? ['type' => 'single', 'values' => []];
+                            $isGrouped = ($sectionReview['type'] ?? 'single') === 'grouped';
+                            $sectionValues = $sectionReview['values'] ?? [];
+                        @endphp
 
-                                            @switch($field->data_type)
-                                                @case('checkbox')
-                                                @case('radio')
-                                                    {{ $value ? 'Yes' : 'No' }}
-                                                    @break
-                                                @case('dropdown')
-                                                @case('multi-select')
-                                                @case('country')
-                                                    {{ is_array($value) ? implode(', ', $value) : $value }}
-                                                    @break
-                                                @case('file')
-                                                    @if ($value)
-                                                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
-                                                            <i class="fa-solid fa-file text-blue-500"></i>
-                                                            {{ basename($value) }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-gray-400">No file uploaded</span>
-                                                    @endif
-                                                    @break
-                                                @default
-                                                    {{ $value ?: '—' }}
-                                            @endswitch
-                                        </div>
+                        <div class="p-4 sm:p-6 pt-12 sm:pt-6">
+                            @if ($section->kycFields->isNotEmpty())
+                                @if ($isGrouped)
+                                    <div class="space-y-4">
+                                        @forelse ($sectionValues as $groupIndex => $groupValues)
+                                            <div class="border border-gray-100 rounded-lg p-4">
+                                                <h4 class="text-sm font-semibold text-primary mb-3">Entry #{{ (int) $groupIndex + 1 }}</h4>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8">
+                                                    @foreach ($section->kycFields as $field)
+                                                        @php
+                                                            $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
+                                                            $value = $groupValues[$field->id] ?? null;
+                                                        @endphp
+                                                        <div class="{{ $colSpan }}">
+                                                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
+                                                            <div class="text-sm text-gray-900">
+                                                                @switch($field->data_type)
+                                                                    @case('checkbox')
+                                                                    @case('radio')
+                                                                        {{ $value ? 'Yes' : 'No' }}
+                                                                        @break
+                                                                    @case('dropdown')
+                                                                    @case('multi-select')
+                                                                    @case('country')
+                                                                        {{ is_array($value) ? implode(', ', $value) : ($value ?: '—') }}
+                                                                        @break
+                                                                    @case('file')
+                                                                        @if ($value)
+                                                                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                                                                                <i class="fa-solid fa-file text-blue-500"></i>
+                                                                                {{ basename($value) }}
+                                                                            </span>
+                                                                        @else
+                                                                            <span class="text-gray-400">No file uploaded</span>
+                                                                        @endif
+                                                                        @break
+                                                                    @default
+                                                                        {{ $value ?: '—' }}
+                                                                @endswitch
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="text-center py-4 text-gray-500 text-sm">No data provided for this section.</div>
+                                        @endforelse
                                     </div>
-                                @endforeach
+                                @else
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-8">
+                                        @foreach ($section->kycFields as $field)
+                                            @php
+                                                $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
+                                                $value = $sectionValues[$field->id] ?? null;
+                                            @endphp
+                                            <div class="{{ $colSpan }}">
+                                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
+                                                <div class="text-sm text-gray-900">
+                                                    @switch($field->data_type)
+                                                        @case('checkbox')
+                                                        @case('radio')
+                                                            {{ $value ? 'Yes' : 'No' }}
+                                                            @break
+                                                        @case('dropdown')
+                                                        @case('multi-select')
+                                                        @case('country')
+                                                            {{ is_array($value) ? implode(', ', $value) : ($value ?: '—') }}
+                                                            @break
+                                                        @case('file')
+                                                            @if ($value)
+                                                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                                                                    <i class="fa-solid fa-file text-blue-500"></i>
+                                                                    {{ basename($value) }}
+                                                                </span>
+                                                            @else
+                                                                <span class="text-gray-400">No file uploaded</span>
+                                                            @endif
+                                                            @break
+                                                        @default
+                                                            {{ $value ?: '—' }}
+                                                    @endswitch
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             @else
                                 <div class="sm:col-span-2 text-center py-4 text-gray-500 text-sm">
                                     No fields configured for this section
@@ -137,7 +192,7 @@
         <!-- 3. Declaration Section -->
         <section id="declaration-section" class="bg-white mt-4 rounded-lg shadow-sm border border-gray-100 p-6">
             <div class="flex items-start gap-3">
-                <input type="checkbox" id="declaration-checkbox"
+                <input type="checkbox" id="declaration-checkbox" name="declaration" value="1" @checked(old('declaration', $declarationAccepted ?? false))
                     class="w-5 h-5 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 mt-0.5 cursor-pointer">
                 <div>
                     <label for="declaration-checkbox"
@@ -162,7 +217,7 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium text-xs sm:text-sm rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
@@ -170,7 +225,7 @@
 
                     <button id="submit-btn" type="submit"
                         class="flex-1 sm:flex-none px-3 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                        disabled>
+                        {{ old('declaration', $declarationAccepted ?? false) ? '' : 'disabled' }}>
                         <span>Submit</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
                     </button>
@@ -209,9 +264,15 @@
             const checkbox = document.getElementById('declaration-checkbox');
             const submitBtn = document.getElementById('submit-btn');
 
-            checkbox.addEventListener('change', function() {
-                submitBtn.disabled = !this.checked;
-            });
+            if (checkbox && submitBtn) {
+                submitBtn.disabled = !checkbox.checked;
+            }
+
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    submitBtn.disabled = !this.checked;
+                });
+            }
 
             // Setup Edit Button Handlers
             function setupEditButtons() {
@@ -229,6 +290,11 @@
 
             // Handle Form Submission
             function handleFormSubmit(event) {
+                const isDraftInput = document.getElementById('is-draft');
+                if (isDraftInput) {
+                    isDraftInput.value = '0';
+                }
+
                 if (!checkbox || !checkbox.checked) {
                     event.preventDefault();
                     alert('Please confirm that all information is accurate and complete before submitting.');
@@ -239,16 +305,22 @@
 
             // Save Draft Function
             function saveDraft() {
-                const formData = new FormData(document.getElementById('kyc-form'));
-                const data = Object.fromEntries(formData);
+                const form = document.getElementById('kyc-form');
+                const isDraftInput = document.getElementById('is-draft');
+                if (!form || !isDraftInput) {
+                    return;
+                }
+
+                isDraftInput.value = '1';
+                const formData = new FormData(form);
                 
-                fetch('', {
+                fetch(form.action, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     },
-                    body: JSON.stringify(data)
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(result => {
@@ -257,6 +329,9 @@
                 .catch(error => {
                     console.error('Error:', error);
                     showNotification('Failed to save draft. Please try again.', 'error');
+                })
+                .finally(() => {
+                    isDraftInput.value = '0';
                 });
             }
 

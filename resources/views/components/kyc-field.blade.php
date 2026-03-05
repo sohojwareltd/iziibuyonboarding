@@ -2,7 +2,7 @@
 
 @php
     $inputClass = 'w-full px-4 py-2.5 border border-brand-inputBorder rounded-lg text-sm';
-    $fieldName = $nameOverride ?? $field->internal_key;
+    $fieldName = $nameOverride ?? "dynamic_fields[{$field->id}][value]";
     $fieldLabel = $field->field_name;
     $isRequired = $field->is_required;
     $dataType = $field->data_type;
@@ -10,6 +10,11 @@
 @endphp
 
 <div class="kyc-field" data-field-id="{{ $field->id }}" data-field-type="{{ $dataType }}">
+    @if(!$nameOverride)
+        <input type="hidden" name="dynamic_fields[{{ $field->id }}][field_id]" value="{{ $field->id }}">
+        <input type="hidden" name="dynamic_fields[{{ $field->id }}][key]" value="{{ $field->internal_key }}">
+    @endif
+
     @switch($dataType)
         @case('text')
             <x-input.text 

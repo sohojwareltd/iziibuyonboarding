@@ -4,8 +4,9 @@
 ])
 
 @php
+    use App\Models\Information;
     use App\Models\KycSection;
-    use App\Models\KYCFieldMaster;
+    use App\Models\Onboarding;
 
     $kycLink = $kycLink ?? request()->route('kyc_link');
 
@@ -46,6 +47,21 @@
 
     $stepRoutes = array_flip($routeStepMap);
 
+    $completedSectionIds = [];
+    if (!empty($kycLink)) {
+        $onboardingId = Onboarding::query()
+            ->where('kyc_link', $kycLink)
+            ->value('id');
+
+        $completedSectionIds = Information::query()
+            ->where('onboarding_id', $onboardingId)
+            ->whereIn('kyc_section_id', $kycSections->pluck('id'))
+            ->distinct()
+            ->pluck('kyc_section_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
     // Auto-detect active step from current route if not provided
     if ($active === null) {
         $currentRoute = Route::currentRouteName();
@@ -69,11 +85,10 @@
             @foreach($steps as $num => $label)
                 @php
                     $isActive = $active === $num;
-                    $isCompleted = $num < $active;
+                    $section = $kycSections[$num - 1] ?? null;
+                    $isCompleted = $section ? in_array((int) $section->id, $completedSectionIds, true) : false;
                     $routeName = $stepRoutes[$num] ?? null;
                     $routeParams = $routeName ? ['kyc_link' => $kycLink] : [];
-                    // Get the section and its fields
-                    $section = $kycSections[$num - 1] ?? null;
                     $fields = $section ? $section->kycFields : collect();
                     $fieldList = $fields->pluck('field_name')->implode(', ');
                 @endphp

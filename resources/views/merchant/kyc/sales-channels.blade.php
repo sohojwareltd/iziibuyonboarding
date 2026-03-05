@@ -135,7 +135,9 @@
         <h1 class="text-[24px] font-semibold text-primary mb-2">{{ $section->name }}</h1>
         <p class="text-gray-500">{{ $section->description }}</p>
     </div>
-    <form id="sc-form">
+    <form id="sc-form" method="POST" action="{{ route('merchant.kyc.section.fields.save', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
 
         <!-- SALES CHANNELS CARD -->
         <div id="sales-channels-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -149,7 +151,7 @@
                                 : '';
                         @endphp
                         <div class="{{ $colSpan }}">
-                            <x-kyc-field :field="$field" :value="old($field->internal_key)" />
+                            <x-kyc-field :field="$field" :value="$savedValues[$field->id] ?? null" />
                         </div>
                     @endforeach
                 </div>
@@ -174,17 +176,17 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
                     </button>
 
-                    <a href="{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}"
+                    <button type="button" onclick="saveAndContinue()"
                         class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
                         <span>Continue</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </footer>
@@ -192,6 +194,45 @@
 
     @push('js')
         <script>
+            async function submitSalesChannels(redirectAfterSave = false) {
+                const form = document.getElementById('sc-form');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message || 'Unable to save sales channels information.', 'error');
+                        return;
+                    }
+
+                    showToast('Sales channels information saved.', 'success');
+
+                    if (redirectAfterSave) {
+                        window.location.href = '{{ route('merchant.kyc.bankInformation', ['kyc_link' => $kyc_link]) }}';
+                    }
+                } catch (error) {
+                    showToast('Something went wrong while saving.', 'error');
+                }
+            }
+
+            function saveDraft() {
+                submitSalesChannels(false);
+            }
+
+            function saveAndContinue() {
+                submitSalesChannels(true);
+            }
+
             let locationCounter = 1;
 
             function toggleSection(sectionId, show) {

@@ -35,7 +35,9 @@
         </p>
     </header>
 
-    <form id="ps-form" class="space-y-8" action="#" method="POST">
+    <form id="ps-form" class="space-y-8" action="{{ route('merchant.kyc.section.fields.save', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}" method="POST">
+        @csrf
+        <input type="hidden" name="onboarding_id" value="{{ $onboarding_id }}">
 
         <!-- 3. PURPOSE OF SERVICE CARD -->
         <section id="purpose-card" class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 mb-24">
@@ -49,7 +51,7 @@
                                 : '';
                         @endphp
                         <div class="{{ $colSpan }}">
-                            <x-kyc-field :field="$field" :value="old($field->internal_key)" />
+                            <x-kyc-field :field="$field" :value="$savedValues[$field->id] ?? null" />
                         </div>
                     @endforeach
                 </div>
@@ -74,19 +76,89 @@
                 </a>
 
                 <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <button onclick="saveDraft()"
+                    <button type="button" onclick="saveDraft()"
                         class="flex-1 sm:flex-none px-3 sm:px-6 py-2.5 border border-brand-orange text-brand-orange bg-white hover:bg-orange-50 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm">
                         <i class="fa-regular fa-floppy-disk text-sm hidden sm:inline"></i>
                         <span>Draft</span>
                     </button>
 
-                    <a href="{{ route('merchant.kyc.salesChannels', ['kyc_link' => $kyc_link]) }}"
+                    <button type="button" onclick="saveAndContinue()"
                         class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-xs sm:text-base">
                         <span>Continue</span>
                         <i class="fa-solid fa-arrow-right text-sm hidden sm:inline"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </footer>
     </form>
+
+    @push('js')
+        <script>
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className =
+                    `toast bg-white border-l-4 ${type === 'success' ? 'border-green-500' : 'border-red-500'} rounded-lg shadow-lg p-4 mb-3`;
+                toast.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid ${type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-circle text-red-500'} text-xl"></i>
+                        <p class="text-sm font-medium text-gray-900">${message}</p>
+                    </div>
+                `;
+
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    container.className = 'fixed top-6 right-6 z-50';
+                    document.body.appendChild(container);
+                }
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            async function submitPurposeOfService(redirectAfterSave = false) {
+                const form = document.getElementById('ps-form');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message || 'Unable to save purpose of service information.', 'error');
+                        return;
+                    }
+
+                    showToast('Purpose of service information saved.', 'success');
+
+                    if (redirectAfterSave) {
+                        window.location.href = '{{ route('merchant.kyc.salesChannels', ['kyc_link' => $kyc_link]) }}';
+                    }
+                } catch (error) {
+                    showToast('Something went wrong while saving.', 'error');
+                }
+            }
+
+            function saveDraft() {
+                submitPurposeOfService(false);
+            }
+
+            function saveAndContinue() {
+                submitPurposeOfService(true);
+            }
+        </script>
+    @endpush
 </x-merchant.kyc>
