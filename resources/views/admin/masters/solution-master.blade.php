@@ -84,15 +84,6 @@
             }
         }
 
-        #filter-panel select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232D3A74' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1rem;
-            padding-right: 2.5rem;
-        }
-
         /* Active filters badges */
         .active-filters {
             display: flex;
@@ -147,41 +138,32 @@
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .filter-group label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
+            gap: 0.35rem;
+            font-size: 0.6875rem;
             font-weight: 600;
             color: #4B5563;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.1px;
         }
 
         .filter-group label i {
             color: #FF9900;
-            font-size: 0.75rem;
-        }
-
-        .filter-controls {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            padding-top: 1rem;
-            border-top: 1px solid #E5E7EB;
+            font-size: 0.625rem;
         }
 
         .filter-btn-reset {
             background: white;
-            border: 2px solid #E5E7EB;
+            border: 1px solid #D1D5DB;
             color: #6B7280;
-            padding: 0.625rem 1.5rem;
+            padding: 0.625rem 1rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -192,26 +174,62 @@
         }
 
         .filter-btn-apply {
-            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            background: #FF7C00;
             border: none;
             color: white;
-            padding: 0.625rem 1.5rem;
+            padding: 0.625rem 1rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
+            box-shadow: none;
         }
 
         .filter-btn-apply:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+            background: #E56D00;
         }
 
         /* Single-row filter layout */
         #filter-panel .filter-group {
             margin-bottom: 0;
+        }
+
+        .filter-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .filter-panel-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                justify-content: center;
+            }
+        }
+
+        .filter-panel-grid .filter-group label {
+            font-size: 0.75rem;
+            gap: 0.25rem;
+        }
+
+        .filter-panel-grid .form-input {
+            height: 32px;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.1;
+        }
+
+        .filter-panel-grid .filter-action-item {
+            display: flex;
+            justify-content: stretch;
+            align-items: end;
+        }
+
+        .filter-panel-grid .filter-action-item .filter-btn-reset,
+        .filter-panel-grid .filter-action-item .filter-btn-apply {
+            width: 100%;
         }
 
         /* Toast notifications */
@@ -394,16 +412,16 @@
 
                             <!-- Filter Panel -->
                             <div id="filter-panel"
-                                class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
-                                <div class="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
+                                class="hidden bg-white rounded-lg border border-gray-200 p-2.5">
+                                <div class="filter-panel-grid">
                                     <!-- Category Filter -->
-                                    <div class="filter-group flex-1 w-full">
+                                    <div class="filter-group w-full">
                                         <label>
                                             <i class="fa-solid fa-tag"></i>
                                             Category
                                         </label>
                                         <select name="category"
-                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                             <option value="">All Categories</option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category->id }}"
@@ -415,13 +433,13 @@
                                     </div>
 
                                     <!-- Status Filter -->
-                                    <div class="filter-group flex-1 w-full">
+                                    <div class="filter-group w-full">
                                         <label>
                                             <i class="fa-solid fa-circle-half-stroke"></i>
                                             Status
                                         </label>
                                         <select name="status"
-                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                             <option value="">All Status</option>
                                             <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>
                                                 Draft
@@ -434,13 +452,13 @@
                                     </div>
 
                                     <!-- Country Filter -->
-                                    <div class="filter-group flex-1 w-full">
+                                    <div class="filter-group w-full">
                                         <label>
                                             <i class="fa-solid fa-map-pin"></i>
                                             Country
                                         </label>
                                         <select name="country"
-                                            class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400">
+                                            class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                             <option value="">All Countries</option>
                                             @foreach ($countries as $country)
                                                 <option value="{{ $country->id }}"
@@ -452,16 +470,18 @@
                                     </div>
 
                                     <!-- Filter Controls -->
-                                    <div class="flex gap-2 flex-shrink-0 w-full lg:w-auto">
-                                        <button type="button" class="filter-btn-reset !py-2.5 !px-4 flex-1 lg:flex-none"
+                                    <div class="filter-action-item w-full">
+                                        <button type="button" class="filter-btn-reset !py-1.5 !px-2.5 !text-xs w-full"
                                             onclick="clearAllFilters()" title="Clear All">
-                                            <i class="fa-solid fa-xmark text-sm"></i>
-                                            <span class="ml-1.5 text-xs font-medium">Clear</span>
+                                            <i class="fa-solid fa-xmark text-xs"></i>
+                                            <span class="ml-1 text-xs font-medium">Clear</span>
                                         </button>
-                                        <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none"
+                                    </div>
+                                    <div class="filter-action-item w-full">
+                                        <button type="submit" class="filter-btn-apply !py-1.5 !px-3 !text-xs w-full"
                                             title="Apply Filters">
-                                            <i class="fa-solid fa-check text-sm"></i>
-                                            <span class="ml-1.5 text-xs font-medium">Apply</span>
+                                            <i class="fa-solid fa-check text-xs"></i>
+                                            <span class="ml-1 text-xs font-medium">Apply</span>
                                         </button>
                                     </div>
                                 </div>

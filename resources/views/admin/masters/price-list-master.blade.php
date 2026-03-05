@@ -66,19 +66,12 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            padding-bottom: 0.25rem;
+            padding-top: 0.25rem;
         }
         
         @media (max-width: 640px) {
             .active-filters {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: thin;
-            }
-            
-            .filter-badge {
-                flex-shrink: 0;
+                gap: 0.4rem;
             }
         }
 
@@ -86,18 +79,19 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
-            color: white;
-            padding: 0.375rem 0.75rem;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            padding: 0.3rem 0.7rem;
             border-radius: 9999px;
-            font-size: 0.813rem;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
         .filter-badge button {
             background: none;
             border: none;
-            color: white;
+            color: #9a3412;
             cursor: pointer;
             padding: 0;
             margin-left: 0.25rem;
@@ -115,33 +109,32 @@
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .filter-group label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
+            gap: 0.35rem;
+            font-size: 0.6875rem;
             font-weight: 600;
             color: #4B5563;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.1px;
         }
 
         .filter-group label i {
             color: #FF9900;
-            font-size: 0.75rem;
+            font-size: 0.625rem;
         }
 
         .filter-btn-reset {
             background: white;
-            border: 2px solid #E5E7EB;
+            border: 1px solid #D1D5DB;
             color: #6B7280;
-            padding: 0.625rem 1.5rem;
+            padding: 0.625rem 1rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -152,26 +145,63 @@
         }
 
         .filter-btn-apply {
-            background: linear-gradient(135deg, #FF9900 0%, #FF7200 100%);
+            background: #FF7C00;
             border: none;
             color: white;
-            padding: 0.625rem 1.5rem;
+            padding: 0.625rem 1rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
+            box-shadow: none;
         }
 
         .filter-btn-apply:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+            background: #E56D00;
         }
 
         /* Single-row filter layout */
         #filter-panel .filter-group {
             margin-bottom: 0;
+        }
+
+        .filter-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 0.5rem;
+            max-width: 1100px;
+            margin-inline: auto;
+        }
+
+        @media (min-width: 768px) {
+            .filter-panel-grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                justify-content: center;
+            }
+        }
+
+        .filter-panel-grid .filter-group label {
+            font-size: 0.75rem;
+            gap: 0.25rem;
+        }
+
+        .filter-panel-grid .form-input {
+            height: 32px;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.1;
+        }
+
+        .filter-panel-grid .filter-action-item {
+            display: flex;
+            justify-content: stretch;
+            align-items: end;
+        }
+
+        .filter-panel-grid .filter-action-item .filter-btn-reset,
+        .filter-panel-grid .filter-action-item .filter-btn-apply {
+            width: 100%;
         }
 
         /* Toast notifications */
@@ -294,7 +324,7 @@
                                         {{-- <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                         <input type="text" name="search" placeholder="Search price lists..."
                                             value="{{ request('search') }}"
-                                            class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
+                                            class="form-input px-4 bg-white border-gray-200 focus:bg-white w-full">
                                     </div>
                                     <div class="flex gap-2 w-full sm:w-auto">
                                         <button type="button" onclick="toggleFilters()"
@@ -364,16 +394,16 @@
 
                                 <!-- Filter Panel -->
                                 <div id="filter-panel"
-                                    class="hidden bg-gradient-to-b from-[#fafbfc] to-white rounded-lg border border-gray-100 p-4">
-                                    <div class="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
+                                    class="hidden bg-white rounded-lg border border-gray-200 p-2.5">
+                                    <div class="filter-panel-grid">
                                         <!-- Type Filter -->
-                                        <div class="filter-group flex-1 w-full">
+                                        <div class="filter-group w-full">
                                             <label>
                                                 <i class="fa-solid fa-layer-group"></i>
                                                 Type
                                             </label>
                                             <select name="type"
-                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                                 <option value="">All Types</option>
                                                 <option value="merchant-selling" {{ request('type') == 'merchant-selling' ? 'selected' : '' }}>
                                                     Merchant Selling</option>
@@ -385,13 +415,13 @@
                                         </div>
 
                                         <!-- Status Filter -->
-                                        <div class="filter-group flex-1 w-full">
+                                        <div class="filter-group w-full">
                                             <label>
                                                 <i class="fa-solid fa-circle-half-stroke"></i>
                                                 Status
                                             </label>
                                             <select name="status"
-                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                                 <option value="">All Status</option>
                                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>
                                                     Active</option>
@@ -403,13 +433,13 @@
                                         </div>
 
                                         <!-- Currency Filter -->
-                                        <div class="filter-group flex-1 w-full">
+                                        <div class="filter-group w-full">
                                             <label>
                                                 <i class="fa-solid fa-coins"></i>
                                                 Currency
                                             </label>
                                             <select name="currency"
-                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                                 <option value="">All Currencies</option>
                                                 @foreach ($currencies as $currency)
                                                     <option value="{{ $currency }}" {{ request('currency') == $currency ? 'selected' : '' }}>
@@ -420,13 +450,13 @@
                                         </div>
 
                                         <!-- Scope Filter -->
-                                        <div class="filter-group flex-1 w-full">
+                                        <div class="filter-group w-full">
                                             <label>
                                                 <i class="fa-solid fa-sitemap"></i>
                                                 Scope
                                             </label>
                                             <select name="assignment_level"
-                                                class="form-input text-sm bg-white border-2 border-gray-100 focus:border-orange-400 w-full">
+                                                class="form-input bg-white border-gray-200 focus:border-orange-400 w-full">
                                                 <option value="">All Scopes</option>
                                                 <option value="global" {{ request('assignment_level') == 'global' ? 'selected' : '' }}>
                                                     Global</option>
@@ -442,16 +472,18 @@
                                         </div>
 
                                         <!-- Filter Controls -->
-                                        <div class="flex gap-2 flex-shrink-0 w-full lg:w-auto">
-                                            <button type="button" class="filter-btn-reset !py-2.5 !px-4 flex-1 lg:flex-none"
+                                        <div class="filter-action-item w-full">
+                                            <button type="button" class="filter-btn-reset !py-1.5 !px-2.5 !text-xs w-full"
                                                 onclick="clearAllFilters()" title="Clear All">
-                                                <i class="fa-solid fa-xmark text-sm"></i>
-                                                <span class="ml-1.5 text-xs font-medium">Clear</span>
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                                <span class="ml-1 text-xs font-medium">Clear</span>
                                             </button>
-                                            <button type="submit" class="filter-btn-apply !py-2.5 !px-5 flex-1 lg:flex-none"
+                                        </div>
+                                        <div class="filter-action-item w-full">
+                                            <button type="submit" class="filter-btn-apply !py-1.5 !px-3 !text-xs w-full"
                                                 title="Apply Filters">
-                                                <i class="fa-solid fa-check text-sm"></i>
-                                                <span class="ml-1.5 text-xs font-medium">Apply</span>
+                                                <i class="fa-solid fa-check text-xs"></i>
+                                                <span class="ml-1 text-xs font-medium">Apply</span>
                                             </button>
                                         </div>
                                     </div>
