@@ -165,7 +165,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                    <a href="{{ route('admin.audit-logs.index') }}" class="{{ request()->routeIs('admin.audit-logs.*') ? 'nav-item-active text-white text-sm py-3 block font-semibold px-6' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }}">
                         <i class="fa-solid fa-clipboard-list w-5 mr-3"></i>Audit Logs
                     </a>
                 </li>

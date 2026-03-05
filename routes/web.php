@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\KycSectionController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Merchant\KycController;
 
 Route::get('/', function () {
@@ -83,6 +84,9 @@ Route::prefix('admin')
             
             // User Management Routes
             Route::resource('users', UserController::class);
+
+            // Audit Logs
+            Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         });
     });
 

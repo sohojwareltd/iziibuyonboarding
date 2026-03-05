@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
@@ -31,6 +34,35 @@ class SettingController extends Controller
      */
     public function store(Request $request)
     {
+        $shouldChangePassword = $request->filled('current_password')
+            || $request->filled('new_password')
+            || $request->filled('new_password_confirmation');
+
+        if ($shouldChangePassword) {
+            $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:8|confirmed|different:current_password',
+            ]);
+
+            $user = Auth::user();
+
+            if (!$user instanceof User) {
+                return redirect()
+                    ->route('admin.settings.index')
+                    ->with('error', 'Unable to change password for the current user.');
+            }
+
+            if (!Hash::check((string) $request->input('current_password'), (string) $user->password)) {
+                return redirect()
+                    ->route('admin.settings.index')
+                    ->withErrors(['current_password' => 'The current password is incorrect.'])
+                    ->withInput();
+            }
+
+            $user->password = Hash::make((string) $request->input('new_password'));
+            $user->save();
+        }
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $request->validate([

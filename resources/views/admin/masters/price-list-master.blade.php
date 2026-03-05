@@ -702,9 +702,11 @@
                                         <tr class="border-b border-[#ececec]">
                                             <td class="px-3 py-2">
                                                 <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-method">
-                                                    <option>Visa Credit</option>
-                                                    <option>Mastercard</option>
-                                                    <option>Amex</option>
+                                                    @forelse ($paymentMethods as $paymentMethod)
+                                                        <option value="{{ $paymentMethod->name }}">{{ $paymentMethod->display_label ?? $paymentMethod->name }}</option>
+                                                    @empty
+                                                        <option value="" disabled>No payment methods configured</option>
+                                                    @endforelse
                                                 </select>
                                             </td>
                                             <td class="px-3 py-2">
@@ -797,6 +799,13 @@
 @push('scripts')
     <script>
         let deletePriceListId = null;
+        const paymentMethodOptionsHtml = `
+            @forelse ($paymentMethods as $paymentMethod)
+                <option value="{{ $paymentMethod->name }}">{{ $paymentMethod->display_label ?? $paymentMethod->name }}</option>
+            @empty
+                <option value="" disabled>No payment methods configured</option>
+            @endforelse
+        `;
 
         function toggleFilters() {
             const filterPanel = document.getElementById('filter-panel');
@@ -894,9 +903,7 @@
             newRow.innerHTML = `
                 <td class="px-3 py-2">
                     <select class="form-input bg-[#efefef] border-gray-200 text-sm py-1.5 price-line-method">
-                        <option>Visa Credit</option>
-                        <option>Mastercard</option>
-                        <option>Amex</option>
+                        ${paymentMethodOptionsHtml}
                     </select>
                 </td>
                 <td class="px-3 py-2">
@@ -996,7 +1003,15 @@
                 lines.forEach(line => {
                     addPriceLine();
                     const row = tbody.lastElementChild;
-                    row.querySelector('.price-line-method').value = line.payment_method || '';
+                    const methodSelect = row.querySelector('.price-line-method');
+                    const methodValue = line.payment_method || '';
+                    if (methodSelect) {
+                        const hasMethodOption = Array.from(methodSelect.options).some(option => option.value === methodValue);
+                        if (!hasMethodOption && methodValue) {
+                            methodSelect.add(new Option(methodValue, methodValue, true, true));
+                        }
+                        methodSelect.value = methodValue;
+                    }
                     row.querySelector('.price-line-type').value = line.line_type || '';
                     row.querySelector('.price-line-percent').value = line.percent_fee ?? '';
                     row.querySelector('.price-line-fixed').value = line.fixed_fee ?? '';

@@ -415,6 +415,8 @@
                                         <option value="">Select Price List</option>
                                         @foreach ($priceLists as $priceList)
                                             <option value="{{ $priceList->id }}"
+                                                data-assignment-level="{{ strtolower($priceList->assignment_level ?? 'global') }}"
+                                                data-assignment-rules='@json($priceList->assignment_rules ?? [])'
                                                 {{ old('price_list_id', $onboarding->price_list_id ?? '') == $priceList->id ? 'selected' : '' }}>
                                                 {{ $priceList->name }} ({{ $priceList->currency }})
                                             </option>
@@ -643,10 +645,12 @@
             const priceListsData = {
                 @foreach ($priceLists as $priceList)
                     {{ $priceList->id }}: {
-                        name: '{{ $priceList->name }}',
-                        currency: '{{ $priceList->currency }}',
-                        type: '{{ $priceList->type }}',
-                        price_lines: @json($priceList->price_lines ?? [])
+                        name: @json($priceList->name),
+                        currency: @json($priceList->currency),
+                        type: @json($priceList->type),
+                        assignment_level: @json(strtolower($priceList->assignment_level ?? 'global')),
+                        assignment_rules: @json($priceList->assignment_rules ?? []),
+                        price_lines: @json($priceList->price_lines ?? []),
                     },
                 @endforeach
             };
@@ -682,6 +686,8 @@
             document.addEventListener('DOMContentLoaded', function() {
                 // Price list selection handler
                 const priceListSelect = document.getElementById('price-list-select');
+                const solutionSelect = document.querySelector('select[name="solution_id"]');
+                const countrySelect = document.querySelector('select[name="country_of_operation"]');
                 if (priceListSelect) {
                     console.log('Price list select found, adding event listener');
                     priceListSelect.addEventListener('change', function() {
@@ -693,8 +699,109 @@
                         console.log('Initializing with price list:', priceListSelect.value);
                         updatePricingTable(priceListSelect.value);
                     }
+
+                    updatePriceListOptions();
                 } else {
                     console.error('Price list select element not found!');
+                }
+
+                if (countrySelect) {
+                    countrySelect.addEventListener('change', function() {
+                        updatePriceListOptions();
+                    });
+                }
+
+                function parseRules(value) {
+                    if (value === null || value === undefined || value === '') {
+                        return [];
+                    }
+
+                    if (typeof value === 'string') {
+                        try {
+                            return parseRules(JSON.parse(value));
+                        } catch (error) {
+                            return [value];
+                        }
+                    }
+
+                    if (Array.isArray(value)) {
+                        return value.flatMap(item => parseRules(item));
+                    }
+
+                    if (typeof value === 'object') {
+                        return Object.values(value).flatMap(item => parseRules(item));
+                    }
+
+                    return [String(value)];
+                }
+
+                function normalizeToken(value) {
+                    return String(value || '')
+                        .trim()
+                        .toLowerCase()
+                        .replace(/\s+/g, '-')
+                        .replace(/_/g, '-');
+                }
+
+                function getSelectedAcquirerTokens() {
+                    const tokens = [];
+                    document.querySelectorAll('[data-acquirer]:checked').forEach(input => {
+                        tokens.push(normalizeToken(input.getAttribute('data-acquirer')));
+                        tokens.push(normalizeToken(input.value));
+                    });
+                    return tokens;
+                }
+
+                function updatePriceListOptions() {
+                    if (!priceListSelect) {
+                        return;
+                    }
+
+                    const selectedSolutionId = solutionSelect ? String(solutionSelect.value || '') : '';
+                    const selectedCountryCode = countrySelect ? normalizeToken(countrySelect.value || '') : '';
+                    const selectedAcquirerTokens = getSelectedAcquirerTokens();
+
+                    let selectedStillValid = false;
+
+                    Array.from(priceListSelect.options).forEach(option => {
+                        if (!option.value) {
+                            option.hidden = false;
+                            option.disabled = false;
+                            return;
+                        }
+
+                        const assignmentLevel = normalizeToken(option.getAttribute('data-assignment-level') || 'global');
+                        const assignmentRulesRaw = option.getAttribute('data-assignment-rules') || '[]';
+                        const normalizedRules = parseRules(assignmentRulesRaw).map(normalizeToken).filter(Boolean);
+
+                        let visible = true;
+
+                        if (assignmentLevel === 'solution') {
+                            visible = selectedSolutionId
+                                ? normalizedRules.includes(normalizeToken(selectedSolutionId))
+                                : true;
+                        } else if (assignmentLevel === 'country') {
+                            visible = selectedCountryCode
+                                ? normalizedRules.includes(selectedCountryCode)
+                                : true;
+                        } else if (assignmentLevel === 'acquirer') {
+                            visible = selectedAcquirerTokens.length > 0
+                                ? selectedAcquirerTokens.some(token => normalizedRules.includes(token))
+                                : true;
+                        }
+
+                        option.hidden = !visible;
+                        option.disabled = !visible;
+
+                        if (visible && option.value === priceListSelect.value) {
+                            selectedStillValid = true;
+                        }
+                    });
+
+                    if (priceListSelect.value && !selectedStillValid) {
+                        priceListSelect.value = '';
+                        updatePricingTable('');
+                    }
                 }
 
                 function updatePricingTable(priceListId) {
@@ -854,11 +961,11 @@
                 }
 
                 // Solution selection handler
-                const solutionSelect = document.querySelector('select[name="solution_id"]');
                 if (solutionSelect) {
                     solutionSelect.addEventListener('change', function() {
                         updateSolutionInfo(this.value);
                         updateSolutionFilters(this.value);
+                        updatePriceListOptions();
                     });
                     // Initialize with selected value on load
                     if (solutionSelect.value) {
@@ -1017,6 +1124,8 @@
                                 elavonRequirements.classList.add('hidden');
                             }
                         }
+
+                        updatePriceListOptions();
                     });
                 });
 

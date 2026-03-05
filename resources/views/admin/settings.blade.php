@@ -207,6 +207,34 @@
                         </div>
                     </div>
 
+                    <!-- Password Change Section -->
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-brand-primary mb-4">
+                            <i class="fa-solid fa-key mr-2"></i>Change Password
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                                <input type="password" name="current_password" class="form-input" autocomplete="current-password">
+                                @error('current_password')
+                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                                <input type="password" name="new_password" class="form-input" autocomplete="new-password">
+                                @error('new_password')
+                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                                <input type="password" name="new_password_confirmation" class="form-input" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Leave password fields empty if you do not want to change password.</p>
+                    </div>
+
                     <div class="flex justify-end">
                         <button type="submit" class="bg-brand-primary text-white px-6 py-2.5 rounded-lg hover:bg-brand-secondary transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-save"></i>

@@ -42,7 +42,10 @@ class OnboardingController extends Controller
         $acquirers = AcquirerMaster::where('is_active', true)
             ->orderBy('name')
             ->get();
-        $priceLists = PriceListMaster::where('status', 'active')->orderBy('name')->get();
+        $priceLists = PriceListMaster::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
         $countries = Country::orderBy('name')->get();
 
         return view('admin.onboarding.start', compact(
@@ -136,7 +139,16 @@ class OnboardingController extends Controller
         $acquirers = AcquirerMaster::where('is_active', true)
             ->orderBy('name')
             ->get();
-        $priceLists = PriceListMaster::orderBy('name')->get();
+        $priceLists = PriceListMaster::query()
+            ->where(function ($query) use ($onboarding) {
+                $query->where('status', 'active');
+
+                if (!empty($onboarding->price_list_id)) {
+                    $query->orWhere('id', $onboarding->price_list_id);
+                }
+            })
+            ->orderBy('name')
+            ->get();
         $countries = Country::orderBy('name')->get();
 
         return view('admin.onboarding.start', compact(

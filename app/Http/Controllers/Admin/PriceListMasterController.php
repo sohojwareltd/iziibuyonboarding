@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaymentMethodMaster;
 use App\Models\PriceListMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -43,10 +44,15 @@ class PriceListMasterController extends Controller
             ->distinct()
             ->orderBy('currency')
             ->pluck('currency');
+        $paymentMethods = PaymentMethodMaster::query()
+            ->where('is_active', true)
+            ->orderBy('display_label')
+            ->get(['name', 'display_label']);
 
         return view('admin.masters.price-list-master', [
             'priceLists' => $priceLists,
             'currencies' => $currencies,
+            'paymentMethods' => $paymentMethods,
         ]);
     }
 
