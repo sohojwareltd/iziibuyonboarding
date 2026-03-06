@@ -439,8 +439,14 @@
                             <!-- Password Section -->
                             <div class="mb-6 hidden" id="passwordSection">
                                 <h3 class="text-lg font-semibold text-brand-primary mb-2">Password</h3>
-                                <p class="text-sm text-gray-500 mb-4 hidden" id="passwordHint">Leave blank to keep current
-                                    password</p>
+                                <p class="text-sm text-gray-500 mb-4 hidden" id="passwordHint">Turn on Change Password to set a new password.</p>
+
+                                <div class="mb-4 hidden" id="passwordToggleWrapper">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="changePasswordToggle" class="h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary">
+                                        <span class="text-sm font-medium text-gray-700">Change Password</span>
+                                    </label>
+                                </div>
 
                                 <div class="space-y-4">
                                     <div>
@@ -620,32 +626,62 @@
                 const submitBtn = document.getElementById('submitButtonText');
                 const passwordHint = document.getElementById('passwordHint');
                 const passwordSection = document.getElementById('passwordSection');
+                const passwordToggleWrapper = document.getElementById('passwordToggleWrapper');
+                const changePasswordToggle = document.getElementById('changePasswordToggle');
                 const passwordRequired = document.getElementById('passwordRequired');
                 const passwordConfRequired = document.getElementById('passwordConfRequired');
                 const password = document.getElementById('password');
+                const passwordConfirmation = document.getElementById('password_confirmation');
+
+                function setPasswordFieldsVisibility(show) {
+                    const passwordFields = passwordSection.querySelector('.space-y-4');
+                    if (show) {
+                        passwordFields.classList.remove('hidden');
+                        passwordRequired.classList.remove('hidden');
+                        passwordConfRequired.classList.remove('hidden');
+                        password.setAttribute('required', 'required');
+                        passwordConfirmation.setAttribute('required', 'required');
+                    } else {
+                        passwordFields.classList.add('hidden');
+                        passwordRequired.classList.add('hidden');
+                        passwordConfRequired.classList.add('hidden');
+                        password.removeAttribute('required');
+                        passwordConfirmation.removeAttribute('required');
+                        password.value = '';
+                        passwordConfirmation.value = '';
+                    }
+                }
 
                 // Reset form
                 form.reset();
                 document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+                if (changePasswordToggle) {
+                    changePasswordToggle.checked = false;
+                    changePasswordToggle.onchange = null;
+                }
 
                 if (userId) {
-                    // Edit mode - hide password section
+                    // Edit mode - show toggle, keep fields hidden until requested
                     title.textContent = 'Edit User';
                     submitBtn.textContent = 'Update User';
-                    passwordSection.classList.add('hidden');
-                    password.removeAttribute('required');
-                    document.getElementById('password_confirmation').removeAttribute('required');
+                    passwordSection.classList.remove('hidden');
+                    passwordToggleWrapper.classList.remove('hidden');
+                    passwordHint.classList.remove('hidden');
+                    setPasswordFieldsVisibility(false);
+                    if (changePasswordToggle) {
+                        changePasswordToggle.onchange = function() {
+                            setPasswordFieldsVisibility(this.checked);
+                        };
+                    }
                     document.getElementById('formMethod').value = 'PUT';
                 } else {
                     // Create mode - show password section
                     title.textContent = 'Add New User';
                     submitBtn.textContent = 'Create User';
                     passwordSection.classList.remove('hidden');
+                    passwordToggleWrapper.classList.add('hidden');
                     passwordHint.classList.add('hidden');
-                    passwordRequired.classList.remove('hidden');
-                    passwordConfRequired.classList.remove('hidden');
-                    password.setAttribute('required', 'required');
-                    document.getElementById('password_confirmation').setAttribute('required', 'required');
+                    setPasswordFieldsVisibility(true);
                     document.getElementById('formMethod').value = 'POST';
                     document.getElementById('userId').value = '';
                 }
