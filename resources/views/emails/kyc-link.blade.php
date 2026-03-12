@@ -538,7 +538,7 @@
     <div class="email-wrapper">
         {{-- Header Banner --}}
         <div class="header-banner">
-            <h1>🎉 Welcome to {{ config('app.name') }}!</h1>
+            <h1 style="color: #fff">🎉 Welcome to {{ config('app.name') }}!</h1>
             <p>Your Merchant Onboarding Portal</p>
         </div>
 
