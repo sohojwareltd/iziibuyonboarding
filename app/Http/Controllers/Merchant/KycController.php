@@ -325,13 +325,13 @@ class KycController extends Controller
             ]);
 
             $onboarding->review_declaration_accepted_at = now();
-            $onboarding->kyc_completed_at = now();
+            $onboarding->status = 'in-review';
             $onboarding->save();
         }
 
         $message = $isDraft
             ? 'Review draft saved successfully.'
-            : 'KYC review submitted successfully.';
+            : 'KYC review submitted successfully. Your application is now under review.';
 
         if ($request->expectsJson()) {
             return response()->json([

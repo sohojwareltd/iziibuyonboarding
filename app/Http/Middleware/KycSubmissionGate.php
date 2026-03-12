@@ -32,7 +32,7 @@ class KycSubmissionGate
         ];
 
         if (!is_null($onboarding->review_declaration_accepted_at)
-            && $onboarding->status !== 'active'
+            && $onboarding->status === 'in-review'
             && !in_array($currentRouteName, $allowedRoutes, true)) {
             return redirect()->route('merchant.kyc.thankyou', ['kyc_link' => $kycLink]);
         }
