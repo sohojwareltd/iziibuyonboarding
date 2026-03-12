@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
 use App\Models\KYCFieldMaster;
 use App\Models\KycSection;
 use Illuminate\Http\Request;
@@ -45,7 +46,8 @@ class KYCFieldMasterController extends Controller
 
         $kycFields = $query->orderBy('sort_order')->paginate(15)->withQueryString();
         $kycSections = KycSection::active()->ordered()->get();
-        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections'));
+        $countries = Country::orderBy('name')->get(['id', 'name', 'code']);
+        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections', 'countries'));
     }
 
     /**
@@ -68,13 +70,20 @@ class KYCFieldMasterController extends Controller
                 'visible_to_merchant' => 'boolean',
                 'visible_to_admin' => 'boolean',
                 'visible_to_partner' => 'boolean',
+                'visible_countries' => 'nullable|array',
+                'visible_countries.*' => 'string|max:10',
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
 
-            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio', 'country'];
             if (!in_array($validated['data_type'], $choiceTypes)) {
                 $validated['options'] = null;
+            }
+
+            $validated['visible_countries'] = array_values($request->input('visible_countries', []));
+            if (empty($validated['visible_countries'])) {
+                $validated['visible_countries'] = null;
             }
 
             KYCFieldMaster::create($validated);
@@ -126,13 +135,20 @@ class KYCFieldMasterController extends Controller
                 'visible_to_merchant' => 'boolean',
                 'visible_to_admin' => 'boolean',
                 'visible_to_partner' => 'boolean',
+                'visible_countries' => 'nullable|array',
+                'visible_countries.*' => 'string|max:10',
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
 
-            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio', 'country'];
             if (!in_array($validated['data_type'], $choiceTypes)) {
                 $validated['options'] = null;
+            }
+
+            $validated['visible_countries'] = array_values($request->input('visible_countries', []));
+            if (empty($validated['visible_countries'])) {
+                $validated['visible_countries'] = null;
             }
 
             $kycField->update($validated);

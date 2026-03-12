@@ -20,6 +20,7 @@ class KYCFieldMaster extends Model
         'visible_to_merchant',
         'visible_to_admin',
         'visible_to_partner',
+        'visible_countries',
         'sort_order',
         'status',
     ];
@@ -30,6 +31,7 @@ class KYCFieldMaster extends Model
         'visible_to_admin' => 'boolean',
         'visible_to_partner' => 'boolean',
         'options' => 'array',
+        'visible_countries' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

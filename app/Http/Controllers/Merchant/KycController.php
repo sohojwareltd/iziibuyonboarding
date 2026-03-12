@@ -15,6 +15,33 @@ use Illuminate\View\View;
 
 class KycController extends Controller
 {
+    private function normalizeOnboardingCountry(?Onboarding $onboarding): ?string
+    {
+        if (! $onboarding || empty($onboarding->country_of_operation)) {
+            return null;
+        }
+
+        return strtoupper((string) $onboarding->country_of_operation);
+    }
+
+    private function applyFieldVisibilityRules($query, ?Onboarding $onboarding)
+    {
+        $countryCode = $this->normalizeOnboardingCountry($onboarding);
+
+        return $query->where('status', 'active')
+            ->where('visible_to_merchant', true)
+            ->where(function ($q) use ($countryCode) {
+                $q->whereNull('visible_countries')
+                    ->orWhereJsonLength('visible_countries', 0);
+
+                if ($countryCode) {
+                    $q->orWhereJsonContains('visible_countries', $countryCode)
+                        ->orWhereJsonContains('visible_countries', strtolower($countryCode));
+                }
+            })
+            ->orderBy('sort_order');
+    }
+
     private function resolveOnboardingByKycLink(?string $kyc_link): ?Onboarding
     {
         if (empty($kyc_link)) {
@@ -38,10 +65,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'company-information')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -63,10 +88,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'beneficial-owners')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -88,10 +111,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'board-members-gm')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -113,10 +134,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'contact-person')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -138,10 +157,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'purpose-of-service')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -163,10 +180,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'sales-channels')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -188,10 +203,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'bank-information')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -213,10 +226,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $section = KycSection::where('slug', 'authorized-signatories')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
 
@@ -238,10 +249,8 @@ class KycController extends Controller
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
         $sections = KycSection::where('status', 'active')
-            ->with(['kycFields' => function ($query) {
-                $query->where('status', 'active')
-                    ->where('visible_to_merchant', true)
-                    ->orderBy('sort_order');
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->orderBy('sort_order')
             ->get();
