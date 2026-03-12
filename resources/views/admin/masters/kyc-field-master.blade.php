@@ -840,7 +840,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Type <span
                                         class="text-red-500">*</span></label>
-                                <select id="data-type" name="data_type" class="form-input" required>
+                                <select id="data-type" name="data_type" class="form-input" required onchange="handleDataTypeChange(this.value)">
                                     <option value="">Select a type</option>
                                     <option value="text">Text</option>
                                     <option value="date">Date</option>
@@ -850,7 +850,7 @@
                                     <option value="url">URL</option>
                                     <option value="password">Password</option>
                                     <option value="time">Time</option>
-                                    <option value="datetime-local">Date & Time</option>
+                                    <option value="datetime-local">Date &amp; Time</option>
                                     <option value="file">File Upload</option>
                                     <option value="dropdown">Dropdown</option>
                                     <option value="multi-select">Multi-Select</option>
@@ -862,6 +862,19 @@
                                     <option value="address">Address</option>
                                     <option value="signature">Signature</option>
                                 </select>
+                            </div>
+
+                            <!-- Options Builder — shown only for dropdown, multi-select, checkbox, radio -->
+                            <div id="options-section" class="hidden space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-sm font-medium text-gray-700">Options <span class="text-red-500">*</span></label>
+                                    <button type="button" onclick="addOptionRow()"
+                                        class="text-xs text-brand-accent font-semibold flex items-center gap-1 hover:text-orange-600 transition-colors">
+                                        <i class="fa-solid fa-plus text-xs"></i> Add Option
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-400 -mt-1">Define label (shown to user) and value (stored internally).</div>
+                                <div id="options-list" class="space-y-2"></div>
                             </div>
                         </div>
 
@@ -1144,6 +1157,9 @@
         document.getElementById('visible-merchant').checked = true;
         document.getElementById('visible-admin').checked = true;
         document.getElementById('visible-partner').checked = false;
+        // Reset options
+        document.getElementById('options-section').classList.add('hidden');
+        document.getElementById('options-list').innerHTML = '';
     }
 
     function toggleRequired() {
@@ -1158,6 +1174,72 @@
         document.getElementById('status').value = toggle.classList.contains('active') ? 'active' : 'draft';
     }
 
+    const CHOICE_TYPES = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+
+    function handleDataTypeChange(type) {
+        const section = document.getElementById('options-section');
+        if (CHOICE_TYPES.includes(type)) {
+            section.classList.remove('hidden');
+            if (document.getElementById('options-list').children.length === 0) {
+                addOptionRow();
+            }
+        } else {
+            section.classList.add('hidden');
+        }
+    }
+
+    let optionRowIndex = 0;
+
+    function addOptionRow(label = '', value = '') {
+        const list = document.getElementById('options-list');
+        const idx = optionRowIndex++;
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 option-row';
+        row.innerHTML = `
+            <input type="text" name="options[${idx}][label]" placeholder="Label (e.g. Yes)" value="${escapeHtml(label)}"
+                class="form-input flex-1" required oninput="autoFillOptionValue(this, ${idx})">
+            <input type="text" name="options[${idx}][value]" placeholder="Value (e.g. yes)" value="${escapeHtml(value)}"
+                class="form-input flex-1" required>
+            <button type="button" onclick="removeOptionRow(this)"
+                class="flex-shrink-0 text-gray-300 hover:text-red-500 transition-colors p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        list.appendChild(row);
+    }
+
+    function autoFillOptionValue(labelInput, idx) {
+        const row = labelInput.closest('.option-row');
+        const valueInput = row.querySelector(`input[name="options[${idx}][value]"]`);
+        if (!valueInput._edited) {
+            valueInput.value = labelInput.value.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+        }
+        valueInput.oninput = () => { valueInput._edited = true; };
+    }
+
+    function removeOptionRow(btn) {
+        const list = document.getElementById('options-list');
+        btn.closest('.option-row').remove();
+        // Ensure at least one row remains for choice types
+        if (list.children.length === 0 && CHOICE_TYPES.includes(document.getElementById('data-type').value)) {
+            addOptionRow();
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function populateOptions(options) {
+        document.getElementById('options-list').innerHTML = '';
+        optionRowIndex = 0;
+        if (Array.isArray(options) && options.length > 0) {
+            options.forEach(opt => addOptionRow(opt.label || '', opt.value || ''));
+        } else {
+            addOptionRow();
+        }
+    }
+
     function editKYCField(id) {
         fetch(`/admin/masters/kyc-fields/${id}`, {
                 headers: {
@@ -1165,7 +1247,20 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(async response => {
+                const contentType = response.headers.get('content-type') || '';
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`Request failed (${response.status}). ${errorBody.slice(0, 180)}`);
+                }
+
+                if (!contentType.includes('application/json')) {
+                    const rawBody = await response.text();
+                    throw new Error(`Expected JSON, got: ${rawBody.slice(0, 180)}`);
+                }
+
+                return response.json();
+            })
             .then(data => {
                 console.log('Fetched data:', data);
 
@@ -1181,6 +1276,15 @@
                 document.getElementById('description').value = data.description || '';
                 document.getElementById('data-type').value = data.data_type;
                 document.getElementById('sensitivity-level').value = data.sensitivity_level;
+
+                // Handle options for choice types
+                if (CHOICE_TYPES.includes(data.data_type)) {
+                    document.getElementById('options-section').classList.remove('hidden');
+                    populateOptions(data.options);
+                } else {
+                    document.getElementById('options-section').classList.add('hidden');
+                    document.getElementById('options-list').innerHTML = '';
+                }
                 document.getElementById('sort-order').value = data.sort_order;
 
                 // Toggle required

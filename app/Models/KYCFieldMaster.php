@@ -14,6 +14,7 @@ class KYCFieldMaster extends Model
         'kyc_section_id',
         'description',
         'data_type',
+        'options',
         'is_required',
         'sensitivity_level',
         'visible_to_merchant',
@@ -28,6 +29,7 @@ class KYCFieldMaster extends Model
         'visible_to_merchant' => 'boolean',
         'visible_to_admin' => 'boolean',
         'visible_to_partner' => 'boolean',
+        'options' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

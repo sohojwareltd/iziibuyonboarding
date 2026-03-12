@@ -60,6 +60,9 @@ class KYCFieldMasterController extends Controller
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,url,password,time,datetime-local,file,dropdown,multi-select,checkbox,radio,textarea,country,currency,address,signature',
+                'options' => 'nullable|array',
+                'options.*.label' => 'required_with:options|string|max:255',
+                'options.*.value' => 'required_with:options|string|max:255',
                 'is_required' => 'boolean',
                 'sensitivity_level' => 'required|in:normal,sensitive,highly-sensitive',
                 'visible_to_merchant' => 'boolean',
@@ -68,6 +71,11 @@ class KYCFieldMasterController extends Controller
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
+
+            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+            if (!in_array($validated['data_type'], $choiceTypes)) {
+                $validated['options'] = null;
+            }
 
             KYCFieldMaster::create($validated);
 
@@ -91,12 +99,9 @@ class KYCFieldMasterController extends Controller
     public function show($kycField)
     {
         $kycField = KYCFieldMaster::findOrFail($kycField);
-        
-        if (request()->ajax()) {
-            return response()->json($kycField);
-        }
 
-        return view('admin.masters.kyc-field-master', ['kycField' => $kycField]);
+        // This endpoint is consumed by the edit drawer via fetch, so always return JSON.
+        return response()->json($kycField);
     }
 
     /**
@@ -113,6 +118,9 @@ class KYCFieldMasterController extends Controller
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,url,password,time,datetime-local,file,dropdown,multi-select,checkbox,radio,textarea,country,currency,address,signature',
+                'options' => 'nullable|array',
+                'options.*.label' => 'required_with:options|string|max:255',
+                'options.*.value' => 'required_with:options|string|max:255',
                 'is_required' => 'boolean',
                 'sensitivity_level' => 'required|in:normal,sensitive,highly-sensitive',
                 'visible_to_merchant' => 'boolean',
@@ -121,6 +129,11 @@ class KYCFieldMasterController extends Controller
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
+
+            $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+            if (!in_array($validated['data_type'], $choiceTypes)) {
+                $validated['options'] = null;
+            }
 
             $kycField->update($validated);
 
