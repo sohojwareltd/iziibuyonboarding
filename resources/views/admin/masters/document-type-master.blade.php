@@ -449,7 +449,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4"><span
-                                                        class="text-gray-600 text-sm capitalize">{{ str_replace('_', ' ', $docType->category) }}</span>
+                                                        class="text-gray-600 text-sm capitalize">{{ $docType->category?->name ?? '-' }}</span>
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <div class="flex flex-wrap gap-1 mb-1">
@@ -545,12 +545,13 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Category <span
                                         class="text-red-500">*</span></label>
-                                <select id="category" name="category" class="form-input" required>
+                                <select id="category" name="category_id" class="form-input" required>
                                     <option value="">Select category...</option>
-                                    <option value="identity">Identity Document</option>
-                                    <option value="company">Company Registration</option>
-                                    <option value="bank">Bank Verification</option>
+                                    @foreach ($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
                                 </select>
+                                <p class="text-xs text-gray-400 mt-1">Manage categories in <a href="{{ route('admin.categories.index') }}" class="text-brand-secondary hover:underline" target="_blank">Categories Master</a></p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Description <span
@@ -877,7 +878,7 @@
 
                         // Basic Information
                         document.getElementById('document-name').value = data.document_name;
-                        document.getElementById('category').value = data.category;
+                        document.getElementById('category').value = data.category_id;
                         document.getElementById('description').value = data.description || '';
 
                         // File Format & Size Rules
@@ -998,7 +999,7 @@
                 const cleanData = new FormData();
                 cleanData.append('_method', method);
                 cleanData.append('document_name', document.getElementById('document-name').value);
-                cleanData.append('category', document.getElementById('category').value);
+                cleanData.append('category_id', document.getElementById('category').value);
                 cleanData.append('description', document.getElementById('description').value);
                 cleanData.append('max_file_size', document.getElementById('max-file-size').value);
                 cleanData.append('min_pages', document.getElementById('min-pages').value);

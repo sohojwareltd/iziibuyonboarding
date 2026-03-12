@@ -11,10 +11,19 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::paginate(10);
-        return view('admin.categories', compact('categories'));
+        $search = $request->input('search');
+
+        $categories = Category::when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('slug', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.categories', compact('categories', 'search'));
     }
 
     /**
@@ -30,17 +39,25 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slug' => 'required|string|max:255|unique:categories,slug',
+            ]);
 
-        Category::create([
-            'name' => $request->name,
-            'slug' => $request->slug,
-        ]);
+            $category = Category::create($validated);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Category created successfully.', 'category' => $category]);
+            }
+
+            return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => $e->errors()], 422);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -48,7 +65,13 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json($category);
+        }
+
+        return redirect()->route('admin.categories.index');
     }
 
     /**
@@ -66,17 +89,25 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug,' . $id,
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slug' => 'required|string|max:255|unique:categories,slug,' . $id,
+            ]);
 
-        $category->update([
-            'name' => $request->name,
-            'slug' => $request->slug,
-        ]);
+            $category->update($validated);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Category updated successfully.', 'category' => $category]);
+            }
+
+            return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => $e->errors()], 422);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -86,6 +117,10 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $category->delete();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Category deleted successfully.']);
+        }
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }

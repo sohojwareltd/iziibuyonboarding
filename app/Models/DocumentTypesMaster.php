@@ -10,7 +10,7 @@ class DocumentTypesMaster extends Model
 
     protected $fillable = [
         'document_name',
-        'category',
+        'category_id',
         'description',
         'allowed_file_types',
         'max_file_size',
@@ -38,4 +38,9 @@ class DocumentTypesMaster extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 }

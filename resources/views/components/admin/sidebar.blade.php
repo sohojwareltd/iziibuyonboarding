@@ -5,7 +5,7 @@
 @php
     $isOnboardingActive = request()->routeIs('admin.onboarding.*');
     $isOnboardingExpanded = $isOnboardingActive;
-    $isMastersActive = request()->routeIs('admin.masters.*');
+    $isMastersActive = request()->routeIs('admin.masters.*') || request()->routeIs('admin.categories.*');
     $isMastersExpanded = $isMastersActive;
 @endphp
 
@@ -94,7 +94,7 @@
                                 <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 sidebar-chevron {{ $isMastersExpanded ? 'rotate-180' : '' }}"></i>
                             </button>
                         </div>
-                        <ul class="sidebar-submenu overflow-hidden transition-all duration-300 {{ $isMastersExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0' }}">
+                        <ul class="sidebar-submenu overflow-hidden transition-all duration-300 {{ $isMastersExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
                             <li>
                                 <a href="{{ route('admin.masters.countrys.index') }}" 
                                    class="{{ request()->routeIs('admin.masters.countrys.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
@@ -145,8 +145,14 @@
                             </li>
                             <li>
                                 <a href="{{ route('admin.masters.document-type-master') }}" 
-                                   class="{{ request()->routeIs('admin.masters.document-type-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                   class="{{ request()->routeIs('admin.masters.document-type-master') || request()->routeIs('admin.masters.document-types.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
                                     Document Types
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.categories.index') }}" 
+                                   class="{{ request()->routeIs('admin.categories.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    Category Master
                                 </a>
                             </li>
                         </ul>
@@ -170,8 +176,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.categories.index') }}" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
-                        <i class="fa-solid fa-icons w-5 mr-3"></i></i>Category Management
+                    <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'nav-item-active text-white text-sm py-3 block font-semibold px-6' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }}">
+                        <i class="fa-solid fa-icons w-5 mr-3"></i>Category Management
                     </a>
                 </li>
                 <li>
@@ -217,10 +223,10 @@
                 // Toggle submenu
                 if (submenu.classList.contains('max-h-0')) {
                     submenu.classList.remove('max-h-0', 'opacity-0');
-                    submenu.classList.add('max-h-96', 'opacity-100');
+                    submenu.classList.add('max-h-[500px]', 'opacity-100');
                     chevron.classList.add('rotate-180');
                 } else {
-                    submenu.classList.remove('max-h-96', 'opacity-100');
+                    submenu.classList.remove('max-h-96', 'max-h-[500px]', 'opacity-100');
                     submenu.classList.add('max-h-0', 'opacity-0');
                     chevron.classList.remove('rotate-180');
                 }

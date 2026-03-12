@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\DocumentTypesMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,8 +15,9 @@ class DocumentTypesMasterController extends Controller
      */
     public function index()
     {
-        $documentTypes = DocumentTypesMaster::orderBy('document_name')->paginate(15);
-        return view('admin.masters.document-type-master', compact('documentTypes'));
+        $documentTypes = DocumentTypesMaster::with('category')->orderBy('document_name')->paginate(15);
+        $categories = Category::orderBy('name')->get();
+        return view('admin.masters.document-type-master', compact('documentTypes', 'categories'));
     }
 
     /**
@@ -26,7 +28,7 @@ class DocumentTypesMasterController extends Controller
         try {
             $validated = $request->validate([
                 'document_name' => 'required|string|max:255|unique:document_types_masters',
-                'category' => 'required|in:identity,company,bank',
+                'category_id' => 'required|exists:categories,id',
                 'description' => 'nullable|string',
                 'allowed_file_types' => 'required|array|min:1',
                 'max_file_size' => 'required|integer|min:1',
@@ -64,7 +66,7 @@ class DocumentTypesMasterController extends Controller
      */
     public function show($documentType)
     {
-        $documentType = DocumentTypesMaster::findOrFail($documentType);
+        $documentType = DocumentTypesMaster::with('category')->findOrFail($documentType);
         
         if (request()->ajax()) {
             return response()->json($documentType);
@@ -83,7 +85,7 @@ class DocumentTypesMasterController extends Controller
         try {
             $validated = $request->validate([
                 'document_name' => ['required', 'string', 'max:255', Rule::unique('document_types_masters')->ignore($documentType->id)],
-                'category' => 'required|in:identity,company,bank',
+                'category_id' => 'required|exists:categories,id',
                 'description' => 'nullable|string',
                 'allowed_file_types' => 'required|array|min:1',
                 'max_file_size' => 'required|integer|min:1',

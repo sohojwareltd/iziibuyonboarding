@@ -227,22 +227,30 @@
                         </div>
 
                         <!-- Search and Filters -->
-                        <div
+                        <form method="GET" action="{{ route('admin.categories.index') }}"
                             class="bg-white border border-gray-200 rounded-t-xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div class="relative w-full sm:w-[384px]">
                                 <i
                                     class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <input type="text" id="search-input" placeholder="Search categories..."
-                                    class="form-input pl-10 bg-white border-gray-200 w-full">
+                                <input type="text" name="search" id="search-input" placeholder="Search categories..."
+                                    value="{{ $search ?? '' }}"
+                                    class="form-input pl-10 bg-white border-gray-200 w-full"
+                                    oninput="clearSearchIfEmpty(this)">
+                                @if(!empty($search))
+                                    <a href="{{ route('admin.categories.index') }}"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
+                                    </a>
+                                @endif
                             </div>
                             <div class="flex flex-wrap items-center gap-3">
-                                <button
-                                    class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                    <i class="fa-solid fa-download text-sm"></i>
-                                    Export
+                                <button type="submit"
+                                    class="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-secondary transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-search text-sm"></i>
+                                    Search
                                 </button>
                             </div>
-                        </div>
+                        </form>
 
                         <!-- Table -->
                         <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl shadow-sm overflow-hidden">
@@ -285,7 +293,7 @@
                                                 <td
                                                     class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <button
-                                                        onclick="editCategory({{ $category->id }}, '{{ $category->name }}')"
+                                                        onclick="editCategory({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ $category->slug }}')"
                                                         class="text-blue-600 hover:text-blue-900 font-medium">
                                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                                     </button>
@@ -451,6 +459,13 @@
                 .replace(/[^\w-]/g, '');
         }
 
+        function clearSearchIfEmpty(input) {
+            // Auto-submit to clear when field is emptied
+            if (!input.value.trim()) {
+                input.closest('form').submit();
+            }
+        }
+
         function openDrawer() {
             document.getElementById('category-drawer').classList.remove('drawer-closed');
             document.getElementById('category-drawer').classList.add('drawer-open');
@@ -471,7 +486,7 @@
             document.getElementById('category-slug').readOnly = true;
         }
 
-        function editCategory(id, name) {
+        function editCategory(id, name, slug) {
             // Set form to update route
             const form = document.getElementById('category-form');
             form.action = "{{ route('admin.categories.update', ':id') }}".replace(':id', id);
@@ -492,8 +507,7 @@
             // Update drawer
             document.getElementById('drawer-title').textContent = 'Edit Category';
             document.getElementById('category-name').value = name;
-            document.getElementById('category-slug').value = generateSlug(name);
-            // Don't mark as edited - allow auto-generation to work when user changes the name
+            document.getElementById('category-slug').value = slug || generateSlug(name);
             document.getElementById('category-slug').removeAttribute('data-edited');
             document.getElementById('category-slug').readOnly = true;
             
@@ -575,6 +589,16 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             setupSlugGeneration();
+
+            // Search on Enter key
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        this.closest('form').submit();
+                    }
+                });
+            }
 
             const flashSuccess = @json(session('success'));
             const flashError = @json(session('error'));
