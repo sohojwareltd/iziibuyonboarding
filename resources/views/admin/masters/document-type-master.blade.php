@@ -667,21 +667,17 @@
                                         <input type="text" class="multi-select-search"
                                             placeholder="Search acquirers..." onkeyup="filterOptions(this)">
                                         <div class="multi-select-options">
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_acquirers" value="elavon"
-                                                    class="multi-select-checkbox" onchange="updateTags('acquirers')">
-                                                <span>Elavon</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_acquirers" value="surfboard"
-                                                    class="multi-select-checkbox" onchange="updateTags('acquirers')">
-                                                <span>Surfboard</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_acquirers" value="stripe"
-                                                    class="multi-select-checkbox" onchange="updateTags('acquirers')">
-                                                <span>Stripe</span>
-                                            </label>
+                                            @forelse ($acquirers as $acquirer)
+                                                <label class="multi-select-option">
+                                                    <input type="checkbox" name="required_acquirers"
+                                                        value="{{ $acquirer->name }}"
+                                                        data-label="{{ $acquirer->name }}"
+                                                        class="multi-select-checkbox" onchange="updateTags('acquirers')">
+                                                    <span>{{ $acquirer->name }}</span>
+                                                </label>
+                                            @empty
+                                                <div class="px-3 py-2 text-sm text-gray-400">No active acquirers found</div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
@@ -700,21 +696,17 @@
                                         <input type="text" class="multi-select-search"
                                             placeholder="Search countries..." onkeyup="filterOptions(this)">
                                         <div class="multi-select-options">
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_countries" value="uk"
-                                                    class="multi-select-checkbox" onchange="updateTags('countries')">
-                                                <span>United Kingdom</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_countries" value="no"
-                                                    class="multi-select-checkbox" onchange="updateTags('countries')">
-                                                <span>Norway</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_countries" value="us"
-                                                    class="multi-select-checkbox" onchange="updateTags('countries')">
-                                                <span>United States</span>
-                                            </label>
+                                            @forelse ($countries as $country)
+                                                <label class="multi-select-option">
+                                                    <input type="checkbox" name="required_countries"
+                                                        value="{{ strtolower($country->code) }}"
+                                                        data-label="{{ $country->name }}"
+                                                        class="multi-select-checkbox" onchange="updateTags('countries')">
+                                                    <span>{{ $country->name }}</span>
+                                                </label>
+                                            @empty
+                                                <div class="px-3 py-2 text-sm text-gray-400">No countries found</div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
@@ -733,21 +725,17 @@
                                         <input type="text" class="multi-select-search"
                                             placeholder="Search solutions..." onkeyup="filterOptions(this)">
                                         <div class="multi-select-options">
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_solutions" value="pos"
-                                                    class="multi-select-checkbox" onchange="updateTags('solutions')">
-                                                <span>POS</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_solutions" value="ecommerce"
-                                                    class="multi-select-checkbox" onchange="updateTags('solutions')">
-                                                <span>E-commerce</span>
-                                            </label>
-                                            <label class="multi-select-option">
-                                                <input type="checkbox" name="required_solutions" value="mobile"
-                                                    class="multi-select-checkbox" onchange="updateTags('solutions')">
-                                                <span>Mobile App</span>
-                                            </label>
+                                            @forelse ($solutions as $solution)
+                                                <label class="multi-select-option">
+                                                    <input type="checkbox" name="required_solutions"
+                                                        value="{{ $solution->slug }}"
+                                                        data-label="{{ $solution->name }}"
+                                                        class="multi-select-checkbox" onchange="updateTags('solutions')">
+                                                    <span>{{ $solution->name }}</span>
+                                                </label>
+                                            @empty
+                                                <div class="px-3 py-2 text-sm text-gray-400">No published solutions found</div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
@@ -756,10 +744,11 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">KYC Section</label>
                                 <select id="kyc-section" name="kyc_section" class="form-input">
                                     <option value="">Select section...</option>
-                                    <option value="company">Company Information</option>
-                                    <option value="beneficial">Beneficial Owners</option>
-                                    <option value="board">Board Members</option>
-                                    <option value="contact">Contact Person</option>
+                                    @forelse ($kycSections as $section)
+                                        <option value="{{ $section->slug }}">{{ $section->name }}</option>
+                                    @empty
+                                        <option value="" disabled>No active KYC sections found</option>
+                                    @endforelse
                                 </select>
                             </div>
                         </div>
@@ -1111,19 +1100,11 @@
 
                 tagsContainer.innerHTML = '';
                 const labelMap = {
-                    'elavon': 'Elavon',
-                    'surfboard': 'Surfboard',
-                    'stripe': 'Stripe',
-                    'uk': 'UK',
-                    'no': 'Norway',
-                    'us': 'USA',
-                    'pos': 'POS',
-                    'ecommerce': 'E-commerce',
-                    'mobile': 'Mobile'
+                    // Dynamic options use data-label from checkbox elements.
                 };
 
                 checked.forEach(checkbox => {
-                    const label = labelMap[checkbox.value] || checkbox.value;
+                    const label = checkbox.dataset.label || labelMap[checkbox.value] || checkbox.value;
                     const tag = document.createElement('span');
                     tag.className = 'multi-select-tag';
                     tag.innerHTML = `
