@@ -551,7 +551,7 @@
                                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                     @endforeach
                                 </select>
-                                <p class="text-xs text-gray-400 mt-1">Manage categories in <a href="{{ route('admin.categories.index') }}" class="text-brand-secondary hover:underline" target="_blank">Categories Master</a></p>
+                                <p class="text-xs text-gray-400 mt-1">Manage categories in <a href="{{ route('admin.masters.document-type-category-master') }}" class="text-brand-secondary hover:underline" target="_blank">Document Type Categories</a></p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Description <span
