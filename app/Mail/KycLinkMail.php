@@ -18,7 +18,8 @@ class KycLinkMail extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public Onboarding $onboarding
+        public Onboarding $onboarding,
+        public ?string $merchantPassword = null
     )
     {
         //
@@ -49,6 +50,7 @@ class KycLinkMail extends Mailable
                 'solutionName' => $this->onboarding->solution?->name ?? 'N/A',
                 'partnerName' => $this->onboarding->partner?->title ?? 'Direct',
                 'merchantEmail' => $this->onboarding->merchant_contact_email,
+                'merchantPassword' => $this->merchantPassword,
                 'merchantName' => $this->onboarding->legal_business_name,
                 'welcomePageUrl' => route('merchant.kyc.start', $this->onboarding->kyc_link),
             ]

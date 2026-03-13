@@ -592,17 +592,24 @@
                         <td>Email:</td>
                         <td>{{ $merchantEmail }}</td>
                     </tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr>
-                        <td>Password:</td>
-                        <td>password123</td>
-                    </tr>
+                    @if($merchantPassword)
+                        <tr></tr>
+                        <tr></tr>
+                        <tr>
+                            <td>Password:</td>
+                            <td>{{ $merchantPassword }}</td>
+                        </tr>
+                    @endif
                 </table>
 
                 <div class="quick-access">
                     <strong>⚡ Quick Access:</strong>
-                    Use the button above to go directly to your welcome page. If needed, you can sign in manually using the credentials shown above.
+                    Use the button above to go directly to your welcome page.
+                    @if($merchantPassword)
+                        If needed, you can sign in manually using the credentials shown above.
+                    @else
+                        If you already have access, sign in with your existing password.
+                    @endif
                 </div>
             </div>
 

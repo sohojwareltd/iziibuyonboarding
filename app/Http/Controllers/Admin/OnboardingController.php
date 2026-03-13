@@ -84,25 +84,19 @@ class OnboardingController extends Controller
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : 'draft';
         $userId = auth()->id() ?? User::first()?->id ?? 1;
-        $merchantRole = Role::firstOrCreate(
-            ['name' => 'Merchant'],
-            ['description' => 'Merchant user']
-        );
-        $merchantUser = User::firstOrCreate(
-            ['email' => $validated['merchant_contact_email']],
-            [
-                'name' => $validated['legal_business_name'],
-                'role_id' => $merchantRole->id,
-                'password' => Hash::make('password123'),
-            ]
-        );
+        $merchantUser = null;
+        $merchantPassword = null;
+
+        if ($status === 'sent') {
+            ['user' => $merchantUser, 'plain_password' => $merchantPassword] = $this->resolveMerchantUser($validated);
+        }
 
         $onboarding = Onboarding::create([
             ...$validated,
             'request_id' => Onboarding::generateRequestId(),
             'status' => $status,
             'created_by' => $userId,
-            'merchant_user_id' => $merchantUser->id,
+            'merchant_user_id' => $merchantUser?->id,
             'sent_at' => $status === 'sent' ? now() : null,
             'kyc_link' => $status === 'sent' ? Onboarding::generateKycLink() : null,
         ]);
@@ -111,7 +105,7 @@ class OnboardingController extends Controller
         if ($action === 'send' && $onboarding->kyc_link) {
             try {
                 Mail::to($onboarding->merchant_contact_email)
-                    ->send(new KycLinkMail($onboarding));
+                    ->send(new KycLinkMail($onboarding, $merchantPassword));
                 
                 return redirect()
                     ->route('admin.onboarding.index')
@@ -188,23 +182,17 @@ class OnboardingController extends Controller
         $action = $request->input('action', 'draft');
         $status = $action === 'send' ? 'sent' : $onboarding->status;
         $shouldSendEmail = $action === 'send' && $onboarding->status !== 'sent';
-        $merchantRole = Role::firstOrCreate(
-            ['name' => 'Merchant'],
-            ['description' => 'Merchant user']
-        );
-        $merchantUser = User::firstOrCreate(
-            ['email' => $validated['merchant_contact_email']],
-            [
-                'name' => $validated['legal_business_name'],
-                'role_id' => $merchantRole->id,
-                'password' => Hash::make('password123'),
-            ]
-        );
+        $merchantUser = null;
+        $merchantPassword = null;
+
+        if ($status === 'sent' || !is_null($onboarding->merchant_user_id)) {
+            ['user' => $merchantUser, 'plain_password' => $merchantPassword] = $this->resolveMerchantUser($validated);
+        }
 
         $onboarding->update([
             ...$validated,
             'status' => $status,
-            'merchant_user_id' => $merchantUser->id,
+            'merchant_user_id' => $merchantUser?->id,
             'sent_at' => $status === 'sent' && is_null($onboarding->sent_at) ? now() : $onboarding->sent_at,
             'kyc_link' => $status === 'sent' && is_null($onboarding->kyc_link) ? Onboarding::generateKycLink() : $onboarding->kyc_link,
         ]);
@@ -213,7 +201,7 @@ class OnboardingController extends Controller
         if ($shouldSendEmail && $onboarding->kyc_link) {
             try {
                 Mail::to($onboarding->merchant_contact_email)
-                    ->send(new KycLinkMail($onboarding));
+                    ->send(new KycLinkMail($onboarding, $merchantPassword));
                 
                 return redirect()
                     ->route('admin.onboarding.index')
@@ -283,6 +271,28 @@ class OnboardingController extends Controller
             'paymentMethodNames',
             'kycPercent'
         ));
+    }
+
+    private function resolveMerchantUser(array $validated): array
+    {
+        $merchantRole = Role::firstOrCreate(
+            ['name' => 'Merchant'],
+            ['description' => 'Merchant user']
+        );
+        $merchantPassword = Str::password(length: 20, letters: true, numbers: true, symbols: true, spaces: false);
+        $merchantUser = User::firstOrCreate(
+            ['email' => $validated['merchant_contact_email']],
+            [
+                'name' => $validated['legal_business_name'],
+                'role_id' => $merchantRole->id,
+                'password' => Hash::make($merchantPassword),
+            ]
+        );
+
+        return [
+            'user' => $merchantUser,
+            'plain_password' => $merchantUser->wasRecentlyCreated ? $merchantPassword : null,
+        ];
     }
 }
 
