@@ -5,7 +5,7 @@
 @php
     $isOnboardingActive = request()->routeIs('admin.onboarding.*');
     $isOnboardingExpanded = $isOnboardingActive;
-    $isMastersActive = request()->routeIs('admin.masters.*') || request()->routeIs('admin.categories.*');
+    $isMastersActive = request()->routeIs('admin.masters.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.masters.document-type-categories.*');
     $isMastersExpanded = $isMastersActive;
 @endphp
 
@@ -150,9 +150,9 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('admin.categories.index') }}" 
-                                   class="{{ request()->routeIs('admin.categories.*') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
-                                    Category Master
+                                <a href="{{ route('admin.masters.document-type-category-master') }}" 
+                                   class="{{ request()->routeIs('admin.masters.document-type-categories.*') || request()->routeIs('admin.masters.document-type-category-master') ? 'nav-item-sub-active text-white text-sm py-2 block font-semibold transition-colors' : 'nav-item-sub text-white text-sm py-2 block hover:bg-white/10 transition-colors' }}">
+                                    Document Type Categories
                                 </a>
                             </li>
                         </ul>
@@ -175,6 +175,7 @@
                         <i class="fa-solid fa-clipboard-list w-5 mr-3"></i>Audit Logs
                     </a>
                 </li>
+             
                 <li>
                     <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'nav-item-active text-white text-sm py-3 block font-semibold px-6' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }}">
                         <i class="fa-solid fa-icons w-5 mr-3"></i>Category Management

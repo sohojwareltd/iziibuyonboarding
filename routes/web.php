@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DocumentTypeCategoryController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\SolutionMasterController;
@@ -72,6 +73,8 @@ Route::prefix('admin')
                     Route::resource('price-lists', \App\Http\Controllers\Admin\PriceListMasterController::class);
                     Route::get('/price-list-master', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'index'])->name('price-list-master');
                     Route::get('/price-list-master/export', [\App\Http\Controllers\Admin\PriceListMasterController::class, 'export'])->name('price-list-master.export');
+                    Route::resource('document-type-categories', DocumentTypeCategoryController::class);
+                    Route::get('/document-type-category-master', [DocumentTypeCategoryController::class, 'index'])->name('document-type-category-master');
                 });
 
             Route::resource('partners', PartnerController::class);
