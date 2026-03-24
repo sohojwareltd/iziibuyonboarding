@@ -1,4 +1,4 @@
-@props(['label' => null, 'required' => false, 'accept' => '.pdf,.jpg,.jpeg,.png', 'maxSize' => '5MB', 'icon' => 'cloud-arrow-up'])
+@props(['label' => null, 'name' => null, 'required' => false, 'accept' => '.pdf,.jpg,.jpeg,.png', 'maxSize' => '5MB', 'icon' => 'cloud-arrow-up'])
 
 <div 
     {{ $attributes->merge([
@@ -21,6 +21,7 @@
     <input 
         type="file" 
         class="hidden" 
+        @if($name) name="{{ $name }}" @endif
         accept="{{ $accept }}"
         @if($required) required @endif
     >

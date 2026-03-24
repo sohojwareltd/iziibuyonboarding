@@ -49,6 +49,20 @@
     }
 
     $scalarValue = is_array($value) ? null : (isset($value) ? (string) $value : null);
+
+    $documentType = $field->documentType ?? null;
+    $allowedFileTypes = is_array($documentType?->allowed_file_types) ? $documentType->allowed_file_types : ['pdf', 'jpg', 'jpeg', 'png'];
+    $acceptValue = collect($allowedFileTypes)
+        ->filter(fn ($ext) => is_string($ext) && $ext !== '')
+        ->map(fn ($ext) => '.' . ltrim(strtolower($ext), '.'))
+        ->unique()
+        ->values()
+        ->implode(',');
+    $maxFileSizeLabel = ($documentType?->max_file_size ?? 5) . 'MB';
+
+    if ($acceptValue === '') {
+        $acceptValue = '.pdf,.jpg,.jpeg,.png';
+    }
 @endphp
 
 <div class="kyc-field" data-field-id="{{ $field->id }}" data-field-type="{{ $dataType }}">
@@ -248,8 +262,8 @@
                 :label="$fieldLabel"
                 :required="$isRequired"
                 name="{{ $fieldName }}"
-                accept=".pdf,.jpg,.jpeg,.png"
-                maxSize="5MB"
+                :accept="$acceptValue"
+                :maxSize="$maxFileSizeLabel"
             />
             @break
 

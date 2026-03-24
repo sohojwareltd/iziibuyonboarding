@@ -14,6 +14,7 @@ class KYCFieldMaster extends Model
         'kyc_section_id',
         'description',
         'data_type',
+        'document_type_id',
         'options',
         'is_required',
         'sensitivity_level',
@@ -42,5 +43,13 @@ class KYCFieldMaster extends Model
     public function kycSection()
     {
         return $this->belongsTo(KycSection::class, 'kyc_section_id');
+    }
+
+    /**
+     * Get the linked document type rule set for file upload fields.
+     */
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentTypesMaster::class, 'document_type_id');
     }
 }

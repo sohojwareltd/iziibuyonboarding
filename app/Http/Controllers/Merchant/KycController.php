@@ -28,7 +28,8 @@ class KycController extends Controller
     {
         $countryCode = $this->normalizeOnboardingCountry($onboarding);
 
-        return $query->where('status', 'active')
+        return $query->with('documentType')
+            ->where('status', 'active')
             ->where('visible_to_merchant', true)
             ->where(function ($q) use ($countryCode) {
                 $q->whereNull('visible_countries')
@@ -40,6 +41,39 @@ class KycController extends Controller
                 }
             })
             ->orderBy('sort_order');
+    }
+
+    private function buildDocumentTypeFileRules(KycSection $sectionModel): array
+    {
+        $rules = [];
+
+        $fileFields = $sectionModel->kycFields
+            ->where('data_type', 'file')
+            ->filter(fn ($field) => $field->documentType !== null);
+
+        foreach ($fileFields as $field) {
+            $allowedTypes = collect((array) $field->documentType->allowed_file_types)
+                ->filter(fn ($ext) => is_string($ext) && trim($ext) !== '')
+                ->map(fn ($ext) => ltrim(strtolower(trim($ext)), '.'))
+                ->unique()
+                ->values()
+                ->all();
+
+            $maxSizeMb = max((int) ($field->documentType->max_file_size ?? 0), 1);
+            $baseRules = ['sometimes', 'file', 'max:' . ($maxSizeMb * 1024)];
+
+            if (!empty($allowedTypes)) {
+                $baseRules[] = 'mimes:' . implode(',', $allowedTypes);
+            }
+
+            $fieldId = (string) $field->id;
+            $rules['dynamic_fields.' . $fieldId . '.value'] = $baseRules;
+            $rules['bo_fields.*.' . $fieldId . '.value'] = $baseRules;
+            $rules['bm_fields.*.' . $fieldId . '.value'] = $baseRules;
+            $rules['as_fields.*.' . $fieldId . '.value'] = $baseRules;
+        }
+
+        return $rules;
     }
 
     private function resolveOnboardingByKycLink(?string $kyc_link): ?Onboarding
@@ -360,6 +394,7 @@ class KycController extends Controller
             ]);
 
             $sectionModel = KycSection::where('slug', $section)->firstOrFail();
+            $sectionModel->load(['kycFields' => fn ($query) => $query->with('documentType')]);
             $onboarding = Onboarding::findOrFail((int) $validated['onboarding_id']);
 
             if ($onboarding->kyc_link !== $kyc_link) {
@@ -367,6 +402,11 @@ class KycController extends Controller
                     'success' => false,
                     'message' => 'Onboarding mismatch for this KYC link.',
                 ], 403);
+            }
+
+            $fileRules = $this->buildDocumentTypeFileRules($sectionModel);
+            if (!empty($fileRules)) {
+                $request->validate($fileRules);
             }
 
             if (!empty($validated['bo_fields']) && is_array($validated['bo_fields'])) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
+use App\Models\DocumentTypesMaster;
 use App\Models\KYCFieldMaster;
 use App\Models\KycSection;
 use Illuminate\Http\Request;
@@ -47,7 +48,12 @@ class KYCFieldMasterController extends Controller
         $kycFields = $query->orderBy('sort_order')->paginate(15)->withQueryString();
         $kycSections = KycSection::active()->ordered()->get();
         $countries = Country::orderBy('name')->get(['id', 'name', 'code']);
-        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections', 'countries'));
+        $documentTypes = DocumentTypesMaster::query()
+            ->where('status', 'active')
+            ->orderBy('document_name')
+            ->get(['id', 'document_name', 'allowed_file_types', 'max_file_size']);
+
+        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections', 'countries', 'documentTypes'));
     }
 
     /**
@@ -62,6 +68,7 @@ class KYCFieldMasterController extends Controller
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,url,password,time,datetime-local,file,dropdown,multi-select,checkbox,radio,textarea,country,currency,address,signature',
+                'document_type_id' => 'nullable|required_if:data_type,file|exists:document_types_masters,id',
                 'options' => 'nullable|array',
                 'options.*.label' => 'required_with:options|string|max:255',
                 'options.*.value' => 'required_with:options|string|max:255',
@@ -79,6 +86,10 @@ class KYCFieldMasterController extends Controller
             $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio', 'country'];
             if (!in_array($validated['data_type'], $choiceTypes)) {
                 $validated['options'] = null;
+            }
+
+            if (($validated['data_type'] ?? null) !== 'file') {
+                $validated['document_type_id'] = null;
             }
 
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));
@@ -127,6 +138,7 @@ class KYCFieldMasterController extends Controller
                 'kyc_section_id' => 'required|exists:kyc_sections,id',
                 'description' => 'nullable|string',
                 'data_type' => 'required|in:text,date,number,email,tel,url,password,time,datetime-local,file,dropdown,multi-select,checkbox,radio,textarea,country,currency,address,signature',
+                'document_type_id' => 'nullable|required_if:data_type,file|exists:document_types_masters,id',
                 'options' => 'nullable|array',
                 'options.*.label' => 'required_with:options|string|max:255',
                 'options.*.value' => 'required_with:options|string|max:255',
@@ -144,6 +156,10 @@ class KYCFieldMasterController extends Controller
             $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio', 'country'];
             if (!in_array($validated['data_type'], $choiceTypes)) {
                 $validated['options'] = null;
+            }
+
+            if (($validated['data_type'] ?? null) !== 'file') {
+                $validated['document_type_id'] = null;
             }
 
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));

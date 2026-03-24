@@ -864,6 +864,23 @@
                                 </select>
                             </div>
 
+                            <div id="document-type-section" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Document Type Rule <span class="text-red-500">*</span></label>
+                                <select id="document-type-id" name="document_type_id" class="form-input">
+                                    <option value="">Select document type...</option>
+                                    @foreach ($documentTypes as $documentType)
+                                        <option
+                                            value="{{ $documentType->id }}"
+                                            data-allowed-types="{{ implode(',', (array) $documentType->allowed_file_types) }}"
+                                            data-max-size="{{ $documentType->max_file_size }}"
+                                        >
+                                            {{ $documentType->document_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Selected document type will control merchant-side file format and size validation.</p>
+                            </div>
+
                             <!-- Options Builder — shown only for dropdown, multi-select, checkbox, radio -->
                             <div id="options-section" class="hidden space-y-3">
                                 <div class="flex items-center justify-between">
@@ -1215,6 +1232,9 @@
         // Reset options
         document.getElementById('options-section').classList.add('hidden');
         document.getElementById('options-list').innerHTML = '';
+        document.getElementById('document-type-section').classList.add('hidden');
+        document.getElementById('document-type-id').required = false;
+        document.getElementById('document-type-id').value = '';
     }
 
     function toggleRequired() {
@@ -1233,6 +1253,18 @@
 
     function handleDataTypeChange(type) {
         const section = document.getElementById('options-section');
+        const documentTypeSection = document.getElementById('document-type-section');
+        const documentTypeInput = document.getElementById('document-type-id');
+
+        if (type === 'file') {
+            documentTypeSection.classList.remove('hidden');
+            documentTypeInput.required = true;
+        } else {
+            documentTypeSection.classList.add('hidden');
+            documentTypeInput.required = false;
+            documentTypeInput.value = '';
+        }
+
         if (CHOICE_TYPES.includes(type)) {
             section.classList.remove('hidden');
             if (document.getElementById('options-list').children.length === 0) {
@@ -1330,7 +1362,9 @@
                 document.getElementById('kyc-section').value = data.kyc_section_id;
                 document.getElementById('description').value = data.description || '';
                 document.getElementById('data-type').value = data.data_type;
+                document.getElementById('document-type-id').value = data.document_type_id || '';
                 document.getElementById('sensitivity-level').value = data.sensitivity_level;
+                handleDataTypeChange(data.data_type);
 
                 // Handle options for choice types
                 if (CHOICE_TYPES.includes(data.data_type)) {

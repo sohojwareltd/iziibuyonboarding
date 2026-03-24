@@ -6,6 +6,8 @@ use App\Models\Information;
 use App\Models\KYCFieldMaster;
 use App\Models\KycSection;
 use App\Models\Onboarding;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class KycFieldDataService
 {
@@ -34,6 +36,28 @@ class KycFieldDataService
             }
 
             $value = $entry['value'];
+            if ($value instanceof UploadedFile) {
+                $value = $value->store('kyc/uploads', 'public');
+            }
+
+            $existing = Information::query()->where([
+                'onboarding_id' => $onboardingId,
+                'kyc_section_id' => $sectionId,
+                'kyc_field_master_id' => $field->id,
+                'group_index' => $groupIndex,
+            ])->first();
+
+            if (
+                is_string($value)
+                && str_starts_with($value, 'kyc/uploads/')
+                && $existing?->field_value
+                && is_string($existing->field_value)
+                && $existing->field_value !== $value
+                && str_starts_with($existing->field_value, 'kyc/uploads/')
+            ) {
+                Storage::disk('public')->delete($existing->field_value);
+            }
+
             $storedValue = is_array($value)
                 ? json_encode($value)
                 : ($value === null ? null : (string) $value);
