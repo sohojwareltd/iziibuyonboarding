@@ -1327,6 +1327,75 @@
         }
     }
 
+    const FRIENDLY_FIELD_LABELS = {
+        field_name: 'Field Name',
+        internal_key: 'Internal Key',
+        kyc_section_id: 'KYC Section',
+        description: 'Description',
+        data_type: 'Data Type',
+        document_type_id: 'Document Type Rule',
+        options: 'Options',
+        is_required: 'Required Setting',
+        sensitivity_level: 'Sensitivity Level',
+        visible_to_merchant: 'Visible to Merchant',
+        visible_to_admin: 'Visible to Admin',
+        visible_to_partner: 'Visible to Partner',
+        visible_countries: 'Country Visibility',
+        sort_order: 'Sort Order',
+        status: 'Status',
+    };
+
+    function toTitleCase(value) {
+        return String(value || '')
+            .replace(/[_.]+/g, ' ')
+            .trim()
+            .split(' ')
+            .filter(Boolean)
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    }
+
+    function getFriendlyFieldLabel(fieldPath) {
+        const normalized = String(fieldPath || '').replace(/\[(\d+)\]/g, '.$1');
+        const parts = normalized.split('.').filter(Boolean);
+        const root = parts[0] || normalized;
+
+        if (root === 'options' && parts.length >= 3) {
+            const rowIndex = Number(parts[1]);
+            const nested = parts[2] === 'value' ? 'Value' : 'Label';
+            return `Option #${Number.isFinite(rowIndex) ? rowIndex + 1 : '?'} ${nested}`;
+        }
+
+        if (root === 'visible_countries' && parts.length >= 2) {
+            const rowIndex = Number(parts[1]);
+            return `Country Visibility (item #${Number.isFinite(rowIndex) ? rowIndex + 1 : '?'})`;
+        }
+
+        return FRIENDLY_FIELD_LABELS[root] || toTitleCase(root);
+    }
+
+    function showValidationErrors(errors) {
+        const entries = Object.entries(errors || {});
+
+        if (!entries.length) {
+            showNotification('Please review your input and try again.', 'error');
+            return;
+        }
+
+        const flattened = [];
+        entries.forEach(([field, messages]) => {
+            (messages || []).forEach(message => {
+                flattened.push(`${getFriendlyFieldLabel(field)}: ${message}`);
+            });
+        });
+
+        flattened.slice(0, 4).forEach(message => showNotification(message, 'error'));
+
+        if (flattened.length > 4) {
+            showNotification(`+${flattened.length - 4} more validation issue(s).`, 'error');
+        }
+    }
+
     function editKYCField(id) {
         fetch(`/admin/masters/kyc-fields/${id}`, {
                 headers: {
@@ -1510,9 +1579,7 @@
                     setTimeout(() => location.reload(), 1500);
                 } else if (data.errors) {
                     console.log('Validation errors:', data.errors);
-                    Object.keys(data.errors).forEach(field => {
-                        showNotification(`${field}: ${data.errors[field][0]}`, 'error');
-                    });
+                    showValidationErrors(data.errors);
                 }
             })
             .catch(error => {
