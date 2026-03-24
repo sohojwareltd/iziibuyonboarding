@@ -36,7 +36,8 @@ class OnboardingController extends Controller
         $solutions = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters', 'acquirerMasters'])
             ->orderBy('name')->get();
         $partners = Partner::orderBy('title')->get();
-        $paymentMethods = PaymentMethodMaster::where('is_active', true)
+        $paymentMethods = PaymentMethodMaster::with(['countries:id,name,code'])
+            ->where('is_active', true)
             ->orderBy('display_label')
             ->get();
         $acquirers = AcquirerMaster::where('is_active', true)
@@ -127,7 +128,8 @@ class OnboardingController extends Controller
         $solutions = SolutionMaster::with(['category', 'countries', 'paymentMethodMasters', 'acquirerMasters'])
             ->orderBy('name')->get();
         $partners = Partner::orderBy('title')->get();
-        $paymentMethods = PaymentMethodMaster::where('is_active', true)
+        $paymentMethods = PaymentMethodMaster::with(['countries:id,name,code'])
+            ->where('is_active', true)
             ->orderBy('display_label')
             ->get();
         $acquirers = AcquirerMaster::where('is_active', true)

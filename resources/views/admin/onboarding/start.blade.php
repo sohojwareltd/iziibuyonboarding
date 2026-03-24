@@ -687,6 +687,42 @@
                 @endforeach
             };
 
+            // Payment Method master constraints mapping
+            const paymentMethodsData = {
+                @foreach ($paymentMethods as $method)
+                    @php
+                        $pmSupportedCountries = collect($method->countries->pluck('code')->all())
+                            ->merge($method->supported_countries ?? [])
+                            ->filter()
+                            ->map(fn ($value) => strtolower((string) $value))
+                            ->unique()
+                            ->values()
+                            ->all();
+
+                        $pmSupportedSolutions = collect($method->supported_solutions ?? [])
+                            ->filter()
+                            ->map(fn ($value) => (string) $value)
+                            ->values()
+                            ->all();
+
+                        $pmSupportedAcquirers = collect($method->supported_acquirers ?? [])
+                            ->map(function ($acquirer) {
+                                return [
+                                    'id' => (string) data_get($acquirer, 'id', ''),
+                                    'name' => (string) data_get($acquirer, 'name', ''),
+                                ];
+                            })
+                            ->values()
+                            ->all();
+                    @endphp
+                    {{ $method->id }}: {
+                        supportedCountries: @json($pmSupportedCountries),
+                        supportedSolutions: @json($pmSupportedSolutions),
+                        supportedAcquirers: @json($pmSupportedAcquirers),
+                    },
+                @endforeach
+            };
+
             // Acquirer master constraints mapping
             const acquirersData = {
                 @foreach ($acquirers as $acquirer)
@@ -778,6 +814,18 @@
                         tokens.push(normalizeToken(input.value));
                     });
                     return tokens;
+                }
+
+                function getSelectedAcquirerIds() {
+                    const ids = [];
+                    document.querySelectorAll('[data-acquirer]:checked').forEach(input => {
+                        const card = input.closest('[data-acquirer-card]');
+                        const acquirerId = card ? String(card.getAttribute('data-acquirer-id') || '') : '';
+                        if (acquirerId) {
+                            ids.push(acquirerId);
+                        }
+                    });
+                    return ids;
                 }
 
                 function updatePriceListOptions() {
@@ -1041,7 +1089,6 @@
                 function updateSolutionFilters(solutionId) {
                     const data = solutionsData[solutionId];
                     const countrySelect = document.querySelector('select[name="country_of_operation"]');
-                    const allowedPaymentMethodNames = (data?.paymentMethods || []).map(normalizeToken);
                     const allowedPaymentMethodIds = (data?.paymentMethodIds || []).map(String);
                     const allowedAcquirerSlugs = (data?.acquirers || []).map(normalizeToken);
                     const allowedAcquirerIds = (data?.acquirerIds || []).map(String);
@@ -1071,29 +1118,8 @@
                     }
 
                     const selectedCountryTokens = getSelectedCountryTokens();
-
-                    // --- Filter payment method pills ---
-                    const pmWrappers = document.querySelectorAll('[data-pm-wrapper]');
-                    pmWrappers.forEach(wrapper => {
-                        const methodName = normalizeToken(wrapper.getAttribute('data-pm-wrapper'));
-                        const methodId = String(wrapper.getAttribute('data-pm-id') || '');
-                        if (!data) {
-                            wrapper.style.display = '';
-                        } else if (allowedPaymentMethodIds.includes(methodId) ||
-                            allowedPaymentMethodNames.includes(methodName)) {
-                            wrapper.style.display = '';
-                        } else {
-                            wrapper.style.display = 'none';
-                            // Uncheck hidden payment methods
-                            const input = wrapper.querySelector('input[type="checkbox"]');
-                            if (input) input.checked = false;
-                            const btn = wrapper.querySelector('button');
-                            if (btn) {
-                                btn.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary');
-                                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
-                            }
-                        }
-                    });
+                    const selectedAcquirerTokens = getSelectedAcquirerTokens();
+                    const selectedAcquirerIds = getSelectedAcquirerIds();
 
                     // --- Filter acquirer cards ---
                     const acquirerCards = document.querySelectorAll('[data-acquirer-slug]');
@@ -1118,9 +1144,8 @@
                         const matchesAcquirerMasterSolution = supportedSolutions.length === 0 ||
                             supportedSolutions.includes(selectedSolutionId);
 
-                        // Allow acquirer if either Solution Master map OR Acquirer Master solution map matches.
                         const passesSolutionConstraint = !selectedSolutionId ||
-                            matchesSolutionMasterMap || matchesAcquirerMasterSolution;
+                            (matchesSolutionMasterMap && matchesAcquirerMasterSolution);
 
                         const passesAcquirerCountry = selectedCountryTokens.length === 0 || supportedCountries
                             .length === 0 ||
@@ -1135,6 +1160,64 @@
                             // Uncheck hidden acquirers
                             const input = card.querySelector('input[type="checkbox"]');
                             if (input) input.checked = false;
+                        }
+                    });
+
+                    // --- Filter payment method pills ---
+                    const pmWrappers = document.querySelectorAll('[data-pm-wrapper]');
+                    pmWrappers.forEach(wrapper => {
+                        const methodId = String(wrapper.getAttribute('data-pm-id') || '');
+                        const methodMeta = paymentMethodsData[methodId] || {
+                            supportedCountries: [],
+                            supportedSolutions: [],
+                            supportedAcquirers: []
+                        };
+
+                        const supportedCountries = (Array.isArray(methodMeta.supportedCountries) ? methodMeta
+                            .supportedCountries : [])
+                            .map(normalizeToken)
+                            .filter(Boolean);
+                        const supportedSolutions = (Array.isArray(methodMeta.supportedSolutions) ? methodMeta
+                            .supportedSolutions : [])
+                            .map(value => String(value))
+                            .filter(Boolean);
+                        const supportedAcquirers = Array.isArray(methodMeta.supportedAcquirers) ? methodMeta
+                            .supportedAcquirers : [];
+                        const supportedAcquirerIds = supportedAcquirers
+                            .map(item => String(item?.id || ''))
+                            .filter(Boolean);
+                        const supportedAcquirerNames = supportedAcquirers
+                            .map(item => normalizeToken(item?.name || ''))
+                            .filter(Boolean);
+
+                        const matchesSolutionMasterMap = allowedPaymentMethodIds.includes(methodId);
+                        const matchesPaymentMethodMasterSolution = supportedSolutions.length === 0 ||
+                            supportedSolutions.includes(selectedSolutionId);
+                        const matchesSolutionConstraint = !selectedSolutionId ||
+                            (matchesSolutionMasterMap && matchesPaymentMethodMasterSolution);
+                        const matchesPaymentMethodCountry = selectedCountryTokens.length === 0 || supportedCountries
+                            .length === 0 ||
+                            selectedCountryTokens.some(token => supportedCountries.includes(token));
+                        const matchesPaymentMethodAcquirer = (selectedAcquirerIds.length === 0 &&
+                                selectedAcquirerTokens.length === 0) ||
+                            (supportedAcquirerIds.length === 0 && supportedAcquirerNames.length === 0) ||
+                            selectedAcquirerIds.some(id => supportedAcquirerIds.includes(id)) ||
+                            selectedAcquirerTokens.some(token => supportedAcquirerNames.includes(token));
+
+                        const visible = matchesSolutionConstraint &&
+                            matchesPaymentMethodCountry && matchesPaymentMethodAcquirer;
+
+                        if (visible) {
+                            wrapper.style.display = '';
+                        } else {
+                            wrapper.style.display = 'none';
+                            const input = wrapper.querySelector('input[type="checkbox"]');
+                            if (input) input.checked = false;
+                            const btn = wrapper.querySelector('button');
+                            if (btn) {
+                                btn.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary');
+                                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+                            }
                         }
                     });
                 }
@@ -1189,6 +1272,7 @@
                             }
                         }
 
+                        updateSolutionFilters(solutionSelect ? solutionSelect.value : '');
                         updatePriceListOptions();
                     });
                 });
