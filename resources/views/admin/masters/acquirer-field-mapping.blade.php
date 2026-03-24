@@ -3,6 +3,7 @@
 @section('head')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Acquirer Field Mapping - 2iZii</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -188,6 +189,27 @@
         /* Drag Handle */
         .drag-handle { cursor: grab; transition: color 0.2s; }
         .drag-handle:hover { color: #4055A8; }
+        .field-row[draggable="true"] { cursor: grab; }
+        .field-row.is-dragging {
+            opacity: 0.55;
+            box-shadow: 0 10px 30px rgba(64, 85, 168, 0.18);
+        }
+        .section-dropzone {
+            min-height: 24px;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .section-dropzone.drag-over,
+        .field-section.drag-over .section-header {
+            background-color: rgba(64, 85, 168, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(64, 85, 168, 0.18);
+        }
+        .drop-placeholder {
+            height: 52px;
+            margin: 8px 12px;
+            border: 2px dashed #93C5FD;
+            border-radius: 12px;
+            background: rgba(147, 197, 253, 0.12);
+        }
 
         /* Preview Tabs */
         .preview-tabs {
@@ -330,9 +352,9 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3 flex-shrink-0">
-                                    <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2">
-                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                        <span class="hidden xs:inline">Last saved: </span>Feb 11, 2026
+                                    <div id="mapping-save-status" class="bg-slate-50 border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all">
+                                        <span class="w-2 h-2 bg-slate-400 rounded-full"></span>
+                                        <span>Loaded from KYC Field Master</span>
                                     </div>
                                 </div>
                             </div>
@@ -540,7 +562,7 @@
                                                 $isFirst = $sIndex === 0;
                                                 $mandatoryPct = $fieldCount > 0 ? round(($mandatoryCount / $fieldCount) * 100) : 0;
                                             @endphp
-                                            <div class="field-section" data-section-name="{{ Str::lower($section->name) }}">
+                                            <div class="field-section" data-section-id="{{ $section->id }}" data-section-name="{{ Str::lower($section->name) }}">
                                                 {{-- Section Header --}}
                                                 <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-3 sm:px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this)">
                                                     <div class="flex items-center gap-3">
@@ -549,7 +571,7 @@
                                                             <i class="fa-solid {{ $icon }} text-brand-cta text-xs"></i>
                                                         </div>
                                                         <span class="font-bold text-brand-primary text-sm">{{ $section->name }}</span>
-                                                        <span class="{{ $color['badge_bg'] }} {{ $color['badge_text'] }} px-2 py-0.5 rounded-md text-[10px] font-bold">{{ $fieldCount }}</span>
+                                                        <span class="section-field-count {{ $color['badge_bg'] }} {{ $color['badge_text'] }} px-2 py-0.5 rounded-md text-[10px] font-bold">{{ $fieldCount }}</span>
                                                     </div>
                                                     <div class="flex items-center gap-4">
                                                         {{-- Mini progress bar --}}
@@ -558,14 +580,14 @@
                                                                 <div class="section-progress w-20">
                                                                     <div class="section-progress-fill {{ $color['progress'] }}" style="width: {{ $mandatoryPct }}%"></div>
                                                                 </div>
-                                                                <span class="text-[10px] text-gray-500 font-medium tabular-nums">{{ $mandatoryCount }}/{{ $fieldCount }}</span>
+                                                                <span class="section-progress-label text-[10px] text-gray-500 font-medium tabular-nums">{{ $mandatoryCount }}/{{ $fieldCount }}</span>
                                                             </div>
                                                         @endif
-                                                        <div class="text-[11px] text-gray-500 font-medium">
+                                                        <div class="section-summary text-[11px] text-gray-500 font-medium">
                                                             @if ($fieldCount > 0)
-                                                                <span class="text-emerald-600 font-semibold">{{ $mandatoryCount }}</span> req
+                                                                <span class="section-mandatory-count text-emerald-600 font-semibold">{{ $mandatoryCount }}</span> req
                                                                 <span class="text-gray-300 mx-0.5">&middot;</span>
-                                                                <span class="text-amber-600 font-semibold">{{ $optionalCount }}</span> opt
+                                                                <span class="section-optional-count text-amber-600 font-semibold">{{ $optionalCount }}</span> opt
                                                             @else
                                                                 <span class="text-gray-400 italic">Empty</span>
                                                             @endif
@@ -575,77 +597,78 @@
 
                                                 {{-- Section Content --}}
                                                 <div class="section-content {{ $isFirst ? '' : 'collapsed' }}">
-                                                    @forelse ($section->kycFields as $field)
-                                                        @php
-                                                            $dtStyle = $dataTypeStyles[$field->data_type] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-code'];
-                                                        @endphp
-                                                        <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
-                                                            <div class="w-8 flex items-center justify-center">
-                                                                <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
-                                                            </div>
-                                                            <div class="flex-1 min-w-0">
-                                                                <div class="flex items-center gap-2 mb-0.5">
-                                                                    <span class="font-semibold text-gray-800 text-sm truncate">{{ $field->field_name }}</span>
-                                                                    @if ($field->is_required)
-                                                                        <span class="flex-shrink-0 bg-emerald-100 text-emerald-700 px-1.5 py-px rounded text-[10px] font-bold flex items-center gap-0.5">
-                                                                            <i class="fa-solid fa-asterisk" style="font-size: 6px;"></i>
-                                                                            REQ
-                                                                        </span>
-                                                                    @else
-                                                                        <span class="flex-shrink-0 bg-amber-100 text-amber-700 px-1.5 py-px rounded text-[10px] font-bold">OPT</span>
-                                                                    @endif
-                                                                    @if ($field->sensitivity_level === 'highly-sensitive')
-                                                                        <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full" title="Highly Sensitive"></span>
-                                                                    @elseif ($field->sensitivity_level === 'sensitive')
-                                                                        <span class="flex-shrink-0 w-2 h-2 bg-amber-400 rounded-full" title="Sensitive"></span>
-                                                                    @endif
+                                                    <div class="section-dropzone" data-section-id="{{ $section->id }}">
+                                                        @foreach ($section->kycFields as $field)
+                                                            @php
+                                                                $dtStyle = $dataTypeStyles[$field->data_type] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-code'];
+                                                            @endphp
+                                                            <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
+                                                                <div class="w-8 flex items-center justify-center">
+                                                                    <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
                                                                 </div>
-                                                                <div class="font-mono text-[11px] text-gray-400 truncate">{{ $field->internal_key }}</div>
-                                                            </div>
-                                                            <div class="w-20 flex justify-center">
-                                                                <span class="data-type-badge {{ $dtStyle['bg'] }} {{ $dtStyle['text'] }}">
-                                                                    <i class="fa-solid {{ $dtStyle['icon'] }}" style="font-size: 8px;"></i>
-                                                                    {{ Str::limit($field->data_type, 8) }}
-                                                                </span>
-                                                            </div>
-                                                            <div class="w-52">
-                                                                <div class="requirement-toggle" data-field-id="{{ $field->id }}">
-                                                                    <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
-                                                                    <button class="{{ !$field->is_required ? 'optional-active' : '' }}" onclick="setRequirement(this, 'optional')">Optional</button>
-                                                                    <button onclick="setRequirement(this, 'hidden')">Hidden</button>
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex items-center gap-2 mb-0.5">
+                                                                        <span class="font-semibold text-gray-800 text-sm truncate">{{ $field->field_name }}</span>
+                                                                        @if ($field->is_required)
+                                                                            <span class="flex-shrink-0 bg-emerald-100 text-emerald-700 px-1.5 py-px rounded text-[10px] font-bold flex items-center gap-0.5">
+                                                                                <i class="fa-solid fa-asterisk" style="font-size: 6px;"></i>
+                                                                                REQ
+                                                                            </span>
+                                                                        @else
+                                                                            <span class="flex-shrink-0 bg-amber-100 text-amber-700 px-1.5 py-px rounded text-[10px] font-bold">OPT</span>
+                                                                        @endif
+                                                                        @if ($field->sensitivity_level === 'highly-sensitive')
+                                                                            <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full" title="Highly Sensitive"></span>
+                                                                        @elseif ($field->sensitivity_level === 'sensitive')
+                                                                            <span class="flex-shrink-0 w-2 h-2 bg-amber-400 rounded-full" title="Sensitive"></span>
+                                                                        @endif
+                                                                    </div>
+                                                                    <div class="field-internal-key font-mono text-[11px] text-gray-400 truncate">{{ $field->internal_key }}</div>
+                                                                </div>
+                                                                <div class="w-20 flex justify-center">
+                                                                    <span class="data-type-badge {{ $dtStyle['bg'] }} {{ $dtStyle['text'] }}">
+                                                                        <i class="fa-solid {{ $dtStyle['icon'] }}" style="font-size: 8px;"></i>
+                                                                        {{ Str::limit($field->data_type, 8) }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="w-52">
+                                                                    <div class="requirement-toggle" data-field-id="{{ $field->id }}">
+                                                                        <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
+                                                                        <button class="{{ !$field->is_required ? 'optional-active' : '' }}" onclick="setRequirement(this, 'optional')">Optional</button>
+                                                                        <button onclick="setRequirement(this, 'hidden')">Hidden</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="w-64">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <label class="visibility-checkbox">
+                                                                            <input type="checkbox" {{ $field->visible_to_merchant ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="merchant">
+                                                                            <span>Merchant</span>
+                                                                        </label>
+                                                                        <label class="visibility-checkbox">
+                                                                            <input type="checkbox" {{ $field->visible_to_admin ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="admin">
+                                                                            <span>Admin</span>
+                                                                        </label>
+                                                                        <label class="visibility-checkbox">
+                                                                            <input type="checkbox" {{ $field->visible_to_partner ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="partner">
+                                                                            <span>Partner</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="w-16 text-center">
+                                                                    <button class="text-brand-secondary hover:text-brand-primary text-sm hover:bg-gray-100 w-8 h-8 rounded-lg transition-all inline-flex items-center justify-center" title="Configure field">
+                                                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                                    </button>
                                                                 </div>
                                                             </div>
-                                                            <div class="w-64">
-                                                                <div class="flex items-center gap-2">
-                                                                    <label class="visibility-checkbox">
-                                                                        <input type="checkbox" {{ $field->visible_to_merchant ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="merchant">
-                                                                        <span>Merchant</span>
-                                                                    </label>
-                                                                    <label class="visibility-checkbox">
-                                                                        <input type="checkbox" {{ $field->visible_to_admin ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="admin">
-                                                                        <span>Admin</span>
-                                                                    </label>
-                                                                    <label class="visibility-checkbox">
-                                                                        <input type="checkbox" {{ $field->visible_to_partner ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="partner">
-                                                                        <span>Partner</span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="w-16 text-center">
-                                                                <button class="text-brand-secondary hover:text-brand-primary text-sm hover:bg-gray-100 w-8 h-8 rounded-lg transition-all inline-flex items-center justify-center" title="Configure field">
-                                                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    @empty
-                                                        <div class="px-3 sm:px-5 py-10 text-center">
+                                                        @endforeach
+                                                    </div>
+                                                    <div class="section-empty-state px-3 sm:px-5 py-10 text-center {{ $fieldCount > 0 ? 'hidden' : '' }}">
                                                             <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                                                                 <i class="fa-solid fa-inbox text-gray-300 text-lg"></i>
                                                             </div>
                                                             <p class="text-sm text-gray-400 font-medium">No KYC fields in this section</p>
                                                             <p class="text-xs text-gray-300 mt-1">Add fields from the KYC Field Master</p>
-                                                        </div>
-                                                    @endforelse
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -773,6 +796,312 @@
         </div> --}}
 
         <script>
+            const mappingSyncUrl = @json(route('admin.masters.acquirer-field-mapping.sync'));
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || @json(csrf_token());
+            const dragState = {
+                row: null,
+                snapshot: '',
+                isSaving: false,
+            };
+            const dropPlaceholder = document.createElement('div');
+            dropPlaceholder.className = 'drop-placeholder';
+
+            function setSaveStatus(state, text) {
+                const el = document.getElementById('mapping-save-status');
+                if (!el) {
+                    return;
+                }
+
+                const dot = el.querySelector('span');
+                el.className = 'px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all';
+
+                if (state === 'saving') {
+                    el.classList.add('bg-amber-50', 'border', 'border-amber-200', 'text-amber-700');
+                    if (dot) dot.className = 'w-2 h-2 bg-amber-500 rounded-full animate-pulse';
+                } else if (state === 'saved') {
+                    el.classList.add('bg-green-50', 'border', 'border-green-200', 'text-green-700');
+                    if (dot) dot.className = 'w-2 h-2 bg-green-500 rounded-full';
+                } else if (state === 'error') {
+                    el.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-700');
+                    if (dot) dot.className = 'w-2 h-2 bg-red-500 rounded-full';
+                } else {
+                    el.classList.add('bg-slate-50', 'border', 'border-slate-200', 'text-slate-700');
+                    if (dot) dot.className = 'w-2 h-2 bg-slate-400 rounded-full';
+                }
+
+                const label = el.querySelectorAll('span')[1];
+                if (label) {
+                    label.textContent = text;
+                }
+            }
+
+            function captureLayoutSnapshot() {
+                return JSON.stringify(getLayoutPayload().items);
+            }
+
+            function getLayoutPayload() {
+                const items = [];
+                document.querySelectorAll('.section-dropzone').forEach(dropzone => {
+                    const sectionId = Number(dropzone.dataset.sectionId);
+                    dropzone.querySelectorAll('.field-row').forEach((row, index) => {
+                        items.push({
+                            field_id: Number(row.dataset.fieldId),
+                            kyc_section_id: sectionId,
+                            sort_order: index,
+                        });
+                    });
+                });
+
+                return { items };
+            }
+
+            function getDragAfterElement(container, clientY) {
+                const draggableRows = [...container.querySelectorAll('.field-row:not(.is-dragging)')];
+
+                return draggableRows.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = clientY - box.top - box.height / 2;
+
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset, element: child };
+                    }
+
+                    return closest;
+                }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+            }
+
+            function updateSectionEmptyStates() {
+                document.querySelectorAll('.field-section').forEach(section => {
+                    const dropzone = section.querySelector('.section-dropzone');
+                    const emptyState = section.querySelector('.section-empty-state');
+                    const hasRows = dropzone && dropzone.querySelector('.field-row');
+
+                    if (emptyState) {
+                        emptyState.classList.toggle('hidden', Boolean(hasRows));
+                    }
+                });
+            }
+
+            function updateSectionCounts() {
+                document.querySelectorAll('.field-section').forEach(section => {
+                    const rows = [...section.querySelectorAll('.section-dropzone .field-row')];
+                    const fieldCount = rows.length;
+                    const mandatoryCount = rows.filter(row => row.querySelector('.requirement-toggle .active')).length;
+                    const optionalCount = Math.max(fieldCount - mandatoryCount, 0);
+                    const progress = fieldCount > 0 ? Math.round((mandatoryCount / fieldCount) * 100) : 0;
+                    const fieldCountEl = section.querySelector('.section-field-count');
+                    const summaryEl = section.querySelector('.section-summary');
+                    const mandatoryEl = section.querySelector('.section-mandatory-count');
+                    const optionalEl = section.querySelector('.section-optional-count');
+                    const progressBar = section.querySelector('.section-progress-fill');
+                    const progressLabel = section.querySelector('.section-progress-label');
+
+                    if (fieldCountEl) {
+                        fieldCountEl.textContent = fieldCount;
+                    }
+
+                    if (fieldCount === 0) {
+                        if (summaryEl) {
+                            summaryEl.innerHTML = '<span class="text-gray-400 italic">Empty</span>';
+                        }
+                    } else {
+                        if (summaryEl && mandatoryEl && optionalEl) {
+                            mandatoryEl.textContent = mandatoryCount;
+                            optionalEl.textContent = optionalCount;
+                        } else if (summaryEl) {
+                            summaryEl.innerHTML = `<span class="section-mandatory-count text-emerald-600 font-semibold">${mandatoryCount}</span> req <span class="text-gray-300 mx-0.5">&middot;</span> <span class="section-optional-count text-amber-600 font-semibold">${optionalCount}</span> opt`;
+                        }
+                    }
+
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+
+                    if (progressLabel) {
+                        progressLabel.textContent = `${mandatoryCount}/${fieldCount}`;
+                    }
+                });
+            }
+
+            function clearDropState() {
+                document.querySelectorAll('.field-section').forEach(section => section.classList.remove('drag-over'));
+                document.querySelectorAll('.section-dropzone').forEach(dropzone => dropzone.classList.remove('drag-over'));
+                if (dropPlaceholder.parentNode) {
+                    dropPlaceholder.parentNode.removeChild(dropPlaceholder);
+                }
+            }
+
+            function syncUpdatedFieldKeys(fields) {
+                if (!Array.isArray(fields)) {
+                    return;
+                }
+
+                fields.forEach(field => {
+                    const row = document.querySelector(`.field-row[data-field-id="${field.field_id}"]`);
+                    if (!row) {
+                        return;
+                    }
+
+                    row.dataset.sectionId = String(field.kyc_section_id);
+                    row.dataset.fieldName = `${row.dataset.fieldLabel || ''} ${String(field.internal_key || '').toLowerCase()}`.trim();
+
+                    const internalKeyEl = row.querySelector('.field-internal-key');
+                    if (internalKeyEl) {
+                        internalKeyEl.textContent = field.internal_key;
+                    }
+                });
+            }
+
+            async function persistLayout() {
+                if (dragState.isSaving) {
+                    return;
+                }
+
+                const payload = getLayoutPayload();
+                dragState.isSaving = true;
+                setSaveStatus('saving', 'Saving field mapping...');
+
+                try {
+                    const response = await fetch(mappingSyncUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to save mapping changes.');
+                    }
+
+                    const result = await response.json();
+                    syncUpdatedFieldKeys(result.fields || []);
+
+                    dragState.snapshot = JSON.stringify(payload.items);
+                    setSaveStatus('saved', `Saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+                } catch (error) {
+                    setSaveStatus('error', error.message || 'Unable to save mapping.');
+                } finally {
+                    dragState.isSaving = false;
+                }
+            }
+
+            function handleDropzoneDragOver(event) {
+                event.preventDefault();
+                const dropzone = event.currentTarget;
+                dropzone.classList.add('drag-over');
+                dropzone.closest('.field-section')?.classList.add('drag-over');
+
+                if (!dragState.row) {
+                    return;
+                }
+
+                const afterElement = getDragAfterElement(dropzone, event.clientY);
+                if (afterElement) {
+                    dropzone.insertBefore(dropPlaceholder, afterElement);
+                } else {
+                    dropzone.appendChild(dropPlaceholder);
+                }
+            }
+
+            function handleSectionHeaderDrop(event) {
+                event.preventDefault();
+                const section = event.currentTarget.closest('.field-section');
+                const dropzone = section?.querySelector('.section-dropzone');
+                const content = section?.querySelector('.section-content');
+
+                if (!dropzone || !dragState.row) {
+                    return;
+                }
+
+                if (content) {
+                    content.classList.remove('collapsed');
+                    const chevron = section.querySelector('.section-chevron');
+                    chevron?.classList.remove('fa-chevron-right');
+                    chevron?.classList.add('fa-chevron-down');
+                }
+
+                dropzone.appendChild(dragState.row);
+                dragState.row.dataset.sectionId = dropzone.dataset.sectionId;
+                clearDropState();
+                updateSectionEmptyStates();
+                updateSectionCounts();
+
+                const nextSnapshot = captureLayoutSnapshot();
+                if (nextSnapshot !== dragState.snapshot) {
+                    persistLayout();
+                }
+            }
+
+            function initDragAndDrop() {
+                dragState.snapshot = captureLayoutSnapshot();
+
+                document.querySelectorAll('.field-row').forEach(row => {
+                    row.addEventListener('dragstart', event => {
+                        dragState.row = row;
+                        dragState.snapshot = captureLayoutSnapshot();
+                        row.classList.add('is-dragging');
+                        event.dataTransfer.effectAllowed = 'move';
+                        event.dataTransfer.setData('text/plain', row.dataset.fieldId || '');
+                    });
+
+                    row.addEventListener('dragend', () => {
+                        row.classList.remove('is-dragging');
+                        dragState.row = null;
+                        clearDropState();
+                    });
+                });
+
+                document.querySelectorAll('.section-dropzone').forEach(dropzone => {
+                    dropzone.addEventListener('dragover', handleDropzoneDragOver);
+                    dropzone.addEventListener('dragleave', event => {
+                        if (!dropzone.contains(event.relatedTarget)) {
+                            dropzone.classList.remove('drag-over');
+                            dropzone.closest('.field-section')?.classList.remove('drag-over');
+                        }
+                    });
+                    dropzone.addEventListener('drop', event => {
+                        event.preventDefault();
+
+                        if (!dragState.row) {
+                            return;
+                        }
+
+                        if (dropPlaceholder.parentNode === dropzone) {
+                            dropzone.insertBefore(dragState.row, dropPlaceholder);
+                        } else {
+                            dropzone.appendChild(dragState.row);
+                        }
+
+                        dragState.row.dataset.sectionId = dropzone.dataset.sectionId;
+                        clearDropState();
+                        updateSectionEmptyStates();
+                        updateSectionCounts();
+
+                        const nextSnapshot = captureLayoutSnapshot();
+                        if (nextSnapshot !== dragState.snapshot) {
+                            persistLayout();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.section-header').forEach(header => {
+                    header.addEventListener('dragover', event => {
+                        event.preventDefault();
+                        header.closest('.field-section')?.classList.add('drag-over');
+                    });
+                    header.addEventListener('dragleave', event => {
+                        if (!header.contains(event.relatedTarget)) {
+                            header.closest('.field-section')?.classList.remove('drag-over');
+                        }
+                    });
+                    header.addEventListener('drop', handleSectionHeaderDrop);
+                });
+            }
+
             // Toggle individual section
             function toggleSection(header) {
                 const section = header.closest('.field-section');
@@ -808,6 +1137,7 @@
 
             // Requirement toggle
             function setRequirement(button, type) {
+                event?.preventDefault?.();
                 const toggle = button.closest('.requirement-toggle');
                 toggle.querySelectorAll('button').forEach(btn => {
                     btn.classList.remove('active', 'optional-active', 'hidden-active');
@@ -819,6 +1149,7 @@
                 } else {
                     button.classList.add('active');
                 }
+                updateSectionCounts();
                 markUnsaved();
             }
 
@@ -849,18 +1180,17 @@
 
             // Unsaved changes indicator
             function markUnsaved() {
-                const indicator = document.getElementById('change-indicator');
-                if (indicator) {
-                    indicator.textContent = 'Unsaved changes';
-                    indicator.classList.remove('text-gray-400');
-                    indicator.classList.add('text-amber-600');
-                }
+                setSaveStatus('saving', 'Unsaved local changes');
             }
 
             // Mark unsaved on any checkbox change
             document.querySelectorAll('.visibility-checkbox input').forEach(cb => {
                 cb.addEventListener('change', markUnsaved);
             });
+
+            updateSectionEmptyStates();
+            updateSectionCounts();
+            initDragAndDrop();
         </script>
 
     </body>
