@@ -114,7 +114,7 @@
                                             ? 'col-span-2'
                                             : '';
                                     @endphp
-                                    <div class="{{ $colSpan }}">
+                                    <div class="{{ $colSpan }}" data-field-id="{{ $field->id }}" data-field-key="{{ $field->internal_key }}">
                                         <input type="hidden" name="bo_fields[{{ $groupIndex }}][{{ $field->id }}][field_id]" value="{{ $field->id }}">
                                         <input type="hidden" name="bo_fields[{{ $groupIndex }}][{{ $field->id }}][key]" value="{{ $field->internal_key }}">
                                         <x-kyc-field :field="$field" :value="$groupValues[$field->id] ?? null" :nameOverride="'bo_fields[' . $groupIndex . '][' . $field->id . '][value]'" />
@@ -340,41 +340,136 @@
         <script>
             let boCount = document.querySelectorAll('.beneficial-owner-card').length || 1;
             let boToRemove = null;
+            let uploadZoneEventsBound = false;
 
             window.addEventListener('load', function() {
                 setupUploadZones();
                 updateRemoveButtons();
                 setupOwnershipValidation();
+                syncBeneficialOwnerFieldMeta();
             });
 
+            function syncBeneficialOwnerFieldMeta() {
+                document.querySelectorAll('.beneficial-owner-card').forEach((card, index) => {
+                    card.querySelectorAll('[data-field-id][data-field-key]').forEach(wrapper => {
+                        const fieldId = wrapper.dataset.fieldId;
+                        const fieldKey = wrapper.dataset.fieldKey;
+
+                        if (!fieldId || !fieldKey) {
+                            return;
+                        }
+
+                        const expectedFieldIdName = `bo_fields[${index}][${fieldId}][field_id]`;
+                        const expectedKeyName = `bo_fields[${index}][${fieldId}][key]`;
+
+                        let fieldIdInput = wrapper.querySelector('input[type="hidden"][name$="[field_id]"]');
+                        if (!fieldIdInput) {
+                            fieldIdInput = document.createElement('input');
+                            fieldIdInput.type = 'hidden';
+                            wrapper.prepend(fieldIdInput);
+                        }
+                        fieldIdInput.name = expectedFieldIdName;
+                        fieldIdInput.value = fieldId;
+
+                        let keyInput = wrapper.querySelector('input[type="hidden"][name$="[key]"]');
+                        if (!keyInput) {
+                            keyInput = document.createElement('input');
+                            keyInput.type = 'hidden';
+                            fieldIdInput.insertAdjacentElement('afterend', keyInput);
+                        }
+                        keyInput.name = expectedKeyName;
+                        keyInput.value = fieldKey;
+                    });
+                });
+            }
+
+            function escapeHtml(value) {
+                return String(value || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function ensureZoneTemplate(zone) {
+                if (!zone || zone.dataset.originalTemplate) {
+                    return;
+                }
+
+                zone.dataset.originalTemplate = zone.innerHTML;
+            }
+
+            function restoreUploadZone(zone) {
+                if (!zone) {
+                    return;
+                }
+
+                if (zone.dataset.originalTemplate) {
+                    zone.innerHTML = zone.dataset.originalTemplate;
+                }
+
+                zone.classList.remove('bg-green-50', 'border-green-300');
+            }
+
             function setupUploadZones() {
+                document.querySelectorAll('.upload-zone').forEach(zone => ensureZoneTemplate(zone));
+
+                if (uploadZoneEventsBound) {
+                    return;
+                }
+
+                uploadZoneEventsBound = true;
+
                 document.addEventListener('click', function(e) {
+                    if (e.target.closest('[data-remove-file]')) {
+                        return;
+                    }
+
                     if (e.target.closest('.upload-zone')) {
                         const zone = e.target.closest('.upload-zone');
+                        ensureZoneTemplate(zone);
                         const input = zone.querySelector('input[type="file"]');
-                        input.click();
+                        if (input) {
+                            input.click();
+                        }
                     }
                 });
 
                 document.addEventListener('change', function(e) {
                     if (e.target.type === 'file' && e.target.files.length > 0) {
-                        const zone = e.target.closest('.upload-zone');
-                        const fileName = e.target.files[0].name;
+                        const input = e.target;
+                        const zone = input.closest('.upload-zone');
+                        ensureZoneTemplate(zone);
+
+                        const fileName = input.files[0].name;
+                        const inputName = input.getAttribute('name') || '';
+                        const accept = input.getAttribute('accept') || '';
+                        const isRequired = input.hasAttribute('required');
+
                         zone.innerHTML = `
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-file-pdf text-2xl text-brand-orange"></i>
                                     <div class="text-left">
-                                        <p class="text-sm font-medium text-gray-900">${fileName}</p>
+                                        <p class="text-sm font-medium text-gray-900">${escapeHtml(fileName)}</p>
                                         <p class="text-xs text-gray-500">Uploaded successfully</p>
                                     </div>
                                 </div>
-                                <button onclick="removeFile(this)" class="text-red-500 hover:text-red-700">
+                                <button type="button" data-remove-file="1" onclick="removeFile(this)" class="text-red-500 hover:text-red-700">
                                     <i class="fa-solid fa-trash text-sm"></i>
                                 </button>
                             </div>
+                            <input type="file" class="hidden" name="${escapeHtml(inputName)}" accept="${escapeHtml(accept)}" ${isRequired ? 'required' : ''}>
                         `;
                         zone.classList.add('bg-green-50', 'border-green-300');
+
+                        const refreshedInput = zone.querySelector('input[type="file"]');
+                        if (refreshedInput && input.files.length > 0) {
+                            const transfer = new DataTransfer();
+                            transfer.items.add(input.files[0]);
+                            refreshedInput.files = transfer.files;
+                        }
                     }
                 });
             }
@@ -457,16 +552,7 @@
 
                 // Reset any file upload zones
                 newCard.querySelectorAll('.upload-zone').forEach(zone => {
-                    if (zone.classList.contains('bg-green-50')) {
-                        zone.classList.remove('bg-green-50', 'border-green-300');
-                        const label = zone.querySelector('.font-medium')?.textContent || 'Upload Document';
-                        zone.innerHTML = `
-                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
-                            <p class="text-sm font-medium text-gray-700 mb-1">${label}</p>
-                            <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
-                            <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                        `;
-                    }
+                    restoreUploadZone(zone);
                 });
 
                 // Update field names to include array index for better form handling
@@ -529,17 +615,12 @@
                 });
 
                 boCount = cards.length;
+                syncBeneficialOwnerFieldMeta();
             }
 
             function removeFile(btn) {
                 const zone = btn.closest('.upload-zone');
-                zone.innerHTML = `
-                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-3"></i>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Upload Document</p>
-                    <p class="text-xs text-gray-500">Upload PDF / JPG / PNG (Max 5MB)</p>
-                    <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                `;
-                zone.classList.remove('bg-green-50', 'border-green-300');
+                restoreUploadZone(zone);
             }
 
             function showToast(message, type = 'success') {
@@ -563,6 +644,7 @@
 
             async function submitBeneficialOwners(redirectAfterSave = false) {
                 const form = document.getElementById('bo-form');
+                syncBeneficialOwnerFieldMeta();
                 const formData = new FormData(form);
 
                 try {
