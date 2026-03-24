@@ -667,7 +667,7 @@
                         </div>
 
                         <!-- Section 2: Scope / Assignment Rules -->
-                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+                        {{-- <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="bg-[#eff6ff] w-8 h-8 rounded-full flex items-center justify-center">
                                     <span class="text-[#4055a8] text-sm font-semibold">2</span>
@@ -702,7 +702,7 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Section 3: Price List Lines -->
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">

@@ -417,6 +417,7 @@
                                         <option value="">Select Price List</option>
                                         @foreach ($priceLists as $priceList)
                                             <option value="{{ $priceList->id }}"
+                                                data-currency="{{ strtoupper(trim((string) $priceList->currency)) }}"
                                                 data-assignment-level="{{ strtolower($priceList->assignment_level ?? 'global') }}"
                                                 data-assignment-rules='@json($priceList->assignment_rules ?? [])'
                                                 {{ old('price_list_id', $onboarding->price_list_id ?? '') == $priceList->id ? 'selected' : '' }}>
@@ -437,24 +438,18 @@
                                                         Payment Method</th>
                                                     <th
                                                         class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                                        Transaction Type</th>
+                                                        Line Type</th>
                                                     <th
                                                         class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                                                         % Fee (MDR)</th>
                                                     <th
                                                         class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                                        Fixed Fee</th>
-                                                    <th
-                                                        class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                                        Min Fee</th>
-                                                    <th
-                                                        class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                                        Max Fee</th>
+                                                        Fixed Fee (<span id="pricing-currency-label">-</span>)</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="pricing-rows" class="bg-white divide-y divide-gray-200">
                                                 <tr class="text-gray-500">
-                                                    <td colspan="6" class="px-6 py-8 text-center">Select a price list
+                                                    <td colspan="4" class="px-6 py-8 text-center">Select a price list
                                                         to view pricing</td>
                                                 </tr>
                                             </tbody>
@@ -828,6 +823,54 @@
                     return ids;
                 }
 
+                function normalizePaymentMethodKey(value) {
+                    return String(value || '')
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\b(credit|debit|card|cards|payment|payments)\b/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+
+                function getEligiblePaymentMethodTokens() {
+                    const selected = [];
+                    document.querySelectorAll('[data-payment-method-input]:checked').forEach(input => {
+                        selected.push(normalizePaymentMethodKey(input.value));
+                    });
+
+                    if (selected.length > 0) {
+                        return selected.filter(Boolean);
+                    }
+
+                    const visible = [];
+                    document.querySelectorAll('[data-pm-wrapper]').forEach(wrapper => {
+                        if (wrapper.style.display === 'none') {
+                            return;
+                        }
+                        visible.push(normalizePaymentMethodKey(wrapper.getAttribute('data-pm-wrapper') || ''));
+                    });
+
+                    return visible.filter(Boolean);
+                }
+
+                function doesPriceLineMatchMethods(lineMethod, methodTokens) {
+                    if (!Array.isArray(methodTokens) || methodTokens.length === 0) {
+                        return true;
+                    }
+
+                    const lineKey = normalizePaymentMethodKey(lineMethod);
+                    if (!lineKey) {
+                        return false;
+                    }
+
+                    return methodTokens.some(token =>
+                        token === lineKey ||
+                        lineKey.includes(token) ||
+                        token.includes(lineKey)
+                    );
+                }
+
                 function updatePriceListOptions() {
                     if (!priceListSelect) {
                         return;
@@ -836,6 +879,7 @@
                     const selectedSolutionId = solutionSelect ? String(solutionSelect.value || '') : '';
                     const selectedCountryCode = countrySelect ? normalizeToken(countrySelect.value || '') : '';
                     const selectedAcquirerTokens = getSelectedAcquirerTokens();
+                    const eligibleMethodTokens = getEligiblePaymentMethodTokens();
 
                     let selectedStillValid = false;
 
@@ -866,6 +910,30 @@
                                 : true;
                         }
 
+                        if (visible) {
+                            const priceListData = priceListsData[String(option.value)] || null;
+                            let priceLines = priceListData ? priceListData.price_lines : [];
+
+                            if (typeof priceLines === 'string') {
+                                try {
+                                    priceLines = JSON.parse(priceLines);
+                                } catch (error) {
+                                    priceLines = [];
+                                }
+                            }
+
+                            if (!Array.isArray(priceLines)) {
+                                priceLines = Object.values(priceLines || {});
+                            }
+
+                            if (eligibleMethodTokens.length > 0 && Array.isArray(priceLines) && priceLines.length > 0) {
+                                visible = priceLines.some(line => doesPriceLineMatchMethods(
+                                    line.payment_method || line.method || line.display_name || line.name || '',
+                                    eligibleMethodTokens
+                                ));
+                            }
+                        }
+
                         option.hidden = !visible;
                         option.disabled = !visible;
 
@@ -883,12 +951,25 @@
                 function updatePricingTable(priceListId) {
                     console.log('updatePricingTable called with ID:', priceListId);
                     const pricingRows = document.getElementById('pricing-rows');
+                    const pricingCurrencyLabel = document.getElementById('pricing-currency-label');
+
+                    const normalizeCurrencyCode = (value) => {
+                        const raw = String(value || '').trim().toUpperCase();
+                        if (!raw) return 'GBP';
+                        if (raw === '€' || raw === 'EURO' || raw.startsWith('EUR')) return 'EUR';
+                        if (raw === '$' || raw === 'DOLLAR' || raw.startsWith('USD')) return 'USD';
+                        if (raw === '£' || raw === 'POUND' || raw.startsWith('GBP')) return 'GBP';
+                        return raw;
+                    };
 
                     if (!priceListId || priceListId === '') {
                         console.log('No price list selected, showing placeholder');
+                        if (pricingCurrencyLabel) {
+                            pricingCurrencyLabel.textContent = '-';
+                        }
                         pricingRows.innerHTML = `
                             <tr class="text-gray-500">
-                                <td colspan="6" class="px-6 py-8 text-center">Select a price list to view pricing</td>
+                                <td colspan="4" class="px-6 py-8 text-center">Select a price list to view pricing</td>
                             </tr>
                         `;
                         return;
@@ -899,12 +980,23 @@
 
                     if (!data) {
                         console.error('No data found for price list ID:', priceListId);
+                        if (pricingCurrencyLabel) {
+                            pricingCurrencyLabel.textContent = '-';
+                        }
                         pricingRows.innerHTML = `
                             <tr class="text-gray-500">
-                                <td colspan="6" class="px-6 py-8 text-center">Price list data not found</td>
+                                <td colspan="4" class="px-6 py-8 text-center">Price list data not found</td>
                             </tr>
                         `;
                         return;
+                    }
+
+                    const currencyCode = normalizeCurrencyCode(data.currency || 'GBP');
+                    const currencySymbol = currencyCode === 'GBP' ? '£' : currencyCode === 'EUR' ? '€' :
+                        currencyCode === 'USD' ? '$' : currencyCode;
+
+                    if (pricingCurrencyLabel) {
+                        pricingCurrencyLabel.textContent = currencyCode;
                     }
 
                     // Parse price_lines if it's a JSON string
@@ -916,7 +1008,7 @@
                             console.error('Failed to parse price_lines:', e);
                             pricingRows.innerHTML = `
                                 <tr class="text-gray-500">
-                                    <td colspan="6" class="px-6 py-8 text-center">Invalid price list data format</td>
+                                    <td colspan="4" class="px-6 py-8 text-center">Invalid price list data format</td>
                                 </tr>
                             `;
                             return;
@@ -928,11 +1020,17 @@
                         priceLines = Object.values(priceLines || {});
                     }
 
+                    const eligibleMethodTokens = getEligiblePaymentMethodTokens();
+                    priceLines = priceLines.filter(line => doesPriceLineMatchMethods(
+                        line.payment_method || line.method || line.display_name || line.name || '',
+                        eligibleMethodTokens
+                    ));
+
                     if (!priceLines || priceLines.length === 0) {
                         console.warn('No price lines found for price list:', priceListId);
                         pricingRows.innerHTML = `
                             <tr class="text-gray-500">
-                                <td colspan="6" class="px-6 py-8 text-center">No pricing configured for this price list</td>
+                                <td colspan="4" class="px-6 py-8 text-center">No matched pricing lines for selected payment methods</td>
                             </tr>
                         `;
                         return;
@@ -940,22 +1038,24 @@
 
                     console.log('Rendering', priceLines.length, 'price lines');
 
-                    const currency = data.currency || 'GBP';
-                    const currencySymbol = currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : currency === 'USD' ?
-                        '$' : currency;
+                    const formatNumber = (value) => {
+                        const numeric = Number(value);
+                        return Number.isFinite(numeric) ? numeric.toFixed(2) : String(value);
+                    };
 
                     let rows = '';
                     priceLines.forEach((line, index) => {
                         const paymentMethod = line.payment_method || line.method || 'Unknown';
                         const displayName = line.display_name || line.name || paymentMethod;
                         const icon = getPaymentIcon(paymentMethod);
-                        const percentage = line.percentage_fee || line.percent_fee || line.mdr_rate || line
-                            .rate || line.percent || '-';
-                        const fixedFee = line.fixed_fee || line.transaction_fee ?
-                            `${currencySymbol}${(line.fixed_fee || line.transaction_fee)}` : '-';
-                        const minFee = line.min_fee ? `${currencySymbol}${line.min_fee}` : '-';
-                        const maxFee = line.max_fee ? `${currencySymbol}${line.max_fee}` : '-';
-                        const transactionType = line.transaction_type || line.type || 'Card Present';
+                        const percentageRaw = line.percent_fee ?? line.percentage_fee ?? line.mdr_rate ?? line.rate ??
+                            line.percent;
+                        const fixedFeeRaw = line.fixed_fee ?? line.transaction_fee;
+                        const percentage = percentageRaw === undefined || percentageRaw === null || percentageRaw ===
+                            '' ? '-' : `${formatNumber(percentageRaw)}%`;
+                        const fixedFee = fixedFeeRaw === undefined || fixedFeeRaw === null || fixedFeeRaw === '' ? '-' :
+                            `${currencySymbol}${formatNumber(fixedFeeRaw)}`;
+                        const lineType = line.line_type || line.transaction_type || line.type || 'Card Present';
 
                         rows += `
                             <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
@@ -965,11 +1065,9 @@
                                         <span class="font-medium">${displayName}</span>
                                     </div>
                                 </td>
-                                <td class="px-3 py-3 text-gray-600">${transactionType}</td>
-                                <td class="px-3 py-3 font-mono text-gray-900">${percentage}${typeof percentage === 'number' || (!isNaN(percentage) && percentage !== '-') ? '%' : ''}</td>
+                                <td class="px-3 py-3 text-gray-600">${lineType}</td>
+                                <td class="px-3 py-3 font-mono text-gray-900">${percentage}</td>
                                 <td class="px-3 py-3 font-mono text-gray-900">${fixedFee}</td>
-                                <td class="px-3 py-3 font-mono text-gray-900">${minFee}</td>
-                                <td class="px-3 py-3 font-mono text-gray-900">${maxFee}</td>
                             </tr>
                         `;
                     });
@@ -1243,6 +1341,11 @@
                             this.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
                             this.classList.add('bg-brand-primary', 'text-white',
                             'border-brand-primary');
+                        }
+
+                        updatePriceListOptions();
+                        if (priceListSelect) {
+                            updatePricingTable(priceListSelect.value || '');
                         }
                     });
                 });
