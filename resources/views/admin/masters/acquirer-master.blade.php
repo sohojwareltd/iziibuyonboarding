@@ -745,14 +745,26 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Countries</label>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <select id="country-master-select" class="form-input">
+                                        <option value="">Select country...</option>
+                                        @foreach ($countryMasterOptions as $countryOption)
+                                            <option value="{{ strtolower($countryOption->code) }}">
+                                                {{ $countryOption->name }} ({{ strtoupper($countryOption->code) }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="button" onclick="addSelectedCountry()"
+                                        class="px-3 py-2 bg-brand-accent text-white text-sm rounded-lg hover:bg-orange-500 transition-colors whitespace-nowrap">
+                                        Add
+                                    </button>
+                                </div>
                                 <div class="border border-gray-200 rounded-lg p-2 flex flex-wrap gap-2 min-h-[42px]"
                                     id="countries-container">
-                                    <input type="text" id="country-input" placeholder="Add country..."
-                                        class="flex-1 min-w-[100px] border-0 outline-none text-xs bg-transparent"
-                                        onkeypress="handleCountryInput(event)">
                                 </div>
                                 <input type="hidden" name="supported_countries" id="supported_countries"
                                     value="[]">
+                                <p class="text-xs text-gray-500 mt-1">Countries are loaded from Country Master.</p>
                             </div>
                         </div>
 
@@ -907,12 +919,88 @@
 
         <script>
             const currentAcquirerId = null;
+            const countryMasterMap = {
+                @foreach ($countryMasterOptions as $countryOption)
+                    '{{ strtolower($countryOption->code) }}': @json($countryOption->name),
+                @endforeach
+            };
             let supportedCountries = [];
+            let deleteAcquirerId = null;
+
+            function normalizeCountryValue(value) {
+                return String(value || '').trim().toLowerCase();
+            }
+
+            function resolveCountryCode(value) {
+                const normalized = normalizeCountryValue(value);
+                if (!normalized) {
+                    return '';
+                }
+
+                if (countryMasterMap[normalized]) {
+                    return normalized;
+                }
+
+                const matchedCode = Object.keys(countryMasterMap).find(code =>
+                    normalizeCountryValue(countryMasterMap[code]) === normalized
+                );
+
+                return matchedCode || normalized;
+            }
+
+            function renderSupportedCountries() {
+                const container = document.getElementById('countries-container');
+                if (!container) {
+                    return;
+                }
+
+                container.innerHTML = '';
+                supportedCountries.forEach(countryCode => {
+                    const countryName = countryMasterMap[countryCode] || countryCode.toUpperCase();
+                    const tag = document.createElement('span');
+                    tag.className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs flex items-center gap-1';
+                    tag.innerHTML = `
+                        ${countryName} (${countryCode.toUpperCase()})
+                        <button type="button" class="text-blue-600 hover:text-blue-800" onclick="removeCountry('${countryCode}')">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    `;
+                    container.appendChild(tag);
+                });
+
+                document.getElementById('supported_countries').value = JSON.stringify(supportedCountries);
+            }
+
+            function addSelectedCountry() {
+                const countrySelect = document.getElementById('country-master-select');
+                if (!countrySelect) {
+                    return;
+                }
+
+                const selectedCode = normalizeCountryValue(countrySelect.value);
+                if (!selectedCode) {
+                    return;
+                }
+
+                if (!supportedCountries.includes(selectedCode)) {
+                    supportedCountries.push(selectedCode);
+                    renderSupportedCountries();
+                }
+
+                countrySelect.value = '';
+            }
+
+            function removeCountry(country) {
+                const normalizedCountry = normalizeCountryValue(country);
+                supportedCountries = supportedCountries.filter(c => normalizeCountryValue(c) !== normalizedCountry);
+                renderSupportedCountries();
+            }
 
             function openDrawer() {
                 resetForm();
                 document.getElementById('drawer-title').textContent = 'Add Acquirer';
                 document.getElementById('acquirer-form').dataset.mode = 'create';
+                document.getElementById('acquirer-form').dataset.id = '';
                 document.getElementById('acquirer-drawer').classList.remove('drawer-closed');
                 document.getElementById('acquirer-drawer').classList.add('drawer-open');
                 document.getElementById('drawer-overlay').classList.remove('hidden');
@@ -928,8 +1016,13 @@
             function resetForm() {
                 document.getElementById('acquirer-form').reset();
                 supportedCountries = [];
-                document.getElementById('countries-container').innerHTML =
-                    '<input type="text" id="country-input" placeholder="Add country..." class="flex-1 min-w-[100px] border-0 outline-none text-xs bg-transparent" onkeypress="handleCountryInput(event)">';
+                renderSupportedCountries();
+
+                const countrySelect = document.getElementById('country-master-select');
+                if (countrySelect) {
+                    countrySelect.value = '';
+                }
+
                 document.getElementById('status-toggle').classList.remove('inactive');
                 document.getElementById('status-label').textContent = 'Active';
                 document.getElementById('is_active').value = '1';
@@ -969,70 +1062,22 @@
                 }
             }
 
-            function handleCountryInput(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    const input = event.target;
-                    const country = input.value.trim();
-
-                    if (country && !supportedCountries.includes(country)) {
-                        supportedCountries.push(country);
-                        addCountryTag(country);
-                        input.value = '';
-                    }
-                }
-            }
-
-            function addCountryTag(country) {
-                const container = document.getElementById('countries-container');
-                const tag = document.createElement('span');
-                tag.className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs flex items-center gap-1';
-                tag.innerHTML = `
-                    ${country}
-                    <button type="button" class="text-blue-600 hover:text-blue-800" onclick="removeCountry('${country}')">
-                        <i class="fa-solid fa-xmark text-xs"></i>
-                    </button>
-                `;
-                container.insertBefore(tag, container.lastChild);
-                document.getElementById('supported_countries').value = JSON.stringify(supportedCountries);
-            }
-
-            function removeCountry(country) {
-                supportedCountries = supportedCountries.filter(c => c !== country);
-                document.getElementById('supported_countries').value = JSON.stringify(supportedCountries);
-
-                const tags = document.querySelectorAll('#countries-container span');
-                tags.forEach(tag => {
-                    if (tag.textContent.includes(country)) {
-                        tag.remove();
-                    }
-                });
-            }
-
             function editAcquirer(id) {
-                console.log('Edit acquirer clicked, ID:', id);
                 fetch(`{{ url('admin/masters/acquirers') }}/${id}`)
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        console.log('Data received:', data);
-                        if (data.success) {
-                            console.log('Populating form with:', data.data);
-                            populateForm(data.data);
-                            document.getElementById('drawer-title').textContent = 'Edit Acquirer';
-                            document.getElementById('acquirer-form').dataset.mode = 'edit';
-                            document.getElementById('acquirer-form').dataset.id = id;
-                            // Open drawer without resetting form
-                            document.getElementById('acquirer-drawer').classList.remove('drawer-closed');
-                            document.getElementById('acquirer-drawer').classList.add('drawer-open');
-                            document.getElementById('drawer-overlay').classList.remove('hidden');
-                            console.log('Drawer opened for editing');
-                        } else {
-                            console.error('API returned success: false');
+                        if (!data.success) {
                             showNotification('Error loading acquirer data', 'error');
+                            return;
                         }
+
+                        populateForm(data.data);
+                        document.getElementById('drawer-title').textContent = 'Edit Acquirer';
+                        document.getElementById('acquirer-form').dataset.mode = 'edit';
+                        document.getElementById('acquirer-form').dataset.id = id;
+                        document.getElementById('acquirer-drawer').classList.remove('drawer-closed');
+                        document.getElementById('acquirer-drawer').classList.add('drawer-open');
+                        document.getElementById('drawer-overlay').classList.remove('hidden');
                     })
                     .catch(error => {
                         console.error('Error loading acquirer:', error);
@@ -1041,7 +1086,6 @@
             }
 
             function populateForm(acquirer) {
-                console.log('populateForm called with:', acquirer);
                 document.getElementById('name').value = acquirer.name;
                 document.getElementById('mode').value = acquirer.mode;
                 document.getElementById('description').value = acquirer.description || '';
@@ -1054,7 +1098,6 @@
                 document.getElementById('requires_board_member_data').checked = acquirer.requires_board_member_data;
                 document.getElementById('requires_signatories').checked = acquirer.requires_signatories;
 
-                // Set status
                 const isActive = acquirer.is_active;
                 const toggle = document.getElementById('status-toggle');
                 const label = document.getElementById('status-label');
@@ -1068,53 +1111,21 @@
                     label.textContent = 'Active';
                 }
 
-                // Set countries
-                supportedCountries = acquirer.supported_countries || [];
-                console.log('Setting countries:', supportedCountries);
-                const countriesContainer = document.getElementById('countries-container');
-                countriesContainer.innerHTML = '';
-                supportedCountries.forEach(country => {
-                    const tag = document.createElement('span');
-                    tag.className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs flex items-center gap-1';
-                    tag.innerHTML = `
-                        ${country}
-                        <button type="button" class="text-blue-600 hover:text-blue-800" onclick="removeCountry('${country}')">
-                            <i class="fa-solid fa-xmark text-xs"></i>
-                        </button>
-                    `;
-                    countriesContainer.appendChild(tag);
-                });
-                countriesContainer.appendChild(createCountryInput());
-                document.getElementById('supported_countries').value = JSON.stringify(supportedCountries);
+                supportedCountries = (acquirer.supported_countries || [])
+                    .map(resolveCountryCode)
+                    .filter(Boolean);
+                renderSupportedCountries();
 
-                // Set solutions
                 const solutionIds = acquirer.supported_solutions || [];
-                console.log('Setting solutions:', solutionIds);
                 document.querySelectorAll('.solution-checkbox').forEach(checkbox => {
                     checkbox.checked = solutionIds.includes(parseInt(checkbox.value));
                 });
 
                 toggleModeFields();
-                console.log('Form populated successfully');
             }
-
-            function createCountryInput() {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = 'country-input';
-                input.placeholder = 'Add country...';
-                input.className = 'flex-1 min-w-[100px] border-0 outline-none text-xs bg-transparent';
-                input.onkeypress = function(e) {
-                    handleCountryInput(e);
-                };
-                return input;
-            }
-
-            let deleteAcquirerId = null;
 
             function deleteAcquirer(id) {
                 deleteAcquirerId = id;
-                // Get acquirer name from the table row
                 const row = event.target.closest('tr');
                 const acquirerName = row?.querySelector('.font-medium')?.textContent || 'this acquirer';
                 document.getElementById('delete-acquirer-name').textContent = acquirerName;
@@ -1132,8 +1143,7 @@
                 fetch(`{{ url('admin/masters/acquirers') }}/${deleteAcquirerId}`, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
-                                '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
                             'Accept': 'application/json',
                         }
                     })
@@ -1179,7 +1189,6 @@
                 setTimeout(() => notification.remove(), isSuccess ? 3200 : 4500);
             }
 
-            // Form submission
             document.getElementById('acquirer-form').addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -1187,39 +1196,23 @@
                 const id = this.dataset.id;
                 const formData = new FormData(this);
 
-                // Prepare solutions
                 const solutions = Array.from(document.querySelectorAll('.solution-checkbox:checked')).map(c => c.value);
                 formData.set('supported_solutions', JSON.stringify(solutions));
 
-                // Handle checkboxes - FormData doesn't include unchecked checkboxes
-                formData.set('secure_email_required', document.getElementById('secure_email_required').checked ? '1' :
-                    '0');
-                formData.set('requires_beneficial_owner_data', document.getElementById('requires_beneficial_owner_data')
-                    .checked ? '1' : '0');
-                formData.set('requires_board_member_data', document.getElementById('requires_board_member_data')
-                    .checked ? '1' : '0');
-                formData.set('requires_signatories', document.getElementById('requires_signatories').checked ? '1' :
-                    '0');
+                formData.set('secure_email_required', document.getElementById('secure_email_required').checked ? '1' : '0');
+                formData.set('requires_beneficial_owner_data', document.getElementById('requires_beneficial_owner_data').checked ? '1' : '0');
+                formData.set('requires_board_member_data', document.getElementById('requires_board_member_data').checked ? '1' : '0');
+                formData.set('requires_signatories', document.getElementById('requires_signatories').checked ? '1' : '0');
 
-                let url;
+                let url = '{{ url('admin/masters/acquirers') }}';
                 let method = 'POST';
 
-                if (mode === 'create') {
-                    url = '{{ url('admin/masters/acquirers') }}';
-                } else {
+                if (mode === 'edit' && id) {
                     url = `{{ url('admin/masters/acquirers') }}/${id}`;
                     formData.append('_method', 'PUT');
                 }
 
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content ||
-                    '{{ csrf_token() }}');
-
-                console.log('Submitting form:', {
-                    mode: mode,
-                    id: id,
-                    url: url,
-                    data: Object.fromEntries(formData)
-                });
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}');
 
                 fetch(url, {
                         method: method,
@@ -1228,25 +1221,19 @@
                             'Accept': 'application/json',
                         }
                     })
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        console.log('Response data:', data);
                         if (data.success) {
                             showNotification(data.message, 'success');
                             setTimeout(() => location.reload(), 1500);
-                        } else {
-                            if (data.errors) {
-                                let errorMsg = 'Validation errors:\n';
-                                for (let field in data.errors) {
-                                    errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
-                                }
-                                showNotification(errorMsg, 'error');
-                            } else {
-                                showNotification(data.message || 'Error saving acquirer', 'error');
+                        } else if (data.errors) {
+                            let errorMsg = 'Validation errors:\n';
+                            for (let field in data.errors) {
+                                errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
                             }
+                            showNotification(errorMsg, 'error');
+                        } else {
+                            showNotification(data.message || 'Error saving acquirer', 'error');
                         }
                     })
                     .catch(error => {
@@ -1255,7 +1242,6 @@
                     });
             });
 
-            // Filter functions
             function toggleFilters() {
                 const filterPanel = document.getElementById('filter-panel');
                 const filterArrow = document.getElementById('filter-arrow');
@@ -1291,7 +1277,6 @@
                 window.location.href = `?${params.toString()}`;
             }
 
-            // Add CSRF token to meta
             if (!document.querySelector('meta[name="csrf-token"]')) {
                 const meta = document.createElement('meta');
                 meta.setAttribute('name', 'csrf-token');

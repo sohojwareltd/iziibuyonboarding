@@ -138,6 +138,7 @@
                                             </label>
                                             <select name="solution_id"
                                                 class="w-full h-[39px] px-4 bg-gray-100 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary">
+                                                <option value="">Select Solution</option>
                                                 @foreach ($solutions as $solution)
                                                     <option value="{{ $solution->id }}"
                                                         {{ old('solution_id', $onboarding->solution_id ?? '') == $solution->id ? 'selected' : '' }}>
@@ -327,7 +328,7 @@
                                                 @php
                                                     $isSelected = in_array($method->name, $selectedPaymentMethods);
                                                 @endphp
-                                                <span data-pm-wrapper="{{ $method->name }}">
+                                                <span data-pm-wrapper="{{ $method->name }}" data-pm-id="{{ $method->id }}">
                                                     <input type="checkbox" name="payment_methods[]"
                                                         value="{{ $method->name }}" class="hidden"
                                                         data-payment-method-input="{{ $method->name }}"
@@ -354,6 +355,7 @@
                                                 $isSelected = in_array($acquirer->name, $selectedAcquirers);
                                             @endphp
                                             <div data-acquirer-card="{{ $acquirerKey }}"
+                                                data-acquirer-id="{{ $acquirer->id }}"
                                                 data-acquirer-slug="{{ $acquirerKey }}"
                                                 class="{{ $isSelected ? 'bg-blue-50 border-2 border-brand-secondary' : 'bg-white border border-gray-200' }} rounded-lg p-4 flex items-start justify-between">
                                                 <div class="flex-1">
@@ -671,14 +673,26 @@
             const solutionsData = {
                 @foreach ($solutions as $solution)
                     {{ $solution->id }}: {
-                        name: '{{ $solution->name }}',
-                        complexity: '{{ $solution->status ?? 'Standard' }}',
-                        category: '{{ $solution->category->name ?? 'Uncategorized' }}',
-                        status: '{{ $solution->status ?? 'draft' }}',
-                        mode: '{{ $solution->pricing_plan ?? 'Standard' }}',
+                        name: @json($solution->name),
+                        complexity: @json($solution->status ?? 'Standard'),
+                        category: @json($solution->category->name ?? 'Uncategorized'),
+                        status: @json($solution->status ?? 'draft'),
+                        mode: @json($solution->pricing_plan ?? 'Standard'),
                         countries: @json($solution->countries->pluck('code')->map(fn($c) => strtolower($c))),
-                        paymentMethods: @json($solution->paymentMethodMasters->pluck('name')),
-                        acquirers: @json($solution->acquirerMasters->pluck('name')->map(fn($n) => \Illuminate\Support\Str::slug($n)))
+                        paymentMethods: @json($solution->paymentMethodMasters->pluck('name')->map(fn($n) => strtolower($n))),
+                        paymentMethodIds: @json($solution->paymentMethodMasters->pluck('id')->map(fn($id) => (string) $id)),
+                        acquirers: @json($solution->acquirerMasters->pluck('name')->map(fn($n) => \Illuminate\Support\Str::slug($n))),
+                        acquirerIds: @json($solution->acquirerMasters->pluck('id')->map(fn($id) => (string) $id))
+                    },
+                @endforeach
+            };
+
+            // Acquirer master constraints mapping
+            const acquirersData = {
+                @foreach ($acquirers as $acquirer)
+                    {{ $acquirer->id }}: {
+                        supportedCountries: @json($acquirer->supported_countries ?? []),
+                        supportedSolutions: @json($acquirer->supported_solutions ?? []),
                     },
                 @endforeach
             };
@@ -707,8 +721,22 @@
 
                 if (countrySelect) {
                     countrySelect.addEventListener('change', function() {
+                        updateSolutionFilters(solutionSelect ? solutionSelect.value : '');
                         updatePriceListOptions();
                     });
+                }
+
+                function getSelectedCountryTokens() {
+                    if (!countrySelect) {
+                        return [];
+                    }
+
+                    const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                    const selectedCode = normalizeToken(countrySelect.value || '');
+                    const selectedText = selectedOption ? selectedOption.textContent : '';
+                    const selectedName = normalizeToken((selectedText || '').replace(/\([A-Z]{2,3}\)\s*$/, ''));
+
+                    return [selectedCode, selectedName].filter(Boolean);
                 }
 
                 function parseRules(value) {
@@ -1013,6 +1041,11 @@
                 function updateSolutionFilters(solutionId) {
                     const data = solutionsData[solutionId];
                     const countrySelect = document.querySelector('select[name="country_of_operation"]');
+                    const allowedPaymentMethodNames = (data?.paymentMethods || []).map(normalizeToken);
+                    const allowedPaymentMethodIds = (data?.paymentMethodIds || []).map(String);
+                    const allowedAcquirerSlugs = (data?.acquirers || []).map(normalizeToken);
+                    const allowedAcquirerIds = (data?.acquirerIds || []).map(String);
+                    const selectedSolutionId = String(solutionId || '');
 
                     // --- Filter countries ---
                     if (countrySelect) {
@@ -1037,13 +1070,17 @@
                         }
                     }
 
+                    const selectedCountryTokens = getSelectedCountryTokens();
+
                     // --- Filter payment method pills ---
                     const pmWrappers = document.querySelectorAll('[data-pm-wrapper]');
                     pmWrappers.forEach(wrapper => {
-                        const methodName = wrapper.getAttribute('data-pm-wrapper');
+                        const methodName = normalizeToken(wrapper.getAttribute('data-pm-wrapper'));
+                        const methodId = String(wrapper.getAttribute('data-pm-id') || '');
                         if (!data) {
                             wrapper.style.display = '';
-                        } else if (data.paymentMethods.includes(methodName)) {
+                        } else if (allowedPaymentMethodIds.includes(methodId) ||
+                            allowedPaymentMethodNames.includes(methodName)) {
                             wrapper.style.display = '';
                         } else {
                             wrapper.style.display = 'none';
@@ -1061,10 +1098,37 @@
                     // --- Filter acquirer cards ---
                     const acquirerCards = document.querySelectorAll('[data-acquirer-slug]');
                     acquirerCards.forEach(card => {
-                        const slug = card.getAttribute('data-acquirer-slug');
-                        if (!data) {
-                            card.style.display = '';
-                        } else if (data.acquirers.includes(slug)) {
+                        const slug = normalizeToken(card.getAttribute('data-acquirer-slug'));
+                        const acquirerId = String(card.getAttribute('data-acquirer-id') || '');
+                        const acquirerMeta = acquirersData[acquirerId] || {
+                            supportedCountries: [],
+                            supportedSolutions: []
+                        };
+
+                        const supportedCountries = (Array.isArray(acquirerMeta.supportedCountries) ? acquirerMeta
+                            .supportedCountries : [])
+                            .map(normalizeToken)
+                            .filter(Boolean);
+                        const supportedSolutions = (Array.isArray(acquirerMeta.supportedSolutions) ? acquirerMeta
+                            .supportedSolutions : [])
+                            .map(value => String(value));
+
+                        const matchesSolutionMasterMap = allowedAcquirerIds.includes(acquirerId) ||
+                            allowedAcquirerSlugs.includes(slug);
+                        const matchesAcquirerMasterSolution = supportedSolutions.length === 0 ||
+                            supportedSolutions.includes(selectedSolutionId);
+
+                        // Allow acquirer if either Solution Master map OR Acquirer Master solution map matches.
+                        const passesSolutionConstraint = !selectedSolutionId ||
+                            matchesSolutionMasterMap || matchesAcquirerMasterSolution;
+
+                        const passesAcquirerCountry = selectedCountryTokens.length === 0 || supportedCountries
+                            .length === 0 ||
+                            selectedCountryTokens.some(token => supportedCountries.includes(token));
+
+                        const visible = passesSolutionConstraint && passesAcquirerCountry;
+
+                        if (visible) {
                             card.style.display = '';
                         } else {
                             card.style.display = 'none';

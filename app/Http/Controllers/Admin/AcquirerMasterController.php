@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcquirerMaster;
+use App\Models\Country;
 use App\Models\SolutionMaster;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -44,6 +45,7 @@ class AcquirerMasterController extends Controller
 
         $acquirers = $query->latest()->paginate(15);
         $solutions = SolutionMaster::all();
+        $countryMasterOptions = Country::orderBy('name')->get(['name', 'code']);
         
         // Get unique countries for filter dropdown
         $countries = AcquirerMaster::whereNotNull('supported_countries')
@@ -58,6 +60,7 @@ class AcquirerMasterController extends Controller
             'acquirers' => $acquirers,
             'solutions' => $solutions,
             'countries' => $countries,
+            'countryMasterOptions' => $countryMasterOptions,
         ]);
     }
 
