@@ -794,6 +794,39 @@
                     return [String(value)];
                 }
 
+                function parseArrayLike(value) {
+                    if (value === null || value === undefined || value === '') {
+                        return [];
+                    }
+
+                    if (Array.isArray(value)) {
+                        return value;
+                    }
+
+                    if (typeof value === 'string') {
+                        const trimmed = value.trim();
+                        if (!trimmed) {
+                            return [];
+                        }
+
+                        try {
+                            const parsed = JSON.parse(trimmed);
+                            return parseArrayLike(parsed);
+                        } catch (error) {
+                            return trimmed
+                                .split(',')
+                                .map(item => item.trim())
+                                .filter(Boolean);
+                        }
+                    }
+
+                    if (typeof value === 'object') {
+                        return Object.values(value);
+                    }
+
+                    return [value];
+                }
+
                 function normalizeToken(value) {
                     return String(value || '')
                         .trim()
@@ -1229,12 +1262,10 @@
                             supportedSolutions: []
                         };
 
-                        const supportedCountries = (Array.isArray(acquirerMeta.supportedCountries) ? acquirerMeta
-                            .supportedCountries : [])
+                        const supportedCountries = parseArrayLike(acquirerMeta.supportedCountries)
                             .map(normalizeToken)
                             .filter(Boolean);
-                        const supportedSolutions = (Array.isArray(acquirerMeta.supportedSolutions) ? acquirerMeta
-                            .supportedSolutions : [])
+                        const supportedSolutions = parseArrayLike(acquirerMeta.supportedSolutions)
                             .map(value => String(value));
 
                         const matchesSolutionMasterMap = allowedAcquirerIds.includes(acquirerId) ||
@@ -1242,8 +1273,13 @@
                         const matchesAcquirerMasterSolution = supportedSolutions.length === 0 ||
                             supportedSolutions.includes(selectedSolutionId);
 
+                        const hasSolutionMasterRules = allowedAcquirerIds.length > 0 ||
+                            allowedAcquirerSlugs.length > 0;
+                        const hasAcquirerMasterRules = supportedSolutions.length > 0;
+
                         const passesSolutionConstraint = !selectedSolutionId ||
-                            (matchesSolutionMasterMap && matchesAcquirerMasterSolution);
+                            (hasAcquirerMasterRules ? matchesAcquirerMasterSolution :
+                                (hasSolutionMasterRules ? matchesSolutionMasterMap : true));
 
                         const passesAcquirerCountry = selectedCountryTokens.length === 0 || supportedCountries
                             .length === 0 ||
