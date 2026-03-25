@@ -228,10 +228,17 @@
     @push('scripts')
         <script>
             // Check authentication status and handle start KYC flow
+            const kycLink = @json($kyc_link ?? $onboarding?->kyc_link ?? null);
+
             async function handleStartKYC() {
                 try {
                     // Attempt to fetch user data via an authenticated endpoint
-                    const response = await fetch('{{ route("merchant.kyc.check-auth") }}', {
+                    const checkAuthUrl = new URL('{{ route("merchant.kyc.check-auth") }}', window.location.origin);
+                    if (kycLink) {
+                        checkAuthUrl.searchParams.set('kyc_link', kycLink);
+                    }
+
+                    const response = await fetch(checkAuthUrl.toString(), {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -243,8 +250,8 @@
                     const data = await response.json();
 
                     if (response.ok && data.authenticated && data.is_merchant) {
-                        // User is authenticated as merchant, redirect to company page
-                        window.location.href = '{{ route("merchant.kyc.company", ["kyc_link" => $kyc_link ?? $onboarding?->kyc_link]) }}';
+                        // User is authenticated as merchant, redirect to the computed first section.
+                        window.location.href = data.redirect_url || '{{ route("merchant.kyc.company", ["kyc_link" => $kyc_link ?? $onboarding?->kyc_link]) }}';
                     } else {
                         // User is not authenticated or not a merchant, show login form
                         toggleLoginForm(true);
@@ -306,8 +313,8 @@
                     const data = await response.json();
 
                     if (response.ok && data.success) {
-                        // Login successful, redirect to company page
-                        window.location.href = '{{ route("merchant.kyc.company", ["kyc_link" => $kyc_link ?? $onboarding?->kyc_link]) }}';
+                        // Login successful, use backend-provided redirect.
+                        window.location.href = data.redirect_url || '{{ route("merchant.kyc.company", ["kyc_link" => $kyc_link ?? $onboarding?->kyc_link]) }}';
                     } else {
                         // Login failed, show error message
                         const errorMsg = data.message || 'Invalid email or password. Please try again.';
@@ -359,7 +366,12 @@
             // Initialize: Check auth status on page load
             window.addEventListener('load', function() {
                 // Check auth status immediately
-                fetch('{{ route("merchant.kyc.check-auth") }}', {
+                const checkAuthUrl = new URL('{{ route("merchant.kyc.check-auth") }}', window.location.origin);
+                if (kycLink) {
+                    checkAuthUrl.searchParams.set('kyc_link', kycLink);
+                }
+
+                fetch(checkAuthUrl.toString(), {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',

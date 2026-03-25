@@ -90,6 +90,23 @@ class KycController extends Controller
         return Onboarding::where('kyc_link', $kyc_link)->first();
     }
 
+    private function resolveFirstSectionRedirectUrl(?string $kycLink): string
+    {
+        $firstSection = KycSection::where('status', 'active')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->first(['slug']);
+
+        if ($firstSection) {
+            return route('merchant.kyc.section', [
+                'kyc_link' => $kycLink,
+                'section' => $firstSection->slug,
+            ]);
+        }
+
+        return route('merchant.kyc.company', ['kyc_link' => $kycLink]);
+    }
+
     public function welcome($kyc_link = null): View
     {
         $onboarding = null;
@@ -501,11 +518,16 @@ class KycController extends Controller
     /**
      * Check authentication status and merchant role
      */
-    public function checkAuth(): JsonResponse
+    public function checkAuth(Request $request): JsonResponse
     {
         $user = Auth::user();
         $authenticated = $user !== null;
         $isMerchant = $authenticated && (int) $user->role_id === 2;
+        $kycLink = (string) $request->query('kyc_link', '');
+
+        $redirectUrl = $isMerchant
+            ? $this->resolveFirstSectionRedirectUrl($kycLink !== '' ? $kycLink : null)
+            : null;
 
         return response()->json([
             'authenticated' => $authenticated,
@@ -516,6 +538,7 @@ class KycController extends Controller
                 'email' => $user->email,
                 'role_id' => $user->role_id,
             ] : null,
+            'redirect_url' => $redirectUrl,
         ]);
     }
 
@@ -554,16 +577,7 @@ class KycController extends Controller
             // Regenerate session to prevent fixation attacks
             $request->session()->regenerate();
 
-            // Get first active KYC section by sort_order, then id
-            $firstSection = KycSection::where('status', 'active')
-                ->orderBy('sort_order')
-                ->orderBy('id')
-                ->first(['slug']);
-                dd($firstSection);
-
-            $redirectRoute = $firstSection 
-                ? route('merchant.kyc.section', ['kyc_link' => $validated['kyc_link'] ?? null, 'section' => $firstSection->slug])
-                : route('merchant.kyc.company', ['kyc_link' => $validated['kyc_link'] ?? null]);
+            $redirectRoute = $this->resolveFirstSectionRedirectUrl($validated['kyc_link'] ?? null);
 
             return response()->json([
                 'success' => true,
