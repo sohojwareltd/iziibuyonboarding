@@ -554,6 +554,16 @@ class KycController extends Controller
             // Regenerate session to prevent fixation attacks
             $request->session()->regenerate();
 
+            // Get first active KYC section by sort_order, then id
+            $firstSection = KycSection::where('status', 'active')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->first(['slug']);
+
+            $redirectRoute = $firstSection 
+                ? route('merchant.kyc.section', ['kyc_link' => $validated['kyc_link'] ?? null, 'section' => $firstSection->slug])
+                : route('merchant.kyc.company', ['kyc_link' => $validated['kyc_link'] ?? null]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Logged in successfully',
@@ -563,7 +573,7 @@ class KycController extends Controller
                     'email' => $user->email,
                     'role_id' => $user->role_id,
                 ],
-                'redirect_url' => route('merchant.kyc.company', ['kyc_link' => $validated['kyc_link'] ?? null]),
+                'redirect_url' => $redirectRoute,
             ]);
         } catch (ValidationException $e) {
             return response()->json([
