@@ -16,6 +16,7 @@
             $query->where('status', 'active')->orderBy('sort_order');
         }])
         ->orderBy('sort_order')
+        ->orderBy('id')
         ->get();
 
     // Build steps array from database (fully dynamic)
@@ -65,6 +66,31 @@
 
         $active = $active ?? 1;
     }
+
+    $loggedUser = auth()->user();
+    $loggedName = (string) ($loggedUser?->name ?: 'Guest User');
+    $loggedEmail = (string) ($loggedUser?->email ?: 'Not signed in');
+
+    $nameParts = preg_split('/\s+/', trim($loggedName)) ?: [];
+    $initials = '';
+    foreach ($nameParts as $part) {
+        if ($part === '') {
+            continue;
+        }
+
+        $initials .= strtoupper(substr($part, 0, 1));
+
+        if (strlen($initials) >= 2) {
+            break;
+        }
+    }
+
+    if ($initials === '') {
+        $emailPrefix = strtok($loggedEmail, '@') ?: $loggedEmail;
+        $initials = strtoupper(substr($emailPrefix, 0, 2));
+    }
+
+    $userInitials = substr($initials ?: 'GU', 0, 2);
 @endphp
 
 <aside id="kyc-sidebar" class="fixed md:relative -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex w-[280px] md:w-[260px] bg-white border-r border-gray-200 flex-col h-full overflow-y-auto shrink-0 z-50 md:z-20 shadow-2xl md:shadow-sm">
@@ -122,11 +148,11 @@
     <div class="p-6 border-t border-gray-100">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
-                AD
+                {{ $userInitials }}
             </div>
             <div>
-                <p class="text-xs font-semibold text-slate-700">Admin User</p>
-                <p class="text-[10px] text-slate-500">admin@2izii.com</p>
+                <p class="text-xs font-semibold text-slate-700">{{ $loggedName }}</p>
+                <p class="text-[10px] text-slate-500">{{ $loggedEmail }}</p>
             </div>
         </div>
     </div>
