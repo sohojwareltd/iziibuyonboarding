@@ -295,6 +295,7 @@ class KycController extends Controller
 
         $sections = KycSection::where('status', 'active')
             ->orderBy('sort_order')
+            ->orderBy('id')
             ->get(['id', 'name', 'slug', 'sort_order']);
 
         $currentIndex = $sections->search(fn ($item) => $item->slug === $sectionModel->slug);
