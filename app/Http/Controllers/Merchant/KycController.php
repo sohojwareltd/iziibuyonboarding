@@ -559,6 +559,7 @@ class KycController extends Controller
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->first(['slug']);
+                dd($firstSection);
 
             $redirectRoute = $firstSection 
                 ? route('merchant.kyc.section', ['kyc_link' => $validated['kyc_link'] ?? null, 'section' => $firstSection->slug])
