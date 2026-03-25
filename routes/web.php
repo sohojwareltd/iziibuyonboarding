@@ -28,6 +28,8 @@ Route::get('/', function () {
     return redirect()->route('admin.login');
 });
 
+Route::get('/forgot-password', [KycController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [KycController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/reset-password/{token}', [KycController::class, 'showResetPasswordForm'])->name('password.reset');
 Route::post('/reset-password', [KycController::class, 'resetPassword'])->name('password.update');
 
@@ -112,7 +114,6 @@ Route::prefix('merchant')
                 // Authentication endpoints - accessible without merchant.role middleware
                 Route::get('/check-auth', [KycController::class, 'checkAuth'])->name('check-auth');
                 Route::post('/login', [KycController::class, 'login'])->name('login');
-                Route::post('/forgot-password', [KycController::class, 'forgotPassword'])->name('forgot-password');
 
                 // Protected KYC pages - require merchant role
                 Route::middleware(['merchant.role', 'merchant.kyc.gate'])->group(function () {
@@ -136,7 +137,7 @@ Route::prefix('merchant')
 Route::get('/test-mail', function () {
 
     Mail::raw('This is a test email from Laravel.', function ($message) {
-        $message->to('ahmedtamimm19050@gmail.com')
+        $message->to('ahmedtamim19050@gmail.com')
             ->subject('Laravel Test Mail');
     });
 

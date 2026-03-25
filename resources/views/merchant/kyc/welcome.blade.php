@@ -215,7 +215,7 @@
 
                         <!-- Forgot Password Link -->
                         <div class="text-center mt-4">
-                            <a href="#" id="forgot-password-link" class="text-sm text-[#FF7C00] hover:text-[#E56D00] font-medium">
+                            <a href="{{ route('password.request', ['email' => old('email', ''), 'kyc_link' => $kyc_link ?? $onboarding?->kyc_link]) }}" class="text-sm text-[#FF7C00] hover:text-[#E56D00] font-medium">
                                 Forgot your password?
                             </a>
                         </div>
@@ -355,43 +355,6 @@
                 const formContainer = document.getElementById('login-form-container');
                 formContainer.insertBefore(successDiv, formContainer.querySelector('.bg-white'));
             }
-
-            document.getElementById('forgot-password-link')?.addEventListener('click', async function(e) {
-                e.preventDefault();
-
-                const emailInput = document.getElementById('email');
-                const email = (emailInput?.value || '').trim();
-
-                if (!email) {
-                    showError('Please enter your email first, then click Forgot your password.');
-                    emailInput?.focus();
-                    return;
-                }
-
-                try {
-                    const response = await fetch('{{ route("merchant.kyc.forgot-password") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify({ email })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok && data.success) {
-                        showSuccess(data.message || 'If the email is registered, a reset link has been sent.');
-                    } else {
-                        showError(data.message || 'Unable to send reset link right now.');
-                    }
-                } catch (error) {
-                    showError('Unable to send reset link right now. Please try again.');
-                }
-            });
 
             // Initialize: Check auth status on page load
             window.addEventListener('load', function() {

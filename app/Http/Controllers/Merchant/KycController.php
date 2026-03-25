@@ -545,7 +545,7 @@ class KycController extends Controller
     /**
      * Send password reset link for merchant users.
      */
-    public function forgotPassword(Request $request): JsonResponse
+    public function sendResetLinkEmail(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -558,10 +558,7 @@ class KycController extends Controller
 
             // Return a generic success response to avoid exposing account existence.
             if (! $merchantUser) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'If the email is registered, a reset link has been sent.',
-                ]);
+                return back()->with('status', 'If the email is registered, a reset link has been sent.');
             }
 
             $status = Password::sendResetLink([
@@ -569,28 +566,26 @@ class KycController extends Controller
             ]);
 
             if ($status === Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'success' => true,
-                    'message' => __($status),
-                ]);
+                return back()->with('status', __($status));
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => __($status),
-            ], 422);
+            return back()->withErrors(['email' => __($status)]);
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return back()->withErrors($e->errors())->withInput($request->only('email'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unable to process forgot password request.',
-            ], 500);
+            return back()->withErrors(['email' => 'Unable to process forgot password request.']);
         }
+    }
+
+    /**
+     * Display forgot password form.
+     */
+    public function showForgotPasswordForm(Request $request): View
+    {
+        return view('merchant.kyc.forgot-password', [
+            'email' => (string) $request->query('email', ''),
+            'kyc_link' => (string) $request->query('kyc_link', ''),
+        ]);
     }
 
     /**
