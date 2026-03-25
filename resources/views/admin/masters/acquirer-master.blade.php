@@ -1116,9 +1116,22 @@
                     .filter(Boolean);
                 renderSupportedCountries();
 
-                const solutionIds = acquirer.supported_solutions || [];
+                const rawSolutions = acquirer.supported_solutions ?? [];
+                let solutionIds = [];
+
+                if (Array.isArray(rawSolutions)) {
+                    solutionIds = rawSolutions.map(value => String(value));
+                } else if (typeof rawSolutions === 'string' && rawSolutions.trim()) {
+                    try {
+                        const parsedSolutions = JSON.parse(rawSolutions);
+                        solutionIds = Array.isArray(parsedSolutions) ? parsedSolutions.map(value => String(value)) : [];
+                    } catch (error) {
+                        solutionIds = [];
+                    }
+                }
+
                 document.querySelectorAll('.solution-checkbox').forEach(checkbox => {
-                    checkbox.checked = solutionIds.includes(parseInt(checkbox.value));
+                    checkbox.checked = solutionIds.includes(checkbox.value);
                 });
 
                 toggleModeFields();
