@@ -53,19 +53,6 @@
 
             @forelse($sections as $section)
                 <!-- Dynamic Section Card -->
-                @php
-                    $slugToRouteMap = [
-                        'company-information' => 'company',
-                        'beneficial-owners' => 'beneficialOwners',
-                        'board-members-gm' => 'boardMembers',
-                        'contact-person' => 'contactPerson',
-                        'purpose-of-service' => 'purposeOfService',
-                        'sales-channels' => 'salesChannels',
-                        'bank-information' => 'bankInformation',
-                        'authorized-signatories' => 'authorizedSignatories',
-                    ];
-                    $routeName = $slugToRouteMap[$section->slug] ?? $section->slug;
-                @endphp
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden accordion-item">
                     <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition-colors accordion-header"
                         onclick="toggleAccordion(this)">
@@ -76,8 +63,8 @@
                         <i class="fa-solid fa-chevron-down text-gray-400 chevron-icon flex-shrink-0"></i>
                     </div>
                     <div class="accordion-content border-t border-gray-100 bg-white relative">
-                        <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors" 
-                            data-route="{{ route('merchant.kyc.' . $routeName, ['kyc_link' => $kyc_link]) }}">
+                        <button type="button" class="edit-btn absolute top-4 sm:top-6 right-4 sm:right-6 border border-accent text-accent hover:bg-orange-50 text-xs font-medium px-2 sm:px-3 py-1.5 rounded transition-colors"
+                            data-route="{{ route('merchant.kyc.section', ['kyc_link' => $kyc_link, 'section' => $section->slug]) }}">
                             <i class="fa-solid fa-pen mr-1 hidden sm:inline"></i> Edit
                         </button>
                         @php
