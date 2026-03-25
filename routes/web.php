@@ -126,6 +126,7 @@ Route::prefix('merchant')
                     Route::get('/{kyc_link}/sales-channels', [KycController::class, 'salesChannels'])->name('salesChannels');
                     Route::get('/{kyc_link}/bank-information', [KycController::class, 'bankInformation'])->name('bankInformation');
                     Route::get('/{kyc_link}/authorized-signatories', [KycController::class, 'authorizedSignatories'])->name('authorizedSignatories');
+                    Route::get('/{kyc_link}/section/{section}', [KycController::class, 'section'])->name('section');
                     Route::get('/{kyc_link}/review', [KycController::class, 'review'])->name('review');
                     Route::post('/{kyc_link}/review', [KycController::class, 'submitReview'])->name('review.submit');
                     Route::get('/{kyc_link}/thank-you', [KycController::class, 'thankYou'])->name('thankyou');

@@ -282,6 +282,40 @@ class KycController extends Controller
         ]);
     }
 
+    public function section(string $kyc_link, string $section): View
+    {
+        $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
+
+        $sectionModel = KycSection::where('slug', $section)
+            ->where('status', 'active')
+            ->with(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
+            }])
+            ->firstOrFail();
+
+        $sections = KycSection::where('status', 'active')
+            ->orderBy('sort_order')
+            ->get(['id', 'name', 'slug', 'sort_order']);
+
+        $currentIndex = $sections->search(fn ($item) => $item->slug === $sectionModel->slug);
+        $prevSection = $currentIndex !== false ? $sections->get($currentIndex - 1) : null;
+        $nextSection = $currentIndex !== false ? $sections->get($currentIndex + 1) : null;
+
+        $savedValues = $onboarding
+            ? KycFieldData::getForSection($onboarding, $sectionModel)
+            : [];
+
+        return view('merchant.kyc.section', [
+            'kyc_link' => $kyc_link,
+            'onboarding_id' => $onboarding?->id,
+            'section' => $sectionModel,
+            'fields' => $sectionModel->kycFields,
+            'savedValues' => $savedValues,
+            'prevSection' => $prevSection,
+            'nextSection' => $nextSection,
+        ]);
+    }
+
     public function review($kyc_link = null): View
     {
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);

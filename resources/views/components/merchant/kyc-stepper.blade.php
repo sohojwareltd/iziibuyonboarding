@@ -18,34 +18,20 @@
         ->orderBy('sort_order')
         ->get();
 
-    // Map section slugs to actual route names
-    $slugToRouteMap = [
-        'company-information' => 'company',
-        'beneficial-owners' => 'beneficialOwners',
-        'board-members-gm' => 'boardMembers',
-        'contact-person' => 'contactPerson',
-        'purpose-of-service' => 'purposeOfService',
-        'sales-channels' => 'salesChannels',
-        'bank-information' => 'bankInformation',
-        'authorized-signatories' => 'authorizedSignatories',
-        'review' => 'review',
-    ];
-
-    // Build steps array from database
+    // Build steps array from database (fully dynamic)
     $steps = [];
-    $routeStepMap = [];
+    $stepSlugMap = [];
+    $stepLinks = [];
     
     foreach ($kycSections as $index => $section) {
         $stepNumber = $index + 1;
         $steps[$stepNumber] = $section->name;
-        // Map route names using slug mapping
-        $routeName = $slugToRouteMap[$section->slug] ?? null;
-        if ($routeName) {
-            $routeStepMap['merchant.kyc.' . $routeName] = $stepNumber;
-        }
+        $stepSlugMap[$stepNumber] = $section->slug;
+        $stepLinks[$stepNumber] = route('merchant.kyc.section', [
+            'kyc_link' => $kycLink,
+            'section' => $section->slug,
+        ]);
     }
-
-    $stepRoutes = array_flip($routeStepMap);
 
     $completedSectionIds = [];
     if (!empty($kycLink)) {
@@ -65,7 +51,19 @@
     // Auto-detect active step from current route if not provided
     if ($active === null) {
         $currentRoute = Route::currentRouteName();
-        $active = $routeStepMap[$currentRoute] ?? 1;
+        $active = null;
+
+        if ($currentRoute === 'merchant.kyc.section') {
+            $currentSectionSlug = request()->route('section');
+            foreach ($stepSlugMap as $stepNumber => $slug) {
+                if ($slug === $currentSectionSlug) {
+                    $active = $stepNumber;
+                    break;
+                }
+            }
+        }
+
+        $active = $active ?? 1;
     }
 @endphp
 
@@ -87,13 +85,12 @@
                     $isActive = $active === $num;
                     $section = $kycSections[$num - 1] ?? null;
                     $isCompleted = $section ? in_array((int) $section->id, $completedSectionIds, true) : false;
-                    $routeName = $stepRoutes[$num] ?? null;
-                    $routeParams = $routeName ? ['kyc_link' => $kycLink] : [];
+                    $stepUrl = $stepLinks[$num] ?? '#';
                     $fields = $section ? $section->kycFields : collect();
                     $fieldList = $fields->pluck('field_name')->implode(', ');
                 @endphp
                 <li class="relative group {{ $isActive ? 'bg-orange-50/50 border-l-4 border-accent' : '' }}">
-                    <a href="{{ $routeName ? route($routeName, $routeParams) : '#' }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white" title="{{ $fieldList ? 'Fields: ' . $fieldList : '' }}">
+                    <a href="{{ $stepUrl }}" class="flex items-center {{ $isActive ? 'px-5' : 'px-6' }} py-3 text-sm font-medium {{ $isActive ? 'text-slate-900' : 'text-slate-600' }} focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white" title="{{ $fieldList ? 'Fields: ' . $fieldList : '' }}">
                         <span class="flex items-center justify-center w-6 h-6 rounded-full {{ $isCompleted ? 'bg-green-100 text-success' : ($isActive ? 'bg-white border border-gray-step flex h-6 items-center justify-center mr-3 rounded-full text-gray-step text-xs w-6' : 'border border-gray-step text-gray-step bg-white') }} mr-3 text-xs">
                             @if($isCompleted)
                                 <i class="fa-solid fa-check text-xs"></i>
