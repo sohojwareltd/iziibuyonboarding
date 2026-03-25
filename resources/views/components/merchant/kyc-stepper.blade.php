@@ -49,17 +49,43 @@
             ->all();
     }
 
-    // Auto-detect active step from current route if not provided
+    // Auto-detect active step from current route/section if not provided
     if ($active === null) {
-        $currentRoute = Route::currentRouteName();
         $active = null;
 
-        if ($currentRoute === 'merchant.kyc.section') {
-            $currentSectionSlug = request()->route('section');
+        // Primary source: dynamic section route parameter.
+        $currentSectionSlug = trim((string) request()->route('section', ''));
+        if ($currentSectionSlug !== '') {
             foreach ($stepSlugMap as $stepNumber => $slug) {
                 if ($slug === $currentSectionSlug) {
                     $active = $stepNumber;
                     break;
+                }
+            }
+        }
+
+        // Fallback for legacy named routes still used in some KYC screens.
+        if ($active === null) {
+            $routeToSlugMap = [
+                'merchant.kyc.company' => 'company-information',
+                'merchant.kyc.beneficialOwners' => 'beneficial-owners',
+                'merchant.kyc.boardMembers' => 'board-members-gm',
+                'merchant.kyc.contactPerson' => 'contact-person',
+                'merchant.kyc.purposeOfService' => 'purpose-of-service',
+                'merchant.kyc.salesChannels' => 'sales-channels',
+                'merchant.kyc.bankInformation' => 'bank-information',
+                'merchant.kyc.authorizedSignatories' => 'authorized-signatories',
+            ];
+
+            $currentRoute = Route::currentRouteName();
+            $mappedSlug = $routeToSlugMap[$currentRoute] ?? null;
+
+            if ($mappedSlug !== null) {
+                foreach ($stepSlugMap as $stepNumber => $slug) {
+                    if ($slug === $mappedSlug) {
+                        $active = $stepNumber;
+                        break;
+                    }
                 }
             }
         }
@@ -97,7 +123,7 @@
     <div class="p-5 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <x-app-logo variant="dark" size="sm" class="h-7" />
-            <span class="text-primary text-xl font-bold tracking-tight"><span class="font-light text-slate-400"> Admin</span></span>
+            <span class="text-primary text-xl font-bold tracking-tight"><span class="font-light text-slate-400"> Merchant</span></span>
         </div>
         <button id="mobile-close-btn" class="md:hidden text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <i class="fa-solid fa-xmark text-xl"></i>
