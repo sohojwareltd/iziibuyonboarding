@@ -6,10 +6,14 @@ use App\Facades\KycFieldData;
 use App\Http\Controllers\Controller;
 use App\Models\Onboarding;
 use App\Models\KycSection;
+use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -536,5 +540,102 @@ class KycController extends Controller
                 'message' => 'An error occurred during login',
             ], 500);
         }
+    }
+
+    /**
+     * Send password reset link for merchant users.
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'email' => 'required|email',
+            ]);
+
+            $merchantUser = User::where('email', $validated['email'])
+                ->where('role_id', 2)
+                ->first();
+
+            // Return a generic success response to avoid exposing account existence.
+            if (! $merchantUser) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'If the email is registered, a reset link has been sent.',
+                ]);
+            }
+
+            $status = Password::sendResetLink([
+                'email' => $validated['email'],
+            ]);
+
+            if ($status === Password::RESET_LINK_SENT) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __($status),
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 422);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to process forgot password request.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Display reset password form.
+     */
+    public function showResetPasswordForm(Request $request, string $token): View
+    {
+        return view('merchant.kyc.reset-password', [
+            'token' => $token,
+            'email' => (string) $request->query('email', ''),
+        ]);
+    }
+
+    /**
+     * Reset password from emailed token.
+     */
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            [
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+                'password_confirmation' => $request->input('password_confirmation'),
+                'token' => $validated['token'],
+            ],
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('admin.login')->with('success', __($status));
+        }
+
+        return back()
+            ->withInput($request->only('email'))
+            ->withErrors(['email' => __($status)]);
     }
 }

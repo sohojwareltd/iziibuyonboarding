@@ -119,7 +119,7 @@ class OnboardingController extends Controller
         }
 
         return redirect()
-            ->route('admin.onboarding.index')
+            ->route('admin.onboarding.track')
             ->with('success', 'Onboarding created successfully.');
     }
 

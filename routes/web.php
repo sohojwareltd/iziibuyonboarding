@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -26,6 +27,11 @@ Route::get('/', function () {
     // Otherwise redirect to login
     return redirect()->route('admin.login');
 });
+
+Route::get('/reset-password/{token}', [KycController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [KycController::class, 'resetPassword'])->name('password.update');
+
+
 
 Route::prefix('admin')
     ->name('admin.')
@@ -80,12 +86,12 @@ Route::prefix('admin')
 
             Route::resource('partners', PartnerController::class);
             Route::resource('categories', CategoryController::class);
-            
+
             // Settings
             Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
             Route::post('settings', [SettingController::class, 'store'])->name('settings.store');
             Route::delete('settings/{setting}', [SettingController::class, 'destroy'])->name('settings.destroy');
-            
+
             // User Management Routes
             Route::resource('users', UserController::class);
 
@@ -102,11 +108,12 @@ Route::prefix('merchant')
             ->group(function () {
                 // Welcome page - accessible without authentication
                 Route::get('/{kyc_link}', [KycController::class, 'welcome'])->name('start');
-                
+
                 // Authentication endpoints - accessible without merchant.role middleware
                 Route::get('/check-auth', [KycController::class, 'checkAuth'])->name('check-auth');
                 Route::post('/login', [KycController::class, 'login'])->name('login');
-                
+                Route::post('/forgot-password', [KycController::class, 'forgotPassword'])->name('forgot-password');
+
                 // Protected KYC pages - require merchant role
                 Route::middleware(['merchant.role', 'merchant.kyc.gate'])->group(function () {
                     Route::post('/{kyc_link}/sections/{section}/fields', [KycController::class, 'saveSectionFields'])->name('section.fields.save');
@@ -124,3 +131,14 @@ Route::prefix('merchant')
                 });
             });
     });
+
+
+Route::get('/test-mail', function () {
+
+    Mail::raw('This is a test email from Laravel.', function ($message) {
+        $message->to('ahmedtamimm19050@gmail.com')
+            ->subject('Laravel Test Mail');
+    });
+
+    return 'Test mail sent successfully!';
+});
