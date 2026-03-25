@@ -109,17 +109,17 @@ class OnboardingController extends Controller
                     ->send(new KycLinkMail($onboarding, $merchantPassword));
                 
                 return redirect()
-                    ->route('admin.onboarding.index')
+                    ->route('admin.onboarding.track', $onboarding)
                     ->with('success', 'Onboarding created and KYC link sent to ' . $onboarding->merchant_contact_email);
             } catch (\Exception $e) {
                 return redirect()
-                    ->route('admin.onboarding.index')
+                    ->route('admin.onboarding.track', $onboarding)
                     ->with('warning', 'Onboarding created but failed to send email: ' . $e->getMessage());
             }
         }
 
         return redirect()
-            ->route('admin.onboarding.track')
+            ->route('admin.onboarding.track', $onboarding)
             ->with('success', 'Onboarding created successfully.');
     }
 
