@@ -456,10 +456,10 @@
                                         </table>
                                     </div>
                                 </div>
-                                <button class="flex items-center gap-2 text-brand-secondary text-sm font-medium">
+                                {{-- <button class="flex items-center gap-2 text-brand-secondary text-sm font-medium">
                                     <i class="fa-solid fa-pen text-xs"></i>
                                     Customize Pricing for this Merchant
-                                </button>
+                                </button> --}}
                             </div>
                         </section>
 
