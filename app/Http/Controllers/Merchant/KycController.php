@@ -297,6 +297,7 @@ class KycController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get(['id', 'name', 'slug', 'sort_order']);
+        dd($sections);
 
         $currentIndex = $sections->search(fn ($item) => $item->slug === $sectionModel->slug);
         $prevSection = $currentIndex !== false ? $sections->get($currentIndex - 1) : null;
