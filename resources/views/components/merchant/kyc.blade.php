@@ -91,9 +91,13 @@
         });
 
         window.addEventListener('load', function() {
-            const uploadZones = document.querySelectorAll('.upload-zone');
+            const uploadZones = document.querySelectorAll('.upload-zone:not([data-file-upload])');
             uploadZones.forEach(zone => {
                 const input = zone.querySelector('input[type="file"]');
+                if (!input) {
+                    return;
+                }
+
                 zone.addEventListener('click', () => input.click());
 
                 input.addEventListener('change', function() {

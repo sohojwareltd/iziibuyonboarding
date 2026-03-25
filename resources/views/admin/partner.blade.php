@@ -241,11 +241,11 @@
                                         <i class="fa-solid fa-search text-sm"></i>
                                         <span>Search</span>
                                     </button>
-                                    <button type="button" onclick="exportPartners()"
+                                    {{-- <button type="button" onclick="exportPartners()"
                                         class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-download text-sm"></i>
                                         <span class="hidden xs:inline">Export</span>
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
 

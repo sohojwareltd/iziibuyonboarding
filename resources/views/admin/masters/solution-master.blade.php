@@ -359,11 +359,11 @@
                                         <i id="filter-arrow"
                                             class="fa-solid fa-chevron-down text-xs transition-transform"></i>
                                     </button>
-                                    <a href="{{ route('admin.masters.solution-master.export', request()->query()) }}"
+                                    {{-- <a href="{{ route('admin.masters.solution-master.export', request()->query()) }}"
                                         class="bg-white border border-gray-200 text-gray-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-download text-sm"></i>
                                         <span class="hidden xs:inline">Export</span>
-                                    </a>
+                                    </a> --}}
                                 </div>
                             </div>
 

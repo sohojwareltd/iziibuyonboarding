@@ -277,14 +277,14 @@
             @endforeach
 
         </div>
-
+{{-- 
         <div class="text-center mb-8">
             <button type="button" id="add-bo-btn"
                 class="inline-flex items-center gap-2 px-8 py-2.5 border border-brand-accent text-brand-accent bg-white hover:bg-blue-50 font-medium rounded-lg transition-colors duration-200">
                 <i class="fa-solid fa-plus text-sm"></i>
                 <span>Add Another Beneficial Owner</span>
             </button>
-        </div>
+        </div> --}}
 
         <footer id="footer"
             class="fixed bottom-0 right-0 w-full md:w-[calc(100%-260px)] bg-white border-t border-brand-border px-4 sm:px-6 md:px-12 py-3 sm:py-4 z-30">
