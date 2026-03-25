@@ -44,7 +44,8 @@ class KycController extends Controller
                         ->orWhereJsonContains('visible_countries', strtolower($countryCode));
                 }
             })
-            ->orderBy('sort_order');
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 
     private function buildDocumentTypeFileRules(KycSection $sectionModel): array
@@ -297,7 +298,6 @@ class KycController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get(['id', 'name', 'slug', 'sort_order']);
-        dd($sections);
 
         $currentIndex = $sections->search(fn ($item) => $item->slug === $sectionModel->slug);
         $prevSection = $currentIndex !== false ? $sections->get($currentIndex - 1) : null;
@@ -311,7 +311,7 @@ class KycController extends Controller
             'kyc_link' => $kyc_link,
             'onboarding_id' => $onboarding?->id,
             'section' => $sectionModel,
-            'fields' => $sectionModel->kycFields,
+            'fields' => $sectionModel->kycFields->sortBy('sort_order'),
             'savedValues' => $savedValues,
             'prevSection' => $prevSection,
             'nextSection' => $nextSection,
@@ -327,6 +327,7 @@ class KycController extends Controller
                 $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->orderBy('sort_order')
+            ->orderBy('id')
             ->get();
 
         $groupedSectionSlugs = ['beneficial-owners', 'board-members-gm', 'authorized-signatories'];
