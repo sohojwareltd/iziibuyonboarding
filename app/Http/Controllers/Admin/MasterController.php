@@ -56,14 +56,18 @@ class MasterController extends Controller
     public function syncAcquirerFieldMapping(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'items' => 'required|array|min:1',
+            'items' => 'required|array',
             'items.*.field_id' => 'required|integer|exists:k_y_c_field_masters,id',
             'items.*.kyc_section_id' => 'required|integer|exists:kyc_sections,id',
             'items.*.sort_order' => 'required|integer|min:0',
+            'sections' => 'nullable|array',
+            'sections.*.section_id' => 'required|integer|exists:kyc_sections,id',
+            'sections.*.sort_order' => 'required|integer|min:0',
         ]);
 
         $fieldIds = collect($validated['items'])->pluck('field_id')->unique()->values();
         $sectionIds = collect($validated['items'])->pluck('kyc_section_id')->unique()->values();
+        $orderedSectionIds = collect($validated['sections'] ?? [])->pluck('section_id')->unique()->values();
 
         $fields = KYCFieldMaster::query()
             ->whereIn('id', $fieldIds)
@@ -71,7 +75,7 @@ class MasterController extends Controller
             ->keyBy('id');
 
         $sections = KycSection::query()
-            ->whereIn('id', $sectionIds)
+            ->whereIn('id', $sectionIds->merge($orderedSectionIds))
             ->get()
             ->keyBy('id');
 
@@ -98,6 +102,19 @@ class MasterController extends Controller
                     'kyc_section_id' => $field->kyc_section_id,
                     'internal_key' => $field->internal_key,
                 ];
+            }
+
+            foreach (($validated['sections'] ?? []) as $sectionItem) {
+                $section = $sections->get($sectionItem['section_id']);
+
+                if (! $section) {
+                    continue;
+                }
+
+                if ((int) $section->sort_order !== (int) $sectionItem['sort_order']) {
+                    $section->sort_order = $sectionItem['sort_order'];
+                    $section->save();
+                }
             }
         });
 

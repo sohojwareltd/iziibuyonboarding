@@ -211,6 +211,25 @@
             background: rgba(147, 197, 253, 0.12);
         }
 
+        .section-drag-handle {
+            cursor: grab;
+            color: #9CA3AF;
+            transition: color 0.2s ease;
+        }
+        .section-drag-handle:hover {
+            color: #4055A8;
+        }
+        .field-section.is-dragging-section {
+            opacity: 0.6;
+        }
+        .section-drop-placeholder {
+            height: 62px;
+            margin: 8px 0;
+            border: 2px dashed #93C5FD;
+            border-radius: 12px;
+            background: rgba(147, 197, 253, 0.12);
+        }
+
         /* Preview Tabs */
         .preview-tabs {
             display: flex;
@@ -551,7 +570,7 @@
                                     @endphp
 
                                     <!-- Field Sections -->
-                                    <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl overflow-hidden min-w-[880px] divide-y divide-gray-100">
+                                    <div id="field-sections-container" class="bg-white border border-gray-200 border-t-0 rounded-b-xl overflow-hidden min-w-[880px] divide-y divide-gray-100">
                                         @foreach ($kycSections as $sIndex => $section)
                                             @php
                                                 $color = $sectionColors[$sIndex % count($sectionColors)];
@@ -564,8 +583,11 @@
                                             @endphp
                                             <div class="field-section" data-section-id="{{ $section->id }}" data-section-name="{{ Str::lower($section->name) }}">
                                                 {{-- Section Header --}}
-                                                <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-3 sm:px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this)">
+                                                <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-3 sm:px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this, event)">
                                                     <div class="flex items-center gap-3">
+                                                        <span class="section-drag-handle" draggable="true" title="Drag section" aria-label="Drag section">
+                                                            <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                                        </span>
                                                         <i class="fa-solid {{ $isFirst ? 'fa-chevron-down' : 'fa-chevron-right' }} text-xs text-brand-secondary section-chevron"></i>
                                                         <div class="w-7 h-7 bg-white/70 rounded-lg flex items-center justify-center shadow-sm">
                                                             <i class="fa-solid {{ $icon }} text-brand-cta text-xs"></i>
@@ -800,11 +822,14 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || @json(csrf_token());
             const dragState = {
                 row: null,
+                section: null,
                 snapshot: '',
                 isSaving: false,
             };
             const dropPlaceholder = document.createElement('div');
             dropPlaceholder.className = 'drop-placeholder';
+            const sectionDropPlaceholder = document.createElement('div');
+            sectionDropPlaceholder.className = 'section-drop-placeholder';
 
             function setSaveStatus(state, text) {
                 const el = document.getElementById('mapping-save-status');
@@ -836,11 +861,20 @@
             }
 
             function captureLayoutSnapshot() {
-                return JSON.stringify(getLayoutPayload().items);
+                return JSON.stringify(getLayoutPayload());
             }
 
             function getLayoutPayload() {
                 const items = [];
+                const sections = [];
+
+                document.querySelectorAll('#field-sections-container .field-section').forEach((section, index) => {
+                    sections.push({
+                        section_id: Number(section.dataset.sectionId),
+                        sort_order: index,
+                    });
+                });
+
                 document.querySelectorAll('.section-dropzone').forEach(dropzone => {
                     const sectionId = Number(dropzone.dataset.sectionId);
                     dropzone.querySelectorAll('.field-row').forEach((row, index) => {
@@ -852,13 +886,28 @@
                     });
                 });
 
-                return { items };
+                return { items, sections };
             }
 
             function getDragAfterElement(container, clientY) {
                 const draggableRows = [...container.querySelectorAll('.field-row:not(.is-dragging)')];
 
                 return draggableRows.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = clientY - box.top - box.height / 2;
+
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset, element: child };
+                    }
+
+                    return closest;
+                }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+            }
+
+            function getSectionDragAfterElement(container, clientY) {
+                const draggableSections = [...container.querySelectorAll('.field-section:not(.is-dragging-section)')];
+
+                return draggableSections.reduce((closest, child) => {
                     const box = child.getBoundingClientRect();
                     const offset = clientY - box.top - box.height / 2;
 
@@ -928,6 +977,9 @@
                 document.querySelectorAll('.section-dropzone').forEach(dropzone => dropzone.classList.remove('drag-over'));
                 if (dropPlaceholder.parentNode) {
                     dropPlaceholder.parentNode.removeChild(dropPlaceholder);
+                }
+                if (sectionDropPlaceholder.parentNode) {
+                    sectionDropPlaceholder.parentNode.removeChild(sectionDropPlaceholder);
                 }
             }
 
@@ -1009,6 +1061,11 @@
 
             function handleSectionHeaderDrop(event) {
                 event.preventDefault();
+
+                if (dragState.section) {
+                    return;
+                }
+
                 const section = event.currentTarget.closest('.field-section');
                 const dropzone = section?.querySelector('.section-dropzone');
                 const content = section?.querySelector('.section-content');
@@ -1038,6 +1095,71 @@
 
             function initDragAndDrop() {
                 dragState.snapshot = captureLayoutSnapshot();
+
+                const sectionsContainer = document.getElementById('field-sections-container');
+
+                document.querySelectorAll('.section-drag-handle').forEach(handle => {
+                    handle.addEventListener('dragstart', event => {
+                        const section = handle.closest('.field-section');
+                        if (!section) {
+                            event.preventDefault();
+                            return;
+                        }
+
+                        dragState.section = section;
+                        dragState.snapshot = captureLayoutSnapshot();
+                        section.classList.add('is-dragging-section');
+                        event.dataTransfer.effectAllowed = 'move';
+                        event.dataTransfer.setData('text/plain', section.dataset.sectionId || '');
+                    });
+
+                    handle.addEventListener('dragend', () => {
+                        const section = handle.closest('.field-section');
+                        section?.classList.remove('is-dragging-section');
+                        dragState.section = null;
+                        clearDropState();
+                    });
+                });
+
+                if (sectionsContainer) {
+                    sectionsContainer.addEventListener('dragover', event => {
+                        if (!dragState.section) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        const afterElement = getSectionDragAfterElement(sectionsContainer, event.clientY);
+
+                        if (afterElement) {
+                            sectionsContainer.insertBefore(sectionDropPlaceholder, afterElement);
+                        } else {
+                            sectionsContainer.appendChild(sectionDropPlaceholder);
+                        }
+                    });
+
+                    sectionsContainer.addEventListener('drop', event => {
+                        if (!dragState.section) {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        if (sectionDropPlaceholder.parentNode === sectionsContainer) {
+                            sectionsContainer.insertBefore(dragState.section, sectionDropPlaceholder);
+                        } else {
+                            sectionsContainer.appendChild(dragState.section);
+                        }
+
+                        dragState.section.classList.remove('is-dragging-section');
+                        dragState.section = null;
+                        clearDropState();
+
+                        const nextSnapshot = captureLayoutSnapshot();
+                        if (nextSnapshot !== dragState.snapshot) {
+                            persistLayout();
+                        }
+                    });
+                }
 
                 document.querySelectorAll('.field-row').forEach(row => {
                     row.addEventListener('dragstart', event => {
@@ -1103,7 +1225,11 @@
             }
 
             // Toggle individual section
-            function toggleSection(header) {
+            function toggleSection(header, event) {
+                if (event?.target?.closest('.section-drag-handle')) {
+                    return;
+                }
+
                 const section = header.closest('.field-section');
                 const content = section.querySelector('.section-content');
                 const chevron = header.querySelector('.section-chevron');
