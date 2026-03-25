@@ -10,7 +10,7 @@
 
         @if($fields->isNotEmpty())
             <section class="mb-10">
-                <h2 class="text-xl font-semibold text-brand-dark mb-6">{{ $section->name }}</h2>
+                {{-- <h2 class="text-xl font-semibold text-brand-dark mb-6">{{ $section->name }}</h2> --}}
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     @foreach($fields as $field)

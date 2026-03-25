@@ -260,6 +260,7 @@
         @case('file')
             <x-input.file-upload 
                 :label="$fieldLabel"
+                :value="$value"
                 :required="$isRequired"
                 name="{{ $fieldName }}"
                 :accept="$acceptValue"

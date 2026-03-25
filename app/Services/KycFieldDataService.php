@@ -38,6 +38,8 @@ class KycFieldDataService
             $value = $entry['value'];
             if ($value instanceof UploadedFile) {
                 $value = $value->store('kyc/uploads', 'public');
+            } elseif (($value === null || $value === '') && !empty($entry['existing_value'])) {
+                $value = $entry['existing_value'];
             }
 
             $existing = Information::query()->where([
@@ -145,6 +147,7 @@ class KycFieldDataService
                 'field_id' => $fieldId,
                 'key' => $key,
                 'value' => $value,
+                'existing_value' => is_array($item) ? ($item['existing_value'] ?? null) : null,
             ];
         }
 

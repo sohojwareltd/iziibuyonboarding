@@ -1,7 +1,23 @@
-@props(['label' => null, 'name' => null, 'required' => false, 'accept' => '.pdf,.jpg,.jpeg,.png', 'maxSize' => '5MB', 'icon' => 'cloud-arrow-up'])
+@props(['label' => null, 'name' => null, 'value' => null, 'required' => false, 'accept' => '.pdf,.jpg,.jpeg,.png', 'maxSize' => '5MB', 'icon' => 'cloud-arrow-up'])
 
 @php
     $inputId = 'file-upload-' . str_replace('.', '', uniqid('', true));
+    $existingFilePath = is_string($value) && trim($value) !== '' ? trim($value) : null;
+    $existingFileName = $existingFilePath ? basename($existingFilePath) : '';
+    $existingFileExtension = strtolower(pathinfo($existingFileName, PATHINFO_EXTENSION));
+    $existingImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    $isExistingImage = in_array($existingFileExtension, $existingImageExtensions, true);
+    $existingFileUrl = null;
+
+    if ($existingFilePath) {
+        if (\Illuminate\Support\Str::startsWith($existingFilePath, ['http://', 'https://', '/storage/'])) {
+            $existingFileUrl = $existingFilePath;
+        } else {
+            $existingFileUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($existingFilePath);
+        }
+    }
+
+    $existingValueInputName = $name ? str_replace('[value]', '[existing_value]', $name) : null;
 @endphp
 
 <label
@@ -11,7 +27,7 @@
         'class' => 'file-upload-zone bg-white rounded-xl border-2 border-dashed border-gray-300 p-6 text-center cursor-pointer hover:border-accent transition-colors block'
     ]) }}
 >
-    <div data-file-upload-empty>
+    <div data-file-upload-empty class="{{ $existingFilePath ? 'hidden' : '' }}">
         <i class="fa-solid fa-{{ $icon }} text-3xl text-gray-400 mb-3"></i>
 
         @if($label)
@@ -35,12 +51,21 @@
         @if($required) required @endif
     >
 
-    <div class="mt-2 hidden" data-file-upload-preview>
+    @if($existingValueInputName)
+        <input
+            type="hidden"
+            name="{{ $existingValueInputName }}"
+            value="{{ $existingFilePath }}"
+            data-file-upload-existing-input
+        >
+    @endif
+
+    <div class="mt-2 {{ $existingFilePath ? '' : 'hidden' }}" data-file-upload-preview>
         <div class="flex items-center justify-between gap-3 text-left">
             <div class="flex items-center gap-3 min-w-0">
                 <i class="fa-solid fa-file text-xl text-brand-orange" data-file-upload-file-icon></i>
                 <div class="min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate" data-file-upload-name-preview></p>
+                    <p class="text-sm font-medium text-gray-900 truncate" data-file-upload-name-preview>{{ $existingFileName }}</p>
                     <p class="text-xs text-gray-500">Uploaded successfully</p>
                 </div>
             </div>
@@ -54,7 +79,7 @@
             </button>
         </div>
 
-        <img class="hidden mx-auto mt-3 max-h-40 rounded-md border border-gray-200" data-file-upload-image-preview alt="File preview">
+        <img class="{{ $isExistingImage && $existingFileUrl ? '' : 'hidden' }} mx-auto mt-3 max-h-40 rounded-md border border-gray-200" data-file-upload-image-preview alt="File preview" @if($existingFileUrl) src="{{ $existingFileUrl }}" @endif>
     </div>
 </label>
 
@@ -80,6 +105,7 @@
             const emptyWrap = wrapper.querySelector('[data-file-upload-empty]');
             const imagePreview = wrapper.querySelector('[data-file-upload-image-preview]');
             const namePreview = wrapper.querySelector('[data-file-upload-name-preview]');
+            const existingInput = wrapper.querySelector('[data-file-upload-existing-input]');
             const file = input.files && input.files[0] ? input.files[0] : null;
 
             if (!previewWrap || !emptyWrap || !imagePreview || !namePreview) {
@@ -100,6 +126,10 @@
             emptyWrap.classList.add('hidden');
             wrapper.classList.add('bg-green-50', 'border-green-300');
             namePreview.textContent = file.name;
+
+            if (existingInput) {
+                existingInput.value = '';
+            }
 
             if (file.type && file.type.startsWith('image/')) {
                 imagePreview.src = URL.createObjectURL(file);
@@ -132,9 +162,14 @@
             const emptyWrap = wrapper.querySelector('[data-file-upload-empty]');
             const imagePreview = wrapper.querySelector('[data-file-upload-image-preview]');
             const namePreview = wrapper.querySelector('[data-file-upload-name-preview]');
+            const existingInput = wrapper.querySelector('[data-file-upload-existing-input]');
 
             if (input) {
                 input.value = '';
+            }
+
+            if (existingInput) {
+                existingInput.value = '';
             }
 
             wrapper.classList.remove('bg-green-50', 'border-green-300');
