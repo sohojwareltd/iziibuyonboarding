@@ -83,12 +83,12 @@ class OnboardingController extends Controller
         ]);
 
         $action = $request->input('action', 'draft');
-        $status = $action === 'send' ? 'sent' : 'draft';
+        $status = $action == 'send' ? 'sent' : 'draft';
         $userId = auth()->id() ?? User::first()?->id ?? 1;
         $merchantUser = null;
         $merchantPassword = null;
 
-        if ($status === 'sent') {
+        if ($status == 'sent') {
             ['user' => $merchantUser, 'plain_password' => $merchantPassword] = $this->resolveMerchantUser($validated);
         }
 
@@ -98,12 +98,12 @@ class OnboardingController extends Controller
             'status' => $status,
             'created_by' => $userId,
             'merchant_user_id' => $merchantUser?->id,
-            'sent_at' => $status === 'sent' ? now() : null,
-            'kyc_link' => $status === 'sent' ? Onboarding::generateKycLink() : null,
+            'sent_at' => $status == 'sent' ? now() : null,
+            'kyc_link' => $status == 'sent' ? Onboarding::generateKycLink() : null,
         ]);
 
         // Send email if action is 'send'
-        if ($action === 'send' && $onboarding->kyc_link) {
+        if ($action == 'send' && $onboarding->kyc_link) {
             try {
                 Mail::to($onboarding->merchant_contact_email)
                     ->send(new KycLinkMail($onboarding, $merchantPassword));

@@ -50,7 +50,7 @@ Route::prefix('admin')
                     Route::get('/create', [OnboardingController::class, 'create'])->name('create');
                     Route::post('/', [OnboardingController::class, 'store'])->name('store');
                     Route::get('/start', [OnboardingController::class, 'start'])->name('start');
-                    Route::get('/track', fn() => redirect()->route('admin.onboarding.index'))->name('track.redirect');
+                    // Route::get('/track', fn() => redirect()->route('admin.onboarding.index'))->name('track.redirect');
                     Route::get('/track/{onboarding}', [OnboardingController::class, 'track'])->name('track');
                     Route::get('/{onboarding}/edit', [OnboardingController::class, 'edit'])->name('edit');
                     Route::put('/{onboarding}', [OnboardingController::class, 'update'])->name('update');
@@ -137,7 +137,7 @@ Route::prefix('merchant')
 Route::get('/test-mail', function () {
 
     Mail::raw('This is a test email from Laravel.', function ($message) {
-        $message->to('ahmedtamim19050@gmail.com')
+        $message->to('reovilsayed@gmail.com')
             ->subject('Laravel Test Mail');
     });
 
