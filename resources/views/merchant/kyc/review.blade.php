@@ -71,6 +71,11 @@
                             $sectionReview = $reviewData[$section->id] ?? ['type' => 'single', 'values' => []];
                             $isGrouped = ($sectionReview['type'] ?? 'single') === 'grouped';
                             $sectionValues = $sectionReview['values'] ?? [];
+                            $resolveFileUrl = function ($v) {
+                                if (!is_string($v) || $v === '') return null;
+                                if (str_starts_with($v, 'http://') || str_starts_with($v, 'https://') || str_starts_with($v, '/storage/')) return $v;
+                                return \Illuminate\Support\Facades\Storage::disk('public')->url($v);
+                            };
                         @endphp
 
                         <div class="p-4 sm:p-6 pt-12 sm:pt-6">
@@ -101,10 +106,12 @@
                                                                         @break
                                                                     @case('file')
                                                                         @if ($value)
-                                                                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
-                                                                                <i class="fa-solid fa-file text-blue-500"></i>
-                                                                                {{ basename($value) }}
-                                                                            </span>
+                                                                            @php $fileUrl = $resolveFileUrl($value); @endphp
+                                                                            <a href="{{ $fileUrl }}" target="_blank" rel="noopener noreferrer"
+                                                                                class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors">
+                                                                                <i class="fa-solid fa-paperclip text-blue-500"></i>
+                                                                                <span>{{ basename($value) }}</span>
+                                                                            </a>
                                                                         @else
                                                                             <span class="text-gray-400">No file uploaded</span>
                                                                         @endif
@@ -143,10 +150,12 @@
                                                             @break
                                                         @case('file')
                                                             @if ($value)
-                                                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
-                                                                    <i class="fa-solid fa-file text-blue-500"></i>
-                                                                    {{ basename($value) }}
-                                                                </span>
+                                                                @php $fileUrl = $resolveFileUrl($value); @endphp
+                                                                <a href="{{ $fileUrl }}" target="_blank" rel="noopener noreferrer"
+                                                                    class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors">
+                                                                    <i class="fa-solid fa-paperclip text-blue-500"></i>
+                                                                    <span>{{ basename($value) }}</span>
+                                                                </a>
                                                             @else
                                                                 <span class="text-gray-400">No file uploaded</span>
                                                             @endif

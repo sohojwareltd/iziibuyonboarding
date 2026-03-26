@@ -84,7 +84,11 @@
                     return $value;
                 }
 
-                return Illuminate\Support\Facades\Storage::url($value);
+                if (str_starts_with($value, '/storage/')) {
+                    return $value;
+                }
+
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
             };
 
             $firstSection = $kycSections->first();
