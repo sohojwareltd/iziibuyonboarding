@@ -237,6 +237,35 @@
                         </div>
                     </section>
 
+                    @if($onboarding->kyc_link)
+                        <section class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                                <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wide">KYC Link Preview</h2>
+                            </div>
+                            <div class="p-6 space-y-2">
+                                <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                                        <i class="fa-solid fa-link text-gray-400 shrink-0"></i>
+                                        <span class="font-mono text-sm text-gray-600 truncate" id="kyc-link-text">
+                                            {{ url('/merchant/kyc/' . $onboarding->kyc_link) }}
+                                        </span>
+                                    </div>
+
+                                    <button type="button"
+                                        class="copy-kyc-link-btn bg-brand-primary text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 hover:bg-brand-secondary transition-colors shrink-0"
+                                        data-kyc-link="{{ url('/merchant/kyc/' . $onboarding->kyc_link) }}">
+                                        <i class="fa-regular fa-copy text-xs"></i>
+                                        Copy Link
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-gray-500">
+                                    <i class="fa-solid fa-info-circle"></i>
+                                    <span>Share this link with merchant to continue KYC submission.</span>
+                                </div>
+                            </div>
+                        </section>
+                    @endif
+
                     <!-- Main Content Area with Tabs -->
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Left Column: Tabbed Content -->
