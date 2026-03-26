@@ -19,6 +19,8 @@ use Illuminate\View\View;
 
 class KycController extends Controller
 {
+    private const ARRAY_REQUIRED_TYPES = ['checkbox', 'multi-select'];
+
     private function normalizeOnboardingCountry(?Onboarding $onboarding): ?string
     {
         if (! $onboarding || empty($onboarding->country_of_operation)) {
@@ -76,6 +78,42 @@ class KycController extends Controller
             $rules['bo_fields.*.' . $fieldId . '.value'] = $baseRules;
             $rules['bm_fields.*.' . $fieldId . '.value'] = $baseRules;
             $rules['as_fields.*.' . $fieldId . '.value'] = $baseRules;
+        }
+
+        return $rules;
+    }
+
+    private function buildRequiredFieldRules(KycSection $sectionModel): array
+    {
+        $rules = [];
+
+        $requiredFields = $sectionModel->kycFields
+            ->where('is_required', true)
+            ->values();
+
+        foreach ($requiredFields as $field) {
+            $fieldId = (string) $field->id;
+            $isArrayType = in_array($field->data_type, self::ARRAY_REQUIRED_TYPES, true);
+            $isFileType = $field->data_type === 'file';
+
+            $singleFieldRules = $isArrayType ? ['required', 'array', 'min:1'] : ['required'];
+            $groupFieldRules = $isArrayType ? ['required', 'array', 'min:1'] : ['required'];
+
+            if ($isFileType) {
+                $singleFieldRules = ['required_without:dynamic_fields.' . $fieldId . '.existing_value'];
+                $groupFieldRules = [];
+            }
+
+            $rules['dynamic_fields.' . $fieldId . '.value'] = $singleFieldRules;
+            $rules['bo_fields.*.' . $fieldId . '.value'] = $groupFieldRules;
+            $rules['bm_fields.*.' . $fieldId . '.value'] = $groupFieldRules;
+            $rules['as_fields.*.' . $fieldId . '.value'] = $groupFieldRules;
+
+            if ($isFileType) {
+                $rules['bo_fields.*.' . $fieldId . '.value'][] = 'required_without:bo_fields.*.' . $fieldId . '.existing_value';
+                $rules['bm_fields.*.' . $fieldId . '.value'][] = 'required_without:bm_fields.*.' . $fieldId . '.existing_value';
+                $rules['as_fields.*.' . $fieldId . '.value'][] = 'required_without:as_fields.*.' . $fieldId . '.existing_value';
+            }
         }
 
         return $rules;
@@ -465,6 +503,11 @@ class KycController extends Controller
             $fileRules = $this->buildDocumentTypeFileRules($sectionModel);
             if (!empty($fileRules)) {
                 $request->validate($fileRules);
+            }
+
+            $requiredFieldRules = $this->buildRequiredFieldRules($sectionModel);
+            if (!empty($requiredFieldRules)) {
+                $request->validate($requiredFieldRules);
             }
 
             if (!empty($validated['bo_fields']) && is_array($validated['bo_fields'])) {

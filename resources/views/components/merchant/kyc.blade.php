@@ -46,6 +46,87 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 
+    <style>
+        #toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            min-width: 280px;
+            max-width: 420px;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.75rem;
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            animation: toast-in 0.25s ease-out;
+            pointer-events: auto;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            #toast-container {
+                left: 1rem;
+                right: 1rem;
+            }
+
+            .toast {
+                min-width: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+
     @stack('css')
 </head>
 
@@ -70,7 +151,7 @@
 
     </main>
 
-    <div id="toast-container" class="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:top-6 z-50"></div>
+    <div id="toast-container"></div>
 
     <script>
         // Mobile menu toggle
@@ -133,16 +214,18 @@
 
         function showToast(message, type) {
             const container = document.getElementById('toast-container');
-            const bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
-            const borderColor = type === 'success' ? 'border-green-500' : 'border-red-500';
-            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            const isSuccess = type === 'success';
 
             const toast = document.createElement('div');
-            toast.className =
-                `toast ${bgColor} border-l-4 ${borderColor} p-4 rounded-lg shadow-lg mb-3 flex items-center gap-3`;
+            toast.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'}`;
             toast.innerHTML = `
-                    <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} ${textColor}"></i>
-                    <p class="text-sm font-medium ${textColor}">${message}</p>
+                    <div class="toast-icon">
+                        <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="toast-title">${isSuccess ? 'Success' : 'Error'}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
                 `;
 
             container.appendChild(toast);

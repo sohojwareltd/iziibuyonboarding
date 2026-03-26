@@ -56,7 +56,7 @@
         data-file-upload-input
         @if($name) name="{{ $name }}" @endif
         accept="{{ $accept }}"
-        @if($required) required @endif
+        @if($required && !$existingFilePath) required @endif
     >
 
     @if($existingValueInputName)
