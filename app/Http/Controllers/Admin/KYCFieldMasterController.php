@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcquirerMaster;
 use App\Models\Country;
 use App\Models\DocumentTypesMaster;
 use App\Models\KYCFieldMaster;
@@ -52,8 +53,12 @@ class KYCFieldMasterController extends Controller
             ->where('status', 'active')
             ->orderBy('document_name')
             ->get(['id', 'document_name', 'allowed_file_types', 'max_file_size']);
+        $acquirers = AcquirerMaster::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
-        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections', 'countries', 'documentTypes'));
+        return view('admin.masters.kyc-field-master', compact('kycFields', 'kycSections', 'countries', 'documentTypes', 'acquirers'));
     }
 
     /**
@@ -79,6 +84,8 @@ class KYCFieldMasterController extends Controller
                 'visible_to_partner' => 'boolean',
                 'visible_countries' => 'nullable|array',
                 'visible_countries.*' => 'string|max:10',
+                'visible_acquirers' => 'nullable|array',
+                'visible_acquirers.*' => 'string|max:255',
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
@@ -95,6 +102,11 @@ class KYCFieldMasterController extends Controller
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));
             if (empty($validated['visible_countries'])) {
                 $validated['visible_countries'] = null;
+            }
+
+            $validated['visible_acquirers'] = array_values($request->input('visible_acquirers', []));
+            if (empty($validated['visible_acquirers'])) {
+                $validated['visible_acquirers'] = null;
             }
 
             KYCFieldMaster::create($validated);
@@ -149,6 +161,8 @@ class KYCFieldMasterController extends Controller
                 'visible_to_partner' => 'boolean',
                 'visible_countries' => 'nullable|array',
                 'visible_countries.*' => 'string|max:10',
+                'visible_acquirers' => 'nullable|array',
+                'visible_acquirers.*' => 'string|max:255',
                 'sort_order' => 'required|integer|min:0',
                 'status' => 'required|in:active,draft,inactive',
             ]);
@@ -165,6 +179,11 @@ class KYCFieldMasterController extends Controller
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));
             if (empty($validated['visible_countries'])) {
                 $validated['visible_countries'] = null;
+            }
+
+            $validated['visible_acquirers'] = array_values($request->input('visible_acquirers', []));
+            if (empty($validated['visible_acquirers'])) {
+                $validated['visible_acquirers'] = null;
             }
 
             $kycField->update($validated);

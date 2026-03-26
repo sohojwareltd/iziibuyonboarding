@@ -30,9 +30,36 @@ class KycController extends Controller
         return strtoupper((string) $onboarding->country_of_operation);
     }
 
+    private function normalizeOnboardingAcquirers(?Onboarding $onboarding): array
+    {
+        if (! $onboarding) {
+            return [];
+        }
+
+        $acquirers = $onboarding->acquirers;
+        if (!is_array($acquirers)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($acquirers as $acquirer) {
+            $value = trim((string) $acquirer);
+            if ($value === '') {
+                continue;
+            }
+
+            $normalized[] = $value;
+            $normalized[] = strtolower($value);
+            $normalized[] = strtoupper($value);
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
     private function applyFieldVisibilityRules($query, ?Onboarding $onboarding)
     {
         $countryCode = $this->normalizeOnboardingCountry($onboarding);
+        $acquirerTokens = $this->normalizeOnboardingAcquirers($onboarding);
 
         return $query->with('documentType')
             ->where('status', 'active')
@@ -44,6 +71,14 @@ class KycController extends Controller
                 if ($countryCode) {
                     $q->orWhereJsonContains('visible_countries', $countryCode)
                         ->orWhereJsonContains('visible_countries', strtolower($countryCode));
+                }
+            })
+            ->where(function ($q) use ($acquirerTokens) {
+                $q->whereNull('visible_acquirers')
+                    ->orWhereJsonLength('visible_acquirers', 0);
+
+                foreach ($acquirerTokens as $token) {
+                    $q->orWhereJsonContains('visible_acquirers', $token);
                 }
             })
             ->orderBy('sort_order')
@@ -365,6 +400,7 @@ class KycController extends Controller
         return view('merchant.kyc.section', [
             'kyc_link' => $kyc_link,
             'onboarding_id' => $onboarding?->id,
+            'onboardingAcquirers' => is_array($onboarding?->acquirers) ? $onboarding->acquirers : [],
             'section' => $sectionModel,
             'fields' => $sectionModel->kycFields->sortBy('sort_order'),
             'savedValues' => $savedValues,
@@ -490,8 +526,11 @@ class KycController extends Controller
             ]);
 
             $sectionModel = KycSection::where('slug', $section)->firstOrFail();
-            $sectionModel->load(['kycFields' => fn ($query) => $query->with('documentType')]);
             $onboarding = Onboarding::findOrFail((int) $validated['onboarding_id']);
+
+            $sectionModel->load(['kycFields' => function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
+            }]);
 
             if ($onboarding->kyc_link !== $kyc_link) {
                 return response()->json([

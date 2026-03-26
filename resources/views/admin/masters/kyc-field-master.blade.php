@@ -983,6 +983,33 @@
                                     @endforeach
                                 </div>
                             </div>
+
+                            <div class="pt-2 border-t border-gray-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-sm font-medium text-gray-700">Acquirer wise visibility</label>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="toggleAllVisibilityAcquirers(true)"
+                                            class="text-xs text-brand-secondary font-semibold hover:text-brand-primary">Select All</button>
+                                        <button type="button" onclick="toggleAllVisibilityAcquirers(false)"
+                                            class="text-xs text-gray-500 font-semibold hover:text-gray-700">Clear</button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-500 mb-2">If no acquirer selected, field will be visible for all onboarding acquirers.</div>
+                                <div class="relative mb-2">
+                                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <input type="text" id="visible-acquirer-search" class="form-input pl-8" placeholder="Search acquirer..." oninput="filterVisibilityAcquirers(this.value)">
+                                </div>
+                                <div id="visible-acquirer-list" class="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-white">
+                                    @foreach ($acquirers as $acquirer)
+                                        <label class="visible-acquirer-item flex items-center gap-2 cursor-pointer px-1 py-1 rounded hover:bg-gray-50"
+                                            data-search="{{ strtolower($acquirer->name) }}">
+                                            <input type="checkbox" name="visible_acquirers[]" value="{{ $acquirer->name }}"
+                                                class="w-4 h-4 border-gray-400 rounded text-blue-600 visible-acquirer-checkbox">
+                                            <span class="text-sm text-gray-700">{{ $acquirer->name }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Divider -->
@@ -1194,6 +1221,27 @@
         });
     }
 
+    function filterVisibilityAcquirers(searchText) {
+        const term = (searchText || '').toLowerCase().trim();
+        document.querySelectorAll('.visible-acquirer-item').forEach(item => {
+            const haystack = item.dataset.search || '';
+            item.style.display = haystack.includes(term) ? '' : 'none';
+        });
+    }
+
+    function toggleAllVisibilityAcquirers(shouldCheck) {
+        document.querySelectorAll('.visible-acquirer-item').forEach(item => {
+            if (item.style.display === 'none') {
+                return;
+            }
+
+            const checkbox = item.querySelector('.visible-acquirer-checkbox');
+            if (checkbox) {
+                checkbox.checked = shouldCheck;
+            }
+        });
+    }
+
     function openDrawer() {
         resetForm();
         document.getElementById('kyc-field-form').dataset.mode = 'create';
@@ -1223,10 +1271,17 @@
         document.getElementById('visible-admin').checked = true;
         document.getElementById('visible-partner').checked = false;
         document.getElementById('visible-country-search').value = '';
+        document.getElementById('visible-acquirer-search').value = '';
         document.querySelectorAll('.visible-country-item').forEach(item => {
             item.style.display = '';
         });
+        document.querySelectorAll('.visible-acquirer-item').forEach(item => {
+            item.style.display = '';
+        });
         document.querySelectorAll('.visible-country-checkbox').forEach(chk => {
+            chk.checked = false;
+        });
+        document.querySelectorAll('.visible-acquirer-checkbox').forEach(chk => {
             chk.checked = false;
         });
         // Reset options
@@ -1341,6 +1396,7 @@
         visible_to_admin: 'Visible to Admin',
         visible_to_partner: 'Visible to Partner',
         visible_countries: 'Country Visibility',
+        visible_acquirers: 'Acquirer Visibility',
         sort_order: 'Sort Order',
         status: 'Status',
     };
@@ -1369,6 +1425,11 @@
         if (root === 'visible_countries' && parts.length >= 2) {
             const rowIndex = Number(parts[1]);
             return `Country Visibility (item #${Number.isFinite(rowIndex) ? rowIndex + 1 : '?'})`;
+        }
+
+        if (root === 'visible_acquirers' && parts.length >= 2) {
+            const rowIndex = Number(parts[1]);
+            return `Acquirer Visibility (item #${Number.isFinite(rowIndex) ? rowIndex + 1 : '?'})`;
         }
 
         return FRIENDLY_FIELD_LABELS[root] || toTitleCase(root);
@@ -1474,6 +1535,12 @@
                     : [];
                 document.querySelectorAll('.visible-country-checkbox').forEach(chk => {
                     chk.checked = selectedVisibleCountries.includes(chk.value.toUpperCase());
+                });
+                const selectedVisibleAcquirers = Array.isArray(data.visible_acquirers)
+                    ? data.visible_acquirers.map(value => String(value).toLowerCase())
+                    : [];
+                document.querySelectorAll('.visible-acquirer-checkbox').forEach(chk => {
+                    chk.checked = selectedVisibleAcquirers.includes(String(chk.value).toLowerCase());
                 });
 
                 // Update drawer title

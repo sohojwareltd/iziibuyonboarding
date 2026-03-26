@@ -16,10 +16,16 @@
                     @foreach($fields as $field)
                         @php
                             $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'col-span-2' : '';
+                            $fieldVisibleAcquirers = collect($field->visible_acquirers ?? [])->map(fn ($value) => strtolower(trim((string) $value)))->filter();
+                            $activeOnboardingAcquirers = collect($onboardingAcquirers ?? [])->map(fn ($value) => strtolower(trim((string) $value)))->filter();
+                            $isVisibleForAcquirer = $fieldVisibleAcquirers->isEmpty()
+                                || $fieldVisibleAcquirers->intersect($activeOnboardingAcquirers)->isNotEmpty();
                         @endphp
-                        <div class="{{ $colSpan }}">
-                            <x-kyc-field :field="$field" :value="$savedValues[$field->id] ?? null" />
-                        </div>
+                        @if($isVisibleForAcquirer)
+                            <div class="{{ $colSpan }}">
+                                <x-kyc-field :field="$field" :value="$savedValues[$field->id] ?? null" />
+                            </div>
+                        @endif
                     @endforeach
                 </div>
             </section>

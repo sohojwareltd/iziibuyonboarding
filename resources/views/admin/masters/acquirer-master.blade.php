@@ -777,16 +777,12 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Solutions</label>
-                                <div class="bg-white border border-gray-200 rounded-lg p-3" id="solutions-container">
+                                <select name="supported_solutions[]" id="supported-solutions-select" class="form-input" multiple size="6">
                                     @foreach ($solutions as $solution)
-                                        <label class="flex items-center gap-2 mb-2">
-                                            <input type="checkbox" name="supported_solutions[]"
-                                                value="{{ $solution->id }}"
-                                                class="solution-checkbox w-4 h-4 border-gray-400 rounded">
-                                            <span class="text-sm text-gray-700">{{ $solution->name }}</span>
-                                        </label>
+                                        <option value="{{ $solution->id }}">{{ $solution->name }}</option>
                                     @endforeach
-                                </div>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) to select multiple solutions.</p>
                             </div>
                         </div>
 
@@ -1130,9 +1126,12 @@
                     }
                 }
 
-                document.querySelectorAll('.solution-checkbox').forEach(checkbox => {
-                    checkbox.checked = solutionIds.includes(checkbox.value);
-                });
+                const solutionsSelect = document.getElementById('supported-solutions-select');
+                if (solutionsSelect) {
+                    Array.from(solutionsSelect.options).forEach(option => {
+                        option.selected = solutionIds.includes(option.value);
+                    });
+                }
 
                 toggleModeFields();
             }
@@ -1209,7 +1208,10 @@
                 const id = this.dataset.id;
                 const formData = new FormData(this);
 
-                const solutions = Array.from(document.querySelectorAll('.solution-checkbox:checked')).map(c => c.value);
+                const solutionsSelect = document.getElementById('supported-solutions-select');
+                const solutions = solutionsSelect
+                    ? Array.from(solutionsSelect.selectedOptions).map(option => option.value)
+                    : [];
                 formData.set('supported_solutions', JSON.stringify(solutions));
 
                 formData.set('secure_email_required', document.getElementById('secure_email_required').checked ? '1' : '0');

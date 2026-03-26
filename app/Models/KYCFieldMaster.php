@@ -22,6 +22,7 @@ class KYCFieldMaster extends Model
         'visible_to_admin',
         'visible_to_partner',
         'visible_countries',
+        'visible_acquirers',
         'sort_order',
         'status',
     ];
@@ -33,6 +34,7 @@ class KYCFieldMaster extends Model
         'visible_to_partner' => 'boolean',
         'options' => 'array',
         'visible_countries' => 'array',
+        'visible_acquirers' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
