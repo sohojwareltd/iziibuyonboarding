@@ -172,12 +172,21 @@
                                     @forelse($acquirerRecords as $acquirer)
                                         @php
                                             $initials = strtoupper(substr($acquirer->name, 0, 2));
-                                            $modeLabel = ucfirst($acquirer->mode ?? 'N/A');
+                                            $acquirerKey = strtolower((string) $acquirer->name);
+                                            $acquirerState = $acquirerTrackingMatrix[$acquirerKey] ?? null;
+                                            $modeLabel = $acquirerState['mode'] ?? ucfirst($acquirer->mode ?? 'N/A');
                                             $modeColors = [
                                                 'email' => 'bg-blue-50 text-blue-800',
                                                 'api' => 'bg-purple-50 text-purple-800',
                                             ];
                                             $modeClass = $modeColors[strtolower($acquirer->mode ?? '')] ?? 'bg-gray-50 text-gray-800';
+                                            $acquirerStatus = $acquirerState['status'] ?? [
+                                                'label' => ucfirst(str_replace('-', ' ', $onboarding->status)),
+                                                'class' => $currentStatus['bg'] . ' ' . $currentStatus['text'],
+                                                'icon' => $currentStatus['icon'],
+                                            ];
+                                            $acquirerHistory = $acquirerState['history'] ?? [];
+                                            $acquirerLastUpdate = $acquirerState['last_update'] ?? $onboarding->updated_at->format('M d, H:i');
                                             $colorSets = ['bg-gray-100 text-gray-600', 'bg-indigo-100 text-indigo-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600'];
                                             $colorSet = $colorSets[$loop->index % count($colorSets)];
                                         @endphp
@@ -192,15 +201,43 @@
                                                 <span class="{{ $modeClass }} px-2 py-1 rounded-full text-xs font-semibold">{{ $modeLabel }}</span>
                                             </td>
                                             <td class="px-6 py-5">
-                                                <span class="{{ $currentStatus['bg'] }} {{ $currentStatus['text'] }} px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
-                                                    <i class="fa-solid {{ $currentStatus['icon'] }} text-xs"></i>
-                                                    {{ ucfirst(str_replace('-', ' ', $onboarding->status)) }}
+                                                <span class="{{ $acquirerStatus['class'] }} px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
+                                                    <i class="fa-solid {{ $acquirerStatus['icon'] }} text-xs"></i>
+                                                    {{ $acquirerStatus['label'] }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-5 text-gray-600">{{ $onboarding->request_id }}</td>
-                                            <td class="px-6 py-5 text-gray-600">{{ $onboarding->updated_at->format('M d, H:i') }}</td>
-                                            <td class="px-6 py-5 text-right">
-                                                <a href="#" class="text-brand-secondary text-sm font-medium hover:underline">View Logs</a>
+                                            <td class="px-6 py-5 text-gray-600">{{ $acquirerLastUpdate }}</td>
+                                            <td class="px-6 py-5 text-right space-x-3">
+                                                <button type="button"
+                                                    onclick="toggleAcquirerHistory('acquirer-history-{{ $loop->index }}')"
+                                                    class="text-brand-secondary text-sm font-medium hover:underline">
+                                                    {{ empty($acquirerHistory) ? 'History' : 'View History' }}
+                                                </button>
+                                                <a href="{{ route('admin.audit-logs.index', ['search' => $onboarding->request_id]) }}"
+                                                    target="_blank"
+                                                    class="text-brand-secondary text-sm font-medium hover:underline">
+                                                    View Logs
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr id="acquirer-history-{{ $loop->index }}" class="hidden bg-gray-50/60">
+                                            <td colspan="6" class="px-6 py-4">
+                                                <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Acquirer History</div>
+                                                    @if(!empty($acquirerHistory))
+                                                        <div class="space-y-2">
+                                                            @foreach($acquirerHistory as $historyItem)
+                                                                <div class="flex items-center justify-between text-sm">
+                                                                    <span class="font-medium {{ $historyItem['tone'] ?? 'text-gray-700' }}">{{ $historyItem['title'] ?? 'Update' }}</span>
+                                                                    <span class="text-xs text-gray-500">{{ $historyItem['time'] ?? '—' }}</span>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="text-sm text-gray-500">No tracked updates for this acquirer yet.</div>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -623,6 +660,15 @@
                     activeContent.classList.remove('hidden');
                     activeContent.classList.add('block');
                 }
+            }
+
+            function toggleAcquirerHistory(rowId) {
+                const row = document.getElementById(rowId);
+                if (!row) {
+                    return;
+                }
+
+                row.classList.toggle('hidden');
             }
         </script>
 

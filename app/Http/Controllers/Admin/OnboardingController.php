@@ -253,6 +253,11 @@ class OnboardingController extends Controller
                 ->orWhereIn('id', array_filter($onboarding->acquirers, 'is_numeric'))
                 ->get();
         }
+        $acquirerTrackingMatrix = $acquirerRecords
+            ->mapWithKeys(fn ($acquirer) => [
+                strtolower((string) $acquirer->name) => $this->buildAcquirerTrackingState($acquirer, $onboarding),
+            ])
+            ->all();
 
         // Resolve country
         $country = Country::where('code', $onboarding->country_of_operation)
@@ -277,6 +282,7 @@ class OnboardingController extends Controller
         return view('admin.onboarding.track', compact(
             'onboarding',
             'acquirerRecords',
+            'acquirerTrackingMatrix',
             'country',
             'paymentMethodNames',
             'kycPercent',
@@ -386,6 +392,75 @@ class OnboardingController extends Controller
         return [
             'user' => $merchantUser,
             'plain_password' => $merchantUser->wasRecentlyCreated ? $merchantPassword : null,
+        ];
+    }
+
+    private function buildAcquirerTrackingState($acquirer, Onboarding $onboarding): array
+    {
+        $statusMap = [
+            'draft' => ['label' => 'Draft', 'class' => 'bg-gray-50 text-gray-700', 'icon' => 'fa-file-pen'],
+            'sent' => ['label' => 'KYC Sent', 'class' => 'bg-blue-50 text-blue-700', 'icon' => 'fa-paper-plane'],
+            'in-review' => ['label' => 'Under Review', 'class' => 'bg-yellow-50 text-yellow-700', 'icon' => 'fa-clock'],
+            'approved' => ['label' => 'Approved', 'class' => 'bg-green-50 text-green-700', 'icon' => 'fa-check-circle'],
+            'active' => ['label' => 'Approved', 'class' => 'bg-green-50 text-green-700', 'icon' => 'fa-check-circle'],
+            'rejected' => ['label' => 'Rejected', 'class' => 'bg-red-50 text-red-700', 'icon' => 'fa-times-circle'],
+            'suspended' => ['label' => 'Suspended', 'class' => 'bg-orange-50 text-orange-700', 'icon' => 'fa-ban'],
+        ];
+
+        $status = $statusMap[$onboarding->status] ?? $statusMap['draft'];
+        $history = [];
+
+        $history[] = [
+            'title' => 'Onboarding created',
+            'time' => optional($onboarding->created_at)->format('M d, Y - h:i A'),
+            'tone' => 'text-gray-600',
+        ];
+
+        if ($onboarding->sent_at) {
+            $history[] = [
+                'title' => 'KYC link shared with merchant',
+                'time' => $onboarding->sent_at->format('M d, Y - h:i A'),
+                'tone' => 'text-blue-600',
+            ];
+        }
+
+        if ($onboarding->kyc_completed_at) {
+            $history[] = [
+                'title' => 'Merchant submitted KYC data',
+                'time' => $onboarding->kyc_completed_at->format('M d, Y - h:i A'),
+                'tone' => 'text-indigo-600',
+            ];
+        }
+
+        if ($onboarding->approved_at) {
+            $history[] = [
+                'title' => 'Onboarding approved',
+                'time' => $onboarding->approved_at->format('M d, Y - h:i A'),
+                'tone' => 'text-green-600',
+            ];
+        }
+
+        if ($onboarding->status === 'rejected') {
+            $history[] = [
+                'title' => 'Onboarding rejected',
+                'time' => optional($onboarding->updated_at)->format('M d, Y - h:i A'),
+                'tone' => 'text-red-600',
+            ];
+        }
+
+        $lastUpdate = collect([
+            $onboarding->approved_at,
+            $onboarding->kyc_completed_at,
+            $onboarding->sent_at,
+            $onboarding->updated_at,
+            $onboarding->created_at,
+        ])->filter()->sortDesc()->first();
+
+        return [
+            'status' => $status,
+            'history' => $history,
+            'last_update' => optional($lastUpdate)->format('M d, H:i'),
+            'mode' => ucfirst((string) ($acquirer->mode ?? 'N/A')),
         ];
     }
 
