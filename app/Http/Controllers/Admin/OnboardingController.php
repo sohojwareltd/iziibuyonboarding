@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Facades\KycFieldData;
 use App\Http\Controllers\Controller;
 use App\Mail\KycLinkMail;
 use App\Models\AcquirerMaster;
 use App\Models\Country;
+use App\Models\KycSection;
 use App\Models\Onboarding;
 use App\Models\Partner;
 use App\Models\PaymentMethodMaster;
@@ -13,12 +15,16 @@ use App\Models\PriceListMaster;
 use App\Models\Role;
 use App\Models\SolutionMaster;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use ZipArchive;
 
 class OnboardingController extends Controller
 {
@@ -84,7 +90,7 @@ class OnboardingController extends Controller
 
         $action = $request->input('action', 'draft');
         $status = $action == 'send' ? 'sent' : 'draft';
-        $userId = auth()->id() ?? User::first()?->id ?? 1;
+        $userId = Auth::id() ?? User::query()->value('id') ?? 1;
         $merchantUser = null;
         $merchantPassword = null;
 
@@ -237,6 +243,8 @@ class OnboardingController extends Controller
     public function track(Onboarding $onboarding): View
     {
         $onboarding->load(['solution.category', 'partner', 'priceList', 'creator', 'approver']);
+        $kycSections = $this->getOrderedKycSections();
+        $kycSectionData = $this->buildKycSectionData($onboarding, $kycSections);
 
         // Resolve acquirer codes to AcquirerMaster records
         $acquirerRecords = collect();
@@ -271,8 +279,92 @@ class OnboardingController extends Controller
             'acquirerRecords',
             'country',
             'paymentMethodNames',
-            'kycPercent'
+            'kycPercent',
+            'kycSections',
+            'kycSectionData'
         ));
+    }
+
+    public function exportTrack(Onboarding $onboarding, string $format)
+    {
+        $format = strtolower($format);
+
+        abort_unless(in_array($format, ['zip', 'pdf', 'json'], true), 404);
+
+        $onboarding->load(['solution.category', 'partner', 'priceList', 'creator', 'approver']);
+
+        $acquirerRecords = collect();
+        if (!empty($onboarding->acquirers)) {
+            $acquirerRecords = AcquirerMaster::whereIn('name', $onboarding->acquirers)
+                ->orWhereIn('id', array_filter($onboarding->acquirers, 'is_numeric'))
+                ->get();
+        }
+
+        $country = Country::where('code', $onboarding->country_of_operation)
+            ->orWhere('name', $onboarding->country_of_operation)
+            ->first();
+
+        $paymentMethodNames = collect();
+        if (!empty($onboarding->payment_methods)) {
+            $paymentMethodNames = PaymentMethodMaster::whereIn('name', $onboarding->payment_methods)
+                ->orWhereIn('id', array_filter($onboarding->payment_methods, 'is_numeric'))
+                ->pluck('display_label');
+        }
+
+        $kycSections = $this->getOrderedKycSections();
+        $kycSectionData = $this->buildKycSectionData($onboarding, $kycSections);
+        $payload = $this->buildKycExportPayload($onboarding, $kycSections, $kycSectionData, $country, $paymentMethodNames, $acquirerRecords);
+        $safeRequestId = Str::slug($onboarding->request_id ?: ('onboarding-' . $onboarding->id));
+
+        if ($format === 'json') {
+            return response()->streamDownload(function () use ($payload) {
+                echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            }, $safeRequestId . '-kyc-payload.json', [
+                'Content-Type' => 'application/json',
+            ]);
+        }
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.onboarding.exports.summary-pdf', [
+                'payload' => $payload,
+            ])->setPaper('a4');
+
+            return $pdf->download($safeRequestId . '-summary.pdf');
+        }
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'kyczip_');
+        $zip = new ZipArchive();
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        $zip->addFromString('payload.json', json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $pdfBinary = Pdf::loadView('admin.onboarding.exports.summary-pdf', [
+            'payload' => $payload,
+        ])->setPaper('a4')->output();
+        $zip->addFromString('summary.pdf', $pdfBinary);
+
+        foreach ($payload['kyc_sections'] as $section) {
+            foreach ($section['entries'] as $entry) {
+                foreach ($entry['fields'] as $field) {
+                    $filePath = $field['file_path'] ?? null;
+
+                    if (!is_string($filePath) || $filePath === '' || !Storage::disk('public')->exists($filePath)) {
+                        continue;
+                    }
+
+                    $zipEntryPath = 'files/' . $section['slug'] . '/';
+                    if (isset($entry['group_index']) && $entry['group_index'] !== null) {
+                        $zipEntryPath .= 'entry-' . ((int) $entry['group_index'] + 1) . '/';
+                    }
+                    $zipEntryPath .= basename($filePath);
+
+                    $zip->addFile(storage_path('app/public/' . $filePath), $zipEntryPath);
+                }
+            }
+        }
+
+        $zip->close();
+
+        return response()->download($zipPath, $safeRequestId . '-full-package.zip')->deleteFileAfterSend(true);
     }
 
     private function resolveMerchantUser(array $validated): array
@@ -295,6 +387,139 @@ class OnboardingController extends Controller
             'user' => $merchantUser,
             'plain_password' => $merchantUser->wasRecentlyCreated ? $merchantPassword : null,
         ];
+    }
+
+    private function getOrderedKycSections()
+    {
+        return KycSection::query()
+            ->where('status', 'active')
+            ->with(['kycFields' => function ($query) {
+                $query->where('status', 'active')
+                    ->orderBy('sort_order')
+                    ->orderBy('id');
+            }])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+    }
+
+    private function buildKycSectionData(Onboarding $onboarding, $kycSections): array
+    {
+        $groupedSectionSlugs = ['beneficial-owners', 'board-members-gm', 'authorized-signatories'];
+        $kycSectionData = [];
+
+        foreach ($kycSections as $section) {
+            $isGrouped = in_array($section->slug, $groupedSectionSlugs, true);
+
+            $kycSectionData[$section->id] = [
+                'type' => $isGrouped ? 'grouped' : 'single',
+                'values' => $isGrouped
+                    ? KycFieldData::getGroupedForSection($onboarding, $section)
+                    : KycFieldData::getForSection($onboarding, $section),
+            ];
+        }
+
+        return $kycSectionData;
+    }
+
+    private function buildKycExportPayload(Onboarding $onboarding, $kycSections, array $kycSectionData, ?Country $country, $paymentMethodNames, $acquirerRecords): array
+    {
+        $sections = [];
+
+        foreach ($kycSections as $section) {
+            $sectionData = $kycSectionData[$section->id] ?? ['type' => 'single', 'values' => []];
+            $isGrouped = ($sectionData['type'] ?? 'single') === 'grouped';
+            $sectionValues = $sectionData['values'] ?? [];
+            $entries = [];
+
+            if ($isGrouped) {
+                foreach ($sectionValues as $groupIndex => $groupValues) {
+                    $entries[] = [
+                        'group_index' => (int) $groupIndex,
+                        'fields' => $section->kycFields->map(function ($field) use ($groupValues) {
+                            return $this->buildExportFieldPayload($field, $groupValues[$field->id] ?? null);
+                        })->values()->all(),
+                    ];
+                }
+            } else {
+                $entries[] = [
+                    'group_index' => null,
+                    'fields' => $section->kycFields->map(function ($field) use ($sectionValues) {
+                        return $this->buildExportFieldPayload($field, $sectionValues[$field->id] ?? null);
+                    })->values()->all(),
+                ];
+            }
+
+            $sections[] = [
+                'id' => $section->id,
+                'name' => $section->name,
+                'slug' => $section->slug,
+                'description' => $section->description,
+                'sort_order' => $section->sort_order,
+                'type' => $sectionData['type'] ?? 'single',
+                'entries' => $entries,
+            ];
+        }
+
+        return [
+            'exported_at' => now()->toIso8601String(),
+            'onboarding' => [
+                'id' => $onboarding->id,
+                'request_id' => $onboarding->request_id,
+                'status' => $onboarding->status,
+                'legal_business_name' => $onboarding->legal_business_name,
+                'trading_name' => $onboarding->trading_name,
+                'registration_number' => $onboarding->registration_number,
+                'merchant_contact_email' => $onboarding->merchant_contact_email,
+                'merchant_phone_number' => $onboarding->merchant_phone_number,
+                'business_website' => $onboarding->business_website,
+                'country' => $country?->name ?? $onboarding->country_of_operation,
+                'country_code' => $country?->code,
+                'solution' => $onboarding->solution?->name,
+                'partner' => $onboarding->partner?->title,
+                'price_list' => $onboarding->priceList?->name,
+                'payment_methods' => $paymentMethodNames->values()->all(),
+                'acquirers' => $acquirerRecords->pluck('name')->values()->all(),
+                'created_at' => optional($onboarding->created_at)->toIso8601String(),
+                'updated_at' => optional($onboarding->updated_at)->toIso8601String(),
+                'sent_at' => optional($onboarding->sent_at)->toIso8601String(),
+                'approved_at' => optional($onboarding->approved_at)->toIso8601String(),
+                'kyc_completed_at' => optional($onboarding->kyc_completed_at)->toIso8601String(),
+            ],
+            'kyc_sections' => $sections,
+        ];
+    }
+
+    private function buildExportFieldPayload($field, mixed $value): array
+    {
+        $filePath = $field->data_type === 'file' && is_string($value) && $value !== '' ? $value : null;
+        $fileUrl = $filePath ? Storage::url($filePath) : null;
+
+        return [
+            'id' => $field->id,
+            'label' => $field->field_name,
+            'key' => $field->internal_key,
+            'type' => $field->data_type,
+            'required' => (bool) $field->is_required,
+            'raw_value' => $value,
+            'display_value' => $this->formatExportValue($field->data_type, $value),
+            'file_path' => $filePath,
+            'file_url' => $fileUrl,
+        ];
+    }
+
+    private function formatExportValue(string $dataType, mixed $value): mixed
+    {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        return match ($dataType) {
+            'checkbox', 'radio' => $value ? 'Yes' : 'No',
+            'dropdown', 'multi-select', 'country' => is_array($value) ? implode(', ', $value) : $value,
+            'file' => is_string($value) ? basename($value) : 'Uploaded file',
+            default => is_array($value) ? implode(', ', $value) : $value,
+        };
     }
 }
 

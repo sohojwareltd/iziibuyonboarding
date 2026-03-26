@@ -61,6 +61,35 @@
 @section('body')
     <body class="bg-brand-neutral">
 
+        @php
+            $formatKycValue = function ($field, $value) {
+                if ($value === null || $value === '') {
+                    return '—';
+                }
+
+                return match ($field->data_type) {
+                    'checkbox', 'radio' => $value ? 'Yes' : 'No',
+                    'dropdown', 'multi-select', 'country' => is_array($value) ? implode(', ', $value) : $value,
+                    'file' => is_string($value) ? basename($value) : 'Uploaded file',
+                    default => is_array($value) ? implode(', ', $value) : $value,
+                };
+            };
+
+            $resolveKycFileUrl = function ($value) {
+                if (!is_string($value) || $value === '') {
+                    return null;
+                }
+
+                if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+                    return $value;
+                }
+
+                return Illuminate\Support\Facades\Storage::url($value);
+            };
+
+            $firstSection = $kycSections->first();
+        @endphp
+
         <x-admin.sidebar active="merchant-onboarding" />
 
         <x-admin.topbar :breadcrumbs="[
@@ -188,18 +217,18 @@
                                 <p class="text-sm text-gray-500">Download the full onboarding package or specific components.</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-3">
-                                <button class="bg-brand-cta text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-orange-500 transition-colors">
+                                <a href="{{ route('admin.onboarding.track.export', ['onboarding' => $onboarding, 'format' => 'zip']) }}" class="bg-brand-cta text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-orange-500 transition-colors">
                                     <i class="fa-solid fa-download text-xs"></i>
                                     Full Package (ZIP)
-                                </button>
-                                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                                </a>
+                                <a href="{{ route('admin.onboarding.track.export', ['onboarding' => $onboarding, 'format' => 'pdf']) }}" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
                                     <i class="fa-solid fa-file-pdf text-xs"></i>
                                     Summary PDF
-                                </button>
-                                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                                </a>
+                                <a href="{{ route('admin.onboarding.track.export', ['onboarding' => $onboarding, 'format' => 'json']) }}" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
                                     <i class="fa-solid fa-code text-xs"></i>
                                     JSON Payload
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </section>
@@ -212,130 +241,107 @@
                                 <!-- Tab Navigation -->
                                 <div class="border-b border-gray-200 overflow-x-auto">
                                     <div class="flex min-w-max">
-                                        <button onclick="switchTab('company')" id="tab-company" class="tab-btn active px-4 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-secondary">Company Info</button>
-                                        <button onclick="switchTab('owners')" id="tab-owners" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Beneficial Owners</button>
-                                        <button onclick="switchTab('docs')" id="tab-docs" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Documents</button>
-                                        <button onclick="switchTab('bank')" id="tab-bank" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Bank Info</button>
+                                        @foreach($kycSections as $kycSection)
+                                            <button
+                                                onclick="switchTab('section-{{ $kycSection->id }}')"
+                                                id="tab-section-{{ $kycSection->id }}"
+                                                class="tab-btn {{ $loop->first ? 'active font-semibold text-brand-primary border-b-2 border-brand-secondary' : 'font-normal text-gray-500 hover:text-brand-primary' }} px-4 py-4 text-sm">
+                                                {{ $kycSection->name }}
+                                            </button>
+                                        @endforeach
                                         <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn px-4 py-4 text-sm font-normal text-gray-500 hover:text-brand-primary">Activity Log</button>
                                     </div>
                                 </div>
 
-                                <!-- Tab Content: Company Info -->
-                                <div id="content-company" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
-                                        <h3 class="text-lg font-semibold text-gray-800">General Information</h3>
-                                        <a href="{{ route('admin.onboarding.edit', $onboarding) }}" class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
-                                            <i class="fa-solid fa-pen mr-2"></i> Edit Section
-                                        </a>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Legal Name</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->legal_business_name }}</div>
+                                @forelse($kycSections as $kycSection)
+                                    @php
+                                        $sectionData = $kycSectionData[$kycSection->id] ?? ['type' => 'single', 'values' => []];
+                                        $isGrouped = ($sectionData['type'] ?? 'single') === 'grouped';
+                                        $sectionValues = $sectionData['values'] ?? [];
+                                    @endphp
+                                    <div id="content-section-{{ $kycSection->id }}" class="tab-content {{ $loop->first ? 'block' : 'hidden' }} bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+                                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+                                            <div>
+                                                <h3 class="text-lg font-semibold text-gray-800">{{ $kycSection->name }}</h3>
+                                                <p class="text-sm text-gray-500 mt-1">{{ $kycSection->description ?: 'KYC section details.' }}</p>
+                                            </div>
+                                            {{-- <a href="{{ route('merchant.kyc.section', ['kyc_link' => $onboarding->kyc_link, 'section' => $kycSection->slug]) }}" target="_blank" class="text-accent hover:text-primary text-sm font-medium border border-accent rounded-lg px-4 py-2 transition-colors">
+                                                <i class="fa-solid fa-eye mr-2"></i> Open Section
+                                            </a> --}}
                                         </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Trade Name</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->trading_name ?? '—' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Registration Number</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->registration_number ?? '—' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Country of Operation</label>
-                                            <div class="text-gray-900 font-medium">{{ $country->name ?? $onboarding->country_of_operation }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Solution</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->solution->name ?? '—' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Partner</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->partner->title ?? '—' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Website URL</label>
-                                            @if($onboarding->business_website)
-                                                <a href="{{ $onboarding->business_website }}" target="_blank" class="text-accent hover:underline font-medium">{{ $onboarding->business_website }}</a>
-                                            @else
-                                                <div class="text-gray-900 font-medium">—</div>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Contact Email</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->merchant_contact_email }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Phone Number</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->merchant_phone_number ?? '—' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Payment Methods</label>
-                                            <div class="text-gray-900 font-medium">{{ $paymentMethodNames->isNotEmpty() ? $paymentMethodNames->join(', ') : ($onboarding->payment_method_names ?: '—') }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Acquirer(s)</label>
-                                            <div class="text-gray-900 font-medium">{{ $acquirerRecords->pluck('name')->join(', ') ?: ($onboarding->acquirer_names ?: '—') }}</div>
-                                        </div>
-                                        @if($onboarding->priceList)
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Price List</label>
-                                            <div class="text-gray-900 font-medium">{{ $onboarding->priceList->name }}</div>
-                                        </div>
+
+                                        @if($kycSection->kycFields->isEmpty())
+                                            <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
+                                                No fields configured for this section.
+                                            </div>
+                                        @elseif($isGrouped)
+                                            <div class="space-y-4">
+                                                @forelse($sectionValues as $groupIndex => $groupValues)
+                                                    <div class="border border-gray-200 rounded-xl p-5">
+                                                        <h4 class="text-sm font-semibold text-brand-primary mb-4">Entry #{{ (int) $groupIndex + 1 }}</h4>
+                                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                                                            @foreach($kycSection->kycFields as $field)
+                                                                @php
+                                                                    $fieldValue = $groupValues[$field->id] ?? null;
+                                                                    $displayValue = $formatKycValue($field, $fieldValue);
+                                                                    $fileUrl = $field->data_type === 'file' ? $resolveKycFileUrl($fieldValue) : null;
+                                                                    $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
+                                                                @endphp
+                                                                <div class="{{ $colSpan }}">
+                                                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
+                                                                    <div class="text-gray-900 font-medium break-words">
+                                                                        @if($fileUrl)
+                                                                            <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center gap-2 text-accent hover:underline">
+                                                                                <i class="fa-solid fa-paperclip text-xs"></i>
+                                                                                <span>{{ $displayValue }}</span>
+                                                                            </a>
+                                                                        @else
+                                                                            {{ $displayValue }}
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
+                                                        No data provided for this section.
+                                                    </div>
+                                                @endforelse
+                                            </div>
+                                        @else
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                                                @foreach($kycSection->kycFields as $field)
+                                                    @php
+                                                        $fieldValue = $sectionValues[$field->id] ?? null;
+                                                        $displayValue = $formatKycValue($field, $fieldValue);
+                                                        $fileUrl = $field->data_type === 'file' ? $resolveKycFileUrl($fieldValue) : null;
+                                                        $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
+                                                    @endphp
+                                                    <div class="{{ $colSpan }}">
+                                                        <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
+                                                        <div class="text-gray-900 font-medium break-words">
+                                                            @if($fileUrl)
+                                                                <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center gap-2 text-accent hover:underline">
+                                                                    <i class="fa-solid fa-paperclip text-xs"></i>
+                                                                    <span>{{ $displayValue }}</span>
+                                                                </a>
+                                                            @else
+                                                                {{ $displayValue }}
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         @endif
-                                        <div class="col-span-2">
-                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">KYC Link</label>
-                                            @if($onboarding->kyc_link)
-                                                <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between gap-4">
-                                                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                                                        <i class="fa-solid fa-link text-gray-400 shrink-0"></i>
-                                                        <a href="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}" target="_blank" class="font-mono text-sm text-accent hover:underline truncate" id="kyc-link-text">{{ route('merchant.kyc.start', $onboarding->kyc_link) }}</a>
-                                                    </div>
-                                                    <button type="button" class="copy-kyc-link-btn bg-brand-primary text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 hover:bg-brand-secondary transition-colors shrink-0" data-kyc-link="{{ route('merchant.kyc.start', $onboarding->kyc_link) }}">
-                                                        <i class="fa-regular fa-copy text-xs"></i>
-                                                        Copy Link
-                                                    </button>
-                                                </div>
-                                            @else
-                                                <div class="bg-gray-100 rounded-md p-4 flex items-center justify-between gap-4">
-                                                    <div class="flex items-center gap-3 flex-1">
-                                                        <i class="fa-solid fa-link text-gray-300"></i>
-                                                        <span class="font-mono text-sm text-gray-400 italic">Link will be generated after sending</span>
-                                                    </div>
-                                                    <button type="button" disabled class="bg-gray-200 text-gray-400 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 cursor-not-allowed shrink-0">
-                                                        <i class="fa-regular fa-copy text-xs"></i>
-                                                        Copy Link
-                                                    </button>
-                                                </div>
-                                            @endif
+                                    </div>
+                                @empty
+                                    <div id="content-section-empty" class="tab-content block bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+                                        <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
+                                            No active KYC sections found.
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Tab Content: Documents -->
-                                <div id="content-docs" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
-                                        <h3 class="text-lg font-semibold text-gray-800">Uploaded Documents</h3>
-                                        <button class="bg-primary text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-opacity-90 transition-colors">
-                                            <i class="fa-solid fa-upload mr-2"></i> Upload New
-                                        </button>
-                                    </div>
-                                    
-                                    <p class="text-gray-500 text-sm">Documents will appear here once uploaded by the merchant through the KYC form.</p>
-                                </div>
-
-                                <!-- Tab Content: Beneficial Owners -->
-                                <div id="content-owners" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Beneficial Owners</h3>
-                                    <p class="text-gray-500 text-sm">Beneficial owner information will be available once the merchant completes the KYC form.</p>
-                                </div>
-
-                                <!-- Tab Content: Bank Info -->
-                                <div id="content-bank" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Bank Information</h3>
-                                    <p class="text-gray-500 text-sm">Bank information will be available once the merchant completes the KYC form.</p>
-                                </div>
+                                @endforelse
 
                                 <!-- Tab Content: Activity Log -->
                                 <div id="content-activity" class="tab-content hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
