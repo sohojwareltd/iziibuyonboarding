@@ -10,11 +10,80 @@
 
     $kycLink = $kycLink ?? request()->route('kyc_link');
 
+    $onboarding = null;
+    $countryCode = null;
+    $acquirerTokens = [];
+
+    if (!empty($kycLink)) {
+        $onboarding = Onboarding::query()
+            ->where('kyc_link', $kycLink)
+            ->first();
+
+        $countryCode = !empty($onboarding?->country_of_operation)
+            ? strtoupper((string) $onboarding->country_of_operation)
+            : null;
+
+        $rawAcquirers = is_array($onboarding?->acquirers) ? $onboarding->acquirers : [];
+        foreach ($rawAcquirers as $acquirer) {
+            $value = trim((string) $acquirer);
+            if ($value === '') {
+                continue;
+            }
+
+            $acquirerTokens[] = $value;
+            $acquirerTokens[] = strtolower($value);
+            $acquirerTokens[] = strtoupper($value);
+        }
+
+        $acquirerTokens = array_values(array_unique($acquirerTokens));
+    }
+
     // Fetch all active KYC sections with their fields, sorted by sort_order
     $kycSections = KycSection::where('status', 'active')
-        ->with(['kycFields' => function ($query) {
-            $query->where('status', 'active')->orderBy('sort_order');
+        ->with(['kycFields' => function ($query) use ($countryCode, $acquirerTokens) {
+            $query->where('status', 'active')
+                ->where('visible_to_merchant', true)
+                ->where(function ($q) use ($countryCode) {
+                    $q->whereNull('visible_countries')
+                        ->orWhereJsonLength('visible_countries', 0);
+
+                    if ($countryCode) {
+                        $q->orWhereJsonContains('visible_countries', $countryCode)
+                            ->orWhereJsonContains('visible_countries', strtolower($countryCode));
+                    }
+                })
+                ->where(function ($q) use ($acquirerTokens) {
+                    $q->whereNull('visible_acquirers')
+                        ->orWhereJsonLength('visible_acquirers', 0);
+
+                    foreach ($acquirerTokens as $token) {
+                        $q->orWhereJsonContains('visible_acquirers', $token);
+                    }
+                })
+                ->orderBy('sort_order')
+                ->orderBy('id');
         }])
+        ->whereHas('kycFields', function ($query) use ($countryCode, $acquirerTokens) {
+            $query->where('status', 'active')
+                ->where('visible_to_merchant', true)
+                ->where(function ($q) use ($countryCode) {
+                    $q->whereNull('visible_countries')
+                        ->orWhereJsonLength('visible_countries', 0);
+
+                    if ($countryCode) {
+                        $q->orWhereJsonContains('visible_countries', $countryCode)
+                            ->orWhereJsonContains('visible_countries', strtolower($countryCode));
+                    }
+                })
+                ->where(function ($q) use ($acquirerTokens) {
+                    $q->whereNull('visible_acquirers')
+                        ->orWhereJsonLength('visible_acquirers', 0);
+
+                    foreach ($acquirerTokens as $token) {
+                        $q->orWhereJsonContains('visible_acquirers', $token);
+                    }
+                });
+        })
         ->orderBy('sort_order')
         ->orderBy('id')
         ->get();
@@ -36,9 +105,7 @@
 
     $completedSectionIds = [];
     if (!empty($kycLink)) {
-        $onboardingId = Onboarding::query()
-            ->where('kyc_link', $kycLink)
-            ->value('id');
+        $onboardingId = $onboarding?->id;
 
         $completedSectionIds = Information::query()
             ->where('onboarding_id', $onboardingId)

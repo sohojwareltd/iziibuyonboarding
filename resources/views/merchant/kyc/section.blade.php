@@ -30,13 +30,6 @@
                 </div>
             </section>
         @else
-            <section class="mb-10">
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
-                    <p class="text-yellow-800 font-medium">No fields configured for this section</p>
-                    <p class="text-yellow-600 text-sm mt-1">Please contact the administrator to configure KYC fields.</p>
-                </div>
-            </section>
         @endif
 
         <footer
