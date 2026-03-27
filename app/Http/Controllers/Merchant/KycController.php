@@ -539,6 +539,14 @@ class KycController extends Controller
                 ], 403);
             }
 
+            // If all fields are hidden due to acquirer/country visibility, succeed immediately.
+            if ($sectionModel->kycFields->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'KYC section fields saved successfully.',
+                ]);
+            }
+
             $fileRules = $this->buildDocumentTypeFileRules($sectionModel);
             if (!empty($fileRules)) {
                 $request->validate($fileRules);
@@ -573,10 +581,8 @@ class KycController extends Controller
             } elseif (!empty($validated['dynamic_fields']) && is_array($validated['dynamic_fields'])) {
                 KycFieldData::saveForSection($onboarding, $sectionModel, $validated['dynamic_fields']);
             } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No field data provided.',
-                ], 422);
+                // All visible fields may be optional and merchant submitted nothing — that is valid.
+                // (The empty-section early-return above already handles fully hidden sections.)
             }
 
             return response()->json([
