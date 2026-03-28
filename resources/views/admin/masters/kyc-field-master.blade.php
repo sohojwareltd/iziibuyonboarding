@@ -632,9 +632,9 @@
                                                     <i class="fa-solid fa-chevron-up text-[10px] text-gray-400"></i>
                                                 </div>
                                             </th>
-                                            <th
+                                            {{-- <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                                                Internal Key</th>
+                                                Internal Key</th> --}}
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
                                                 Data Type</th>
@@ -645,12 +645,12 @@
                                                     <div>Section</div>
                                                 </div>
                                             </th>
-                                            <th
+                                            {{-- <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
                                                 Sensitivity</th>
                                             <th
                                                 class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                                                Visibility</th>
+                                                Visibility</th> --}}
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
                                                 Status</th>
@@ -666,10 +666,10 @@
                                                     <div class="font-medium text-brand-primary">{{ $field->field_name }}
                                                     </div>
                                                 </td>
-                                                <td class="px-6 py-4">
+                                                {{-- <td class="px-6 py-4">
                                                     <span
                                                         class="font-mono text-xs text-gray-600">{{ $field->internal_key }}</span>
-                                                </td>
+                                                </td> --}}
                                                 <td class="px-6 py-4">
                                                     <span
                                                         class="bg-gray-100 text-gray-900 px-2.5 py-1 rounded-full text-xs font-medium capitalize">{{ $field->data_type }}</span>
@@ -678,7 +678,7 @@
                                                     <span
                                                         class="text-gray-700 text-sm">{{ $field->kycSection->name ?? '—' }}</span>
                                                 </td>
-                                                <td class="px-6 py-4">
+                                                {{-- <td class="px-6 py-4">
                                                     @if ($field->sensitivity_level === 'highly-sensitive')
                                                         <div class="flex items-center gap-1">
                                                             <i class="fa-solid fa-lock text-red-600 text-xs"></i>
@@ -714,7 +714,7 @@
                                                                 title="Visible to Partner">P</span>
                                                         @endif
                                                     </div>
-                                                </td>
+                                                </td> --}}
                                                 <td class="px-6 py-4">
                                                     @if ($field->status === 'active')
                                                         <span
@@ -919,7 +919,7 @@
 
                         <!-- Section 4: Sensitivity & Visibility Control -->
                         <div class="space-y-4">
-                            <div class="flex items-center gap-2 pb-2">
+                            {{-- <div class="flex items-center gap-2 pb-2">
                                 <div class="section-number">4</div>
                                 <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Sensitivity &
                                     Visibility Control</h3>
@@ -934,9 +934,9 @@
                                     <option value="sensitive">Sensitive</option>
                                     <option value="highly-sensitive">Highly Sensitive</option>
                                 </select>
-                            </div>
+                            </div> --}}
 
-                            <div>
+                            {{-- <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Visibility Controls</label>
                                 <div class="space-y-2.5">
                                     <label class="flex items-center gap-2.5 cursor-pointer">
@@ -955,7 +955,7 @@
                                         <span class="text-sm text-gray-700">Visible to Partner</span>
                                     </label>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="pt-2 border-t border-gray-100">
                                 <div class="flex items-center justify-between mb-2">
@@ -1242,6 +1242,10 @@
         });
     }
 
+    function getOptionalElement(id) {
+        return document.getElementById(id);
+    }
+
     function openDrawer() {
         resetForm();
         document.getElementById('kyc-field-form').dataset.mode = 'create';
@@ -1267,9 +1271,18 @@
         document.getElementById('status-toggle').classList.add('active');
         document.getElementById('status').value = 'active';
         document.getElementById('sort-order').value = '100';
-        document.getElementById('visible-merchant').checked = true;
-        document.getElementById('visible-admin').checked = true;
-        document.getElementById('visible-partner').checked = false;
+        const visibleMerchant = getOptionalElement('visible-merchant');
+        const visibleAdmin = getOptionalElement('visible-admin');
+        const visiblePartner = getOptionalElement('visible-partner');
+        if (visibleMerchant) {
+            visibleMerchant.checked = true;
+        }
+        if (visibleAdmin) {
+            visibleAdmin.checked = true;
+        }
+        if (visiblePartner) {
+            visiblePartner.checked = false;
+        }
         document.getElementById('visible-country-search').value = '';
         document.getElementById('visible-acquirer-search').value = '';
         document.querySelectorAll('.visible-country-item').forEach(item => {
@@ -1493,7 +1506,10 @@
                 document.getElementById('description').value = data.description || '';
                 document.getElementById('data-type').value = data.data_type;
                 document.getElementById('document-type-id').value = data.document_type_id || '';
-                document.getElementById('sensitivity-level').value = data.sensitivity_level;
+                const sensitivityLevel = getOptionalElement('sensitivity-level');
+                if (sensitivityLevel) {
+                    sensitivityLevel.value = data.sensitivity_level;
+                }
                 handleDataTypeChange(data.data_type);
 
                 // Handle options for choice types
@@ -1527,9 +1543,18 @@
                 }
 
                 // Visibility checkboxes
-                document.getElementById('visible-merchant').checked = data.visible_to_merchant;
-                document.getElementById('visible-admin').checked = data.visible_to_admin;
-                document.getElementById('visible-partner').checked = data.visible_to_partner;
+                const visibleMerchant = getOptionalElement('visible-merchant');
+                const visibleAdmin = getOptionalElement('visible-admin');
+                const visiblePartner = getOptionalElement('visible-partner');
+                if (visibleMerchant) {
+                    visibleMerchant.checked = data.visible_to_merchant;
+                }
+                if (visibleAdmin) {
+                    visibleAdmin.checked = data.visible_to_admin;
+                }
+                if (visiblePartner) {
+                    visiblePartner.checked = data.visible_to_partner;
+                }
                 const selectedVisibleCountries = Array.isArray(data.visible_countries)
                     ? data.visible_countries.map(code => String(code).toUpperCase())
                     : [];
@@ -1609,9 +1634,15 @@
         // Ensure checkbox values are captured correctly
         formData.set('is_required', document.getElementById('required-toggle').classList.contains('active') ?
             '1' : '0');
-        formData.set('visible_to_merchant', document.getElementById('visible-merchant').checked ? '1' : '0');
-        formData.set('visible_to_admin', document.getElementById('visible-admin').checked ? '1' : '0');
-        formData.set('visible_to_partner', document.getElementById('visible-partner').checked ? '1' : '0');
+        const sensitivityLevel = getOptionalElement('sensitivity-level');
+        const visibleMerchant = getOptionalElement('visible-merchant');
+        const visibleAdmin = getOptionalElement('visible-admin');
+        const visiblePartner = getOptionalElement('visible-partner');
+
+        formData.set('sensitivity_level', sensitivityLevel?.value || 'normal');
+        formData.set('visible_to_merchant', visibleMerchant ? (visibleMerchant.checked ? '1' : '0') : '1');
+        formData.set('visible_to_admin', visibleAdmin ? (visibleAdmin.checked ? '1' : '0') : '1');
+        formData.set('visible_to_partner', visiblePartner ? (visiblePartner.checked ? '1' : '0') : '0');
         formData.set('status', document.getElementById('status-toggle').classList.contains('active') ?
             'active' : 'draft');
 
