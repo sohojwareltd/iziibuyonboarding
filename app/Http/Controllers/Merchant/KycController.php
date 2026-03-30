@@ -424,7 +424,7 @@ class KycController extends Controller
             'onboarding_id' => $onboarding?->id,
             'onboardingAcquirers' => is_array($onboarding?->acquirers) ? $onboarding->acquirers : [],
             'section' => $sectionModel,
-            'fields' => $sectionModel->kycFields->sortBy('sort_order'),
+            'fields' => $sectionModel->kycFields->values(),
             'savedValues' => $savedValues,
             'prevSection' => $prevSection,
             'nextSection' => $nextSection,
