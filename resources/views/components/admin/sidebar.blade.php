@@ -3,6 +3,7 @@
 ])
 
 @php
+    $isDashboardActive = request()->routeIs('admin.dashboard');
     $isOnboardingActive = request()->routeIs('admin.onboarding.*');
     $isOnboardingExpanded = $isOnboardingActive;
     $isMastersActive = request()->routeIs('admin.masters.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.masters.document-type-categories.*');
@@ -10,14 +11,26 @@
 @endphp
 
 <style>
+    .nav-item-active {
+        background: rgba(255, 255, 255, 0.15);
+        border-left: 4px solid #FF7C00;
+        padding-left: 20px;
+    }
+
+    .nav-item {
+        padding-left: 24px;
+    }
+
     .nav-item-sub {
         padding-left: 44px;
     }
+
     .nav-item-sub-active {
-        background: rgba(255,255,255,0.15);
+        background: rgba(255, 255, 255, 0.15);
         border-left: 4px solid #FF7C00;
         padding-left: 40px;
     }
+
     /* Mobile off-canvas helpers */
     #sidebar.sidebar-open {
         transform: translateX(0);
@@ -41,7 +54,7 @@
             <h3 class="text-white/60 text-xs font-semibold uppercase tracking-wider px-6 mb-3">MAIN</h3>
             <ul class="space-y-1">
                 <li>
-                    <a href="#" class="nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors">
+                    <a href="{{ route('admin.dashboard') }}" class="{{ $isDashboardActive ? 'nav-item-active text-white text-sm py-3 block font-semibold px-6' : 'nav-item text-white text-sm py-3 block hover:bg-white/10 transition-colors' }}">
                         <i class="fa-solid fa-chart-line w-5 mr-3"></i>Dashboard
                     </a>
                 </li>

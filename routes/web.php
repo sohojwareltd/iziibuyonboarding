@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DocumentTypeCategoryController;
@@ -22,7 +23,7 @@ use App\Http\Controllers\Merchant\KycController;
 Route::get('/', function () {
     // Redirect authenticated admin users to onboarding index
     if (Auth::check() && (int) Auth::user()->role_id === 1) {
-        return redirect()->route('admin.onboarding.index');
+        return redirect()->route('admin.dashboard');
     }
     // Otherwise redirect to login
     return redirect()->route('admin.login');
@@ -43,6 +44,8 @@ Route::prefix('admin')
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         Route::middleware('admin.role')->group(function () {
+            Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
             Route::prefix('onboarding')
                 ->name('onboarding.')
                 ->group(function () {

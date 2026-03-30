@@ -15,7 +15,7 @@ class AuthController extends Controller
     {
         // Redirect to onboarding index if already authenticated
         if (Auth::check() && (int) Auth::user()->role_id === 1) {
-            return redirect()->route('admin.onboarding.index');
+            return redirect()->route('admin.dashboard');
         }
 
         return view('admin.login');
@@ -39,7 +39,7 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
-            return redirect()->route('admin.onboarding.index');
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
