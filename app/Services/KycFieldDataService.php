@@ -7,6 +7,7 @@ use App\Models\KYCFieldMaster;
 use App\Models\KycSection;
 use App\Models\Onboarding;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class KycFieldDataService
@@ -22,9 +23,19 @@ class KycFieldDataService
         }
 
         $fieldIds = array_column($normalized, 'field_id');
-        $validFields = KYCFieldMaster::query()
-            ->whereIn('id', $fieldIds)
-            ->where('kyc_section_id', $sectionId)
+        $validFieldQuery = KYCFieldMaster::query();
+
+        if (Schema::hasTable('kyc_section_field_mappings')) {
+            $validFieldQuery
+                ->select('k_y_c_field_masters.*')
+                ->join('kyc_section_field_mappings as m', 'm.field_id', '=', 'k_y_c_field_masters.id')
+                ->where('m.kyc_section_id', $sectionId);
+        } else {
+            $validFieldQuery->where('k_y_c_field_masters.kyc_section_id', $sectionId);
+        }
+
+        $validFields = $validFieldQuery
+            ->whereIn('k_y_c_field_masters.id', $fieldIds)
             ->get()
             ->keyBy('id');
 

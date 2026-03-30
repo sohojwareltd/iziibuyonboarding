@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class KycSection extends Model
@@ -41,7 +42,16 @@ class KycSection extends Model
      */
     public function kycFields()
     {
-        return $this->hasMany(KYCFieldMaster::class, 'kyc_section_id');
+        if (!Schema::hasTable('kyc_section_field_mappings')) {
+            return $this->hasMany(KYCFieldMaster::class, 'kyc_section_id')
+                ->orderBy('k_y_c_field_masters.sort_order')
+                ->orderBy('k_y_c_field_masters.id');
+        }
+
+        return $this->belongsToMany(KYCFieldMaster::class, 'kyc_section_field_mappings', 'kyc_section_id', 'field_id')
+            ->withPivot('sort_order')
+            ->orderBy('kyc_section_field_mappings.sort_order')
+            ->orderBy('k_y_c_field_masters.id');
     }
 
     /**

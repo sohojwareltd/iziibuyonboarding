@@ -194,6 +194,12 @@
             opacity: 0.55;
             box-shadow: 0 10px 30px rgba(64, 85, 168, 0.18);
         }
+        .catalog-field-row {
+            cursor: grab;
+        }
+        .catalog-field-row.is-dragging {
+            opacity: 0.65;
+        }
         .section-dropzone {
             min-height: 24px;
             transition: background-color 0.15s ease, box-shadow 0.15s ease;
@@ -350,6 +356,12 @@
             $totalMandatory = $kycSections->sum(fn($s) => $s->kycFields->where('is_required', true)->count());
             $totalOptional = $totalFields - $totalMandatory;
             $totalSections = $kycSections->count();
+            $availableDataTypes = $kycSections
+                ->flatMap(fn($s) => $s->kycFields->pluck('data_type'))
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
         @endphp
 
         <!-- MAIN CONTENT AREA -->
@@ -427,6 +439,58 @@
                             </div>
                         </div>
 
+                        <!-- Top Filters -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 mb-6 shadow-sm">
+                            <div class="flex flex-col xl:flex-row xl:items-end gap-3">
+                                <div class="w-full sm:w-72">
+                                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-globe text-brand-secondary text-xs"></i>
+                                        Country Filter
+                                    </label>
+                                    <select id="country-filter" class="form-input">
+                                        <option value="">All Countries</option>
+                                        @foreach ($countries as $country)
+                                            <option value="{{ strtoupper($country->code) }}">{{ $country->name }} ({{ strtoupper($country->code) }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="w-full sm:w-72">
+                                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-building-columns text-brand-cta text-xs"></i>
+                                        Acquirer Filter
+                                    </label>
+                                    <select id="acquirer-filter" class="form-input">
+                                        <option value="">All Acquirers</option>
+                                        @foreach ($acquirers as $acquirer)
+                                            <option value="{{ Str::lower($acquirer->name) }}">{{ $acquirer->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- <div class="w-full sm:w-64">
+                                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-database text-indigo-500 text-xs"></i>
+                                        Data Type Filter
+                                    </label>
+                                    <select id="data-type-filter" class="form-input">
+                                        <option value="">All Data Types</option>
+                                        @foreach ($availableDataTypes as $dataType)
+                                            <option value="{{ Str::lower($dataType) }}">{{ ucfirst(str_replace('-', ' ', $dataType)) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div> --}}
+
+                                <div class="w-full xl:w-auto xl:ml-auto">
+                                    <button type="button" id="clear-top-filters"
+                                        class="w-full xl:w-auto border border-gray-200 text-gray-600 px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors">
+                                        <i class="fa-solid fa-xmark mr-1.5"></i>
+                                        Clear Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Configuration Controls -->
                         {{-- <div class="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
                             <div class="flex flex-col sm:flex-row sm:items-end gap-4">
@@ -462,9 +526,9 @@
                         </div> --}}
 
                         <!-- Main Content: Field Mapping and Preview -->
-                        <div class="flex flex-col lg:flex-row gap-6 items-start overflow-x-hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start overflow-x-hidden">
                             <!-- Left Panel: Field Mapping Configuration -->
-                            <div class="flex-1 min-w-0 overflow-x-hidden">
+                            <div class="w-full min-w-0 overflow-x-hidden">
                                 <!-- Toolbar -->
                                 <div class="bg-white border border-gray-200 rounded-t-xl px-3 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="flex flex-wrap items-center gap-2">
@@ -481,6 +545,7 @@
                                             <i class="fa-solid fa-angles-up text-[10px]"></i>
                                             Collapse
                                         </button>
+                                       
                                     </div>
                                     {{-- <div class="flex flex-wrap items-center gap-2">
                                         <button class="text-xs text-gray-500 hover:text-green-600 font-medium flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-green-50 transition-all">
@@ -511,18 +576,18 @@
                                         <div class="w-20 text-center">
                                             <span class="text-[11px] font-bold uppercase tracking-wider opacity-90">Type</span>
                                         </div>
-                                        <div class="w-48">
+                                        {{-- <div class="w-48">
                                             <span class="text-[11px] font-bold uppercase tracking-wider opacity-90">Requirement</span>
-                                        </div>
-                                        <div class="w-64">
+                                        </div> --}}
+                                        {{-- <div class="w-64">
                                             <span class="text-[11px] font-bold uppercase tracking-wider opacity-90 flex items-center gap-1.5">
                                                 Visibility
                                                 <i class="fa-solid fa-circle-info text-[9px] opacity-50" title="Which roles can see this field"></i>
                                             </span>
-                                        </div>
-                                        <div class="w-16 text-center">
+                                        </div> --}}
+                                        {{-- <div class="w-16 text-center">
                                             <span class="text-[11px] font-bold uppercase tracking-wider opacity-90">Action</span>
-                                        </div>
+                                        </div> --}}
                                     </div>
 
                                     @php
@@ -581,7 +646,7 @@
                                                 $isFirst = $sIndex === 0;
                                                 $mandatoryPct = $fieldCount > 0 ? round(($mandatoryCount / $fieldCount) * 100) : 0;
                                             @endphp
-                                            <div class="field-section" data-section-id="{{ $section->id }}" data-section-name="{{ Str::lower($section->name) }}">
+                                            <div class="field-section" data-section-id="{{ $section->id }}" data-section-name="{{ Str::lower($section->name) }}" data-section-slug="{{ $section->slug }}">
                                                 {{-- Section Header --}}
                                                 <div class="section-header bg-gradient-to-r {{ $color['from'] }} {{ $color['to'] }} border-b {{ $color['border'] }} px-3 sm:px-5 py-3.5 flex items-center justify-between {{ $color['hover_from'] }} {{ $color['hover_to'] }} transition-all group" onclick="toggleSection(this, event)">
                                                     <div class="flex items-center gap-3">
@@ -595,8 +660,8 @@
                                                         <span class="font-bold text-brand-primary text-sm">{{ $section->name }}</span>
                                                         <span class="section-field-count {{ $color['badge_bg'] }} {{ $color['badge_text'] }} px-2 py-0.5 rounded-md text-[10px] font-bold">{{ $fieldCount }}</span>
                                                     </div>
-                                                    <div class="flex items-center gap-4">
-                                                        {{-- Mini progress bar --}}
+                                                    {{-- <div class="flex items-center gap-4">
+                                                       
                                                         @if ($fieldCount > 0)
                                                             <div class="hidden sm:flex items-center gap-2">
                                                                 <div class="section-progress w-20">
@@ -614,7 +679,7 @@
                                                                 <span class="text-gray-400 italic">Empty</span>
                                                             @endif
                                                         </div>
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
 
                                                 {{-- Section Content --}}
@@ -624,7 +689,18 @@
                                                             @php
                                                                 $dtStyle = $dataTypeStyles[$field->data_type] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-code'];
                                                             @endphp
-                                                            <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}">
+                                                            @php
+                                                                $visibleCountryCodes = collect($field->visible_countries ?? [])
+                                                                    ->map(fn($code) => Str::upper(trim((string) $code)))
+                                                                    ->filter()
+                                                                    ->implode(',');
+                                                                $visibleAcquirerNames = collect($field->visible_acquirers ?? [])
+                                                                    ->map(fn($value) => Str::lower(trim((string) $value)))
+                                                                    ->filter()
+                                                                    ->implode('|');
+                                                                    $displayInternalKey = Str::of($section->slug)->replace('-', '_')->append('_' . $field->internal_key);
+                                                            @endphp
+                                                                    <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}" data-base-internal-key="{{ $field->internal_key }}" data-data-type="{{ Str::lower($field->data_type) }}" data-is-required="{{ $field->is_required ? '1' : '0' }}" data-visible-countries="{{ $visibleCountryCodes }}" data-visible-acquirers="{{ $visibleAcquirerNames }}">
                                                                 <div class="w-8 flex items-center justify-center">
                                                                     <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
                                                                 </div>
@@ -645,7 +721,7 @@
                                                                             <span class="flex-shrink-0 w-2 h-2 bg-amber-400 rounded-full" title="Sensitive"></span>
                                                                         @endif
                                                                     </div>
-                                                                    <div class="field-internal-key font-mono text-[11px] text-gray-400 truncate">{{ $field->internal_key }}</div>
+                                                                    <div class="field-internal-key font-mono text-[11px] text-gray-400 truncate">{{ $displayInternalKey }}</div>
                                                                 </div>
                                                                 <div class="w-20 flex justify-center">
                                                                     <span class="data-type-badge {{ $dtStyle['bg'] }} {{ $dtStyle['text'] }}">
@@ -653,14 +729,14 @@
                                                                         {{ Str::limit($field->data_type, 8) }}
                                                                     </span>
                                                                 </div>
-                                                                <div class="w-52">
+                                                                {{-- <div class="w-52">
                                                                     <div class="requirement-toggle" data-field-id="{{ $field->id }}">
                                                                         <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
                                                                         <button class="{{ !$field->is_required ? 'optional-active' : '' }}" onclick="setRequirement(this, 'optional')">Optional</button>
                                                                         <button onclick="setRequirement(this, 'hidden')">Hidden</button>
                                                                     </div>
-                                                                </div>
-                                                                <div class="w-64">
+                                                                </div> --}}
+                                                                {{-- <div class="w-64">
                                                                     <div class="flex items-center gap-2">
                                                                         <label class="visibility-checkbox">
                                                                             <input type="checkbox" {{ $field->visible_to_merchant ? 'checked' : '' }} data-field-id="{{ $field->id }}" data-role="merchant">
@@ -675,12 +751,12 @@
                                                                             <span>Partner</span>
                                                                         </label>
                                                                     </div>
-                                                                </div>
-                                                                <div class="w-16 text-center">
+                                                                </div> --}}
+                                                                {{-- <div class="w-16 text-center">
                                                                     <button class="text-brand-secondary hover:text-brand-primary text-sm hover:bg-gray-100 w-8 h-8 rounded-lg transition-all inline-flex items-center justify-center" title="Configure field">
                                                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                                                     </button>
-                                                                </div>
+                                                                </div> --}}
                                                             </div>
                                                         @endforeach
                                                     </div>
@@ -698,101 +774,57 @@
                                 </div>
                             </div>
 
-                            <!-- Right Panel: Live Preview (Sticky) -->
-                            {{-- <div class="w-full lg:w-[340px] flex-shrink-0 lg:sticky lg:top-20">
-                                <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                                    <!-- Preview Header -->
-                                    <div class="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fa-solid fa-eye text-brand-secondary text-xs"></i>
-                                            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Preview</span>
-                                        </div>
-                                        <div class="preview-tabs">
-                                            <button class="active" onclick="switchPreview(this, 'merchant')">Merchant</button>
-                                            <button onclick="switchPreview(this, 'admin')">Admin</button>
-                                            <button onclick="switchPreview(this, 'partner')">Partner</button>
-                                        </div>
+                            <!-- Right Panel: All Fields (No Filtering) -->
+                            <div class="w-full min-w-0 overflow-x-hidden">
+                                <div class="bg-white border border-gray-200 rounded-t-xl px-3 sm:px-5 py-3 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-list text-brand-secondary text-sm"></i>
+                                        <span class="text-sm font-semibold text-brand-primary">All Fields</span>
                                     </div>
+                                    <span class="text-[11px] text-slate-500 font-medium">Shift + Drag = Move from this section</span>
+                                </div>
 
-                                    <!-- Preview Content -->
-                                    <div class="p-4 bg-gradient-to-b from-gray-50 to-gray-100 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                                       
-                                        <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                                            
-                                            <div class="bg-brand-primary px-4 py-3">
-                                                <div class="text-white text-xs font-semibold">KYC Application Form</div>
-                                                <div class="text-white/60 text-[10px] mt-0.5">Merchant view</div>
-                                            </div>
-
-                                            <div class="p-4 space-y-4">
-                                                @foreach ($kycSections as $section)
-                                                    @if ($section->kycFields->where('visible_to_merchant', true)->count() > 0)
-                                                        <div>
-                                                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
-                                                                <div class="w-1 h-4 bg-brand-cta rounded-full"></div>
-                                                                <h4 class="text-xs font-bold text-brand-primary uppercase tracking-wide">{{ $section->name }}</h4>
-                                                            </div>
-                                                            <div class="space-y-3">
-                                                                @foreach ($section->kycFields->where('visible_to_merchant', true) as $field)
-                                                                    <div>
-                                                                        <label class="block text-[11px] font-medium text-gray-600 mb-1">
-                                                                            {{ $field->field_name }}
-                                                                            @if ($field->is_required)
-                                                                                <span class="text-red-500">*</span>
-                                                                            @endif
-                                                                        </label>
-                                                                        @switch($field->data_type)
-                                                                            @case('textarea')
-                                                                                <textarea class="preview-input resize-none" rows="2" placeholder="{{ $field->field_name }}..." disabled></textarea>
-                                                                                @break
-                                                                            @case('dropdown')
-                                                                            @case('multi-select')
-                                                                            @case('country')
-                                                                            @case('currency')
-                                                                                <select class="preview-input" disabled>
-                                                                                    <option>Select...</option>
-                                                                                </select>
-                                                                                @break
-                                                                            @case('file')
-                                                                            @case('signature')
-                                                                                <div class="preview-input flex items-center gap-2 text-gray-400">
-                                                                                    <i class="fa-solid fa-cloud-arrow-up text-[10px]"></i>
-                                                                                    <span>Upload file...</span>
-                                                                                </div>
-                                                                                @break
-                                                                            @case('checkbox')
-                                                                                <label class="flex items-center gap-2">
-                                                                                    <input type="checkbox" class="w-3.5 h-3.5 rounded border-gray-300" disabled>
-                                                                                    <span class="text-xs text-gray-500">{{ $field->field_name }}</span>
-                                                                                </label>
-                                                                                @break
-                                                                            @case('radio')
-                                                                                <label class="flex items-center gap-2">
-                                                                                    <input type="radio" class="w-3.5 h-3.5 border-gray-300" disabled>
-                                                                                    <span class="text-xs text-gray-500">{{ $field->field_name }}</span>
-                                                                                </label>
-                                                                                @break
-                                                                            @default
-                                                                                <input type="{{ $field->data_type }}" class="preview-input" placeholder="{{ $field->field_name }}..." disabled>
-                                                                        @endswitch
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-
-                                                
-                                                <div class="pt-3 border-t border-gray-100">
-                                                    <div class="bg-gray-200 text-gray-400 text-center py-2 rounded-lg text-xs font-semibold">
-                                                        Submit Application
+                                <div class="bg-white border border-gray-200 border-t-0 rounded-b-xl overflow-hidden">
+                                    <div class="max-h-[720px] overflow-y-auto divide-y divide-gray-100">
+                                        @foreach ($kycSections as $section)
+                                            <div class="px-3 sm:px-5 py-3.5">
+                                                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                                                    <div class="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center">
+                                                        <i class="fa-solid fa-layer-group text-[10px]"></i>
                                                     </div>
+                                                    <h3 class="text-sm font-semibold text-brand-primary">{{ $section->name }}</h3>
+                                                    <span class="ml-auto text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{{ $section->kycFields->count() }}</span>
                                                 </div>
+
+                                                @if ($section->kycFields->count() > 0)
+                                                    <div class="space-y-2">
+                                                        @foreach ($section->kycFields as $field)
+                                                            @php
+                                                                $catalogDisplayInternalKey = Str::of($section->slug)->replace('-', '_')->append('_' . $field->internal_key);
+                                                            @endphp
+                                                            <div class="catalog-field-row px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between gap-3"
+                                                                draggable="true"
+                                                                data-field-id="{{ $field->id }}"
+                                                                data-source-section-id="{{ $section->id }}"
+                                                                title="Drag this field into a section on the left. Shift + Drag to move from this section.">
+                                                                <div class="min-w-0">
+                                                                    <p class="text-sm font-medium text-slate-800 truncate">{{ $field->field_name }}</p>
+                                                                    <p class="text-[11px] text-slate-400 truncate">{{ $catalogDisplayInternalKey }}</p>
+                                                                </div>
+                                                                <span class="flex-shrink-0 data-type-badge {{ $dataTypeStyles[$field->data_type]['bg'] ?? 'bg-gray-100' }} {{ $dataTypeStyles[$field->data_type]['text'] ?? 'text-gray-600' }}">
+                                                                    {{ Str::limit($field->data_type, 10) }}
+                                                                </span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <p class="text-xs text-gray-400">No fields in this section.</p>
+                                                @endif
                                             </div>
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -823,6 +855,8 @@
             const dragState = {
                 row: null,
                 section: null,
+                sourceSectionId: null,
+                mode: 'copy',
                 snapshot: '',
                 isSaving: false,
             };
@@ -867,6 +901,7 @@
             function getLayoutPayload() {
                 const items = [];
                 const sections = [];
+                const visibilityMap = new Map();
 
                 document.querySelectorAll('#field-sections-container .field-section').forEach((section, index) => {
                     sections.push({
@@ -878,15 +913,70 @@
                 document.querySelectorAll('.section-dropzone').forEach(dropzone => {
                     const sectionId = Number(dropzone.dataset.sectionId);
                     dropzone.querySelectorAll('.field-row').forEach((row, index) => {
+                        const fieldId = Number(row.dataset.fieldId);
                         items.push({
-                            field_id: Number(row.dataset.fieldId),
+                            field_id: fieldId,
                             kyc_section_id: sectionId,
                             sort_order: index,
                         });
+
+                        if (!visibilityMap.has(fieldId)) {
+                            visibilityMap.set(fieldId, {
+                                field_id: fieldId,
+                                visible_countries: parseDatasetList(row.dataset.visibleCountries, ','),
+                                visible_acquirers: parseDatasetList(row.dataset.visibleAcquirers, '|'),
+                            });
+                        }
                     });
                 });
 
-                return { items, sections };
+                return {
+                    items,
+                    sections,
+                    field_visibility: [...visibilityMap.values()],
+                };
+            }
+
+            function parseDatasetList(value, separator) {
+                return String(value || '')
+                    .split(separator)
+                    .map(item => item.trim())
+                    .filter(Boolean);
+            }
+
+            function serializeDatasetList(values, separator) {
+                return [...new Set((values || []).map(item => String(item).trim()).filter(Boolean))].join(separator);
+            }
+
+            function getActiveFilterContext() {
+                return {
+                    country: String(document.getElementById('country-filter')?.value || '').toUpperCase().trim(),
+                    acquirer: String(document.getElementById('acquirer-filter')?.value || '').toLowerCase().trim(),
+                };
+            }
+
+            function applyFilterContextToField(fieldId) {
+                const { country, acquirer } = getActiveFilterContext();
+
+                if (!country && !acquirer) {
+                    return;
+                }
+
+                document.querySelectorAll(`.field-row[data-field-id="${fieldId}"]`).forEach(row => {
+                    const countries = parseDatasetList(row.dataset.visibleCountries, ',');
+                    const acquirers = parseDatasetList(row.dataset.visibleAcquirers, '|');
+
+                    if (country && !countries.includes(country)) {
+                        countries.push(country);
+                    }
+
+                    if (acquirer && !acquirers.includes(acquirer)) {
+                        acquirers.push(acquirer);
+                    }
+
+                    row.dataset.visibleCountries = serializeDatasetList(countries, ',');
+                    row.dataset.visibleAcquirers = serializeDatasetList(acquirers, '|');
+                });
             }
 
             function getDragAfterElement(container, clientY) {
@@ -923,21 +1013,49 @@
                 document.querySelectorAll('.field-section').forEach(section => {
                     const dropzone = section.querySelector('.section-dropzone');
                     const emptyState = section.querySelector('.section-empty-state');
-                    const hasRows = dropzone && dropzone.querySelector('.field-row');
+                    const visibleRows = dropzone ? [...dropzone.querySelectorAll('.field-row')].filter(row => row.style.display !== 'none') : [];
+                    const hasRows = visibleRows.length > 0;
+                    const title = emptyState?.querySelector('p.text-sm');
+                    const subtitle = emptyState?.querySelector('p.text-xs');
 
                     if (emptyState) {
                         emptyState.classList.toggle('hidden', Boolean(hasRows));
+                    }
+
+                    if (!emptyState || !title || !subtitle) {
+                        return;
+                    }
+
+                    const { country, acquirer } = getActiveFilterContext();
+                    const hasContextFilter = Boolean(country || acquirer);
+
+                    if (!hasRows && hasContextFilter) {
+                        title.textContent = 'No fields matched the selected filters';
+                        subtitle.textContent = 'Drag from All Fields to assign this field for the selected country/acquirer.';
+                    } else {
+                        title.textContent = 'No KYC fields in this section';
+                        subtitle.textContent = 'Add fields from the KYC Field Master';
                     }
                 });
             }
 
             function updateSectionCounts() {
+                const hasActiveFilters = Boolean(
+                    (document.getElementById('field-search-input')?.value || '').trim() ||
+                    (document.getElementById('country-filter')?.value || '').trim() ||
+                    (document.getElementById('acquirer-filter')?.value || '').trim() ||
+                    (document.getElementById('data-type-filter')?.value || '').trim()
+                );
+
                 document.querySelectorAll('.field-section').forEach(section => {
                     const rows = [...section.querySelectorAll('.section-dropzone .field-row')];
-                    const fieldCount = rows.length;
-                    const mandatoryCount = rows.filter(row => row.querySelector('.requirement-toggle .active')).length;
-                    const optionalCount = Math.max(fieldCount - mandatoryCount, 0);
-                    const progress = fieldCount > 0 ? Math.round((mandatoryCount / fieldCount) * 100) : 0;
+                    const visibleRows = rows.filter(row => row.style.display !== 'none');
+                    const totalFieldCount = rows.length;
+                    const displayFieldCount = hasActiveFilters ? visibleRows.length : totalFieldCount;
+                    const mandatoryCount = (hasActiveFilters ? visibleRows : rows)
+                        .filter(row => String(row.dataset.isRequired || '0') === '1').length;
+                    const optionalCount = Math.max(displayFieldCount - mandatoryCount, 0);
+                    const progress = displayFieldCount > 0 ? Math.round((mandatoryCount / displayFieldCount) * 100) : 0;
                     const fieldCountEl = section.querySelector('.section-field-count');
                     const summaryEl = section.querySelector('.section-summary');
                     const mandatoryEl = section.querySelector('.section-mandatory-count');
@@ -946,10 +1064,10 @@
                     const progressLabel = section.querySelector('.section-progress-label');
 
                     if (fieldCountEl) {
-                        fieldCountEl.textContent = fieldCount;
+                        fieldCountEl.textContent = displayFieldCount;
                     }
 
-                    if (fieldCount === 0) {
+                    if (displayFieldCount === 0) {
                         if (summaryEl) {
                             summaryEl.innerHTML = '<span class="text-gray-400 italic">Empty</span>';
                         }
@@ -967,7 +1085,7 @@
                     }
 
                     if (progressLabel) {
-                        progressLabel.textContent = `${mandatoryCount}/${fieldCount}`;
+                        progressLabel.textContent = `${mandatoryCount}/${displayFieldCount}`;
                     }
                 });
             }
@@ -983,24 +1101,120 @@
                 }
             }
 
+            function buildSectionPrefixedKey(sectionElement, baseInternalKey) {
+                const sectionSlug = String(sectionElement?.dataset.sectionSlug || '')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/-/g, '_');
+                const normalizedKey = String(baseInternalKey || '').trim();
+
+                if (!sectionSlug) {
+                    return normalizedKey;
+                }
+
+                if (!normalizedKey) {
+                    return sectionSlug;
+                }
+
+                return normalizedKey.startsWith(`${sectionSlug}_`)
+                    ? normalizedKey
+                    : `${sectionSlug}_${normalizedKey}`;
+            }
+
+            function syncRowDisplayKey(row) {
+                if (!row) {
+                    return;
+                }
+
+                const sectionElement = row.closest('.field-section');
+                const baseInternalKey = String(row.dataset.baseInternalKey || '').trim();
+                const displayKey = buildSectionPrefixedKey(sectionElement, baseInternalKey);
+
+                row.dataset.fieldName = `${row.dataset.fieldLabel || ''} ${displayKey.toLowerCase()}`.trim();
+
+                const internalKeyEl = row.querySelector('.field-internal-key');
+                if (internalKeyEl) {
+                    internalKeyEl.textContent = displayKey;
+                }
+            }
+
             function syncUpdatedFieldKeys(fields) {
                 if (!Array.isArray(fields)) {
                     return;
                 }
 
                 fields.forEach(field => {
-                    const row = document.querySelector(`.field-row[data-field-id="${field.field_id}"]`);
-                    if (!row) {
+                    const rows = document.querySelectorAll(`.field-row[data-field-id="${field.field_id}"]`);
+                    if (!rows.length) {
                         return;
                     }
 
-                    row.dataset.sectionId = String(field.kyc_section_id);
-                    row.dataset.fieldName = `${row.dataset.fieldLabel || ''} ${String(field.internal_key || '').toLowerCase()}`.trim();
+                    rows.forEach(row => {
+                        row.dataset.baseInternalKey = String(field.internal_key || '').trim();
+                        syncRowDisplayKey(row);
+                    });
+                });
+            }
 
-                    const internalKeyEl = row.querySelector('.field-internal-key');
-                    if (internalKeyEl) {
-                        internalKeyEl.textContent = field.internal_key;
+            function bindFieldRowDragEvents(row) {
+                row.addEventListener('dragstart', event => {
+                    dragState.row = row;
+                    dragState.sourceSectionId = row.dataset.sectionId || null;
+                    dragState.mode = event.shiftKey ? 'move' : 'copy';
+                    dragState.snapshot = captureLayoutSnapshot();
+                    row.classList.add('is-dragging');
+                    event.dataTransfer.effectAllowed = 'copyMove';
+                    event.dataTransfer.setData('text/plain', row.dataset.fieldId || '');
+                });
+
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('is-dragging');
+                    dragState.row = null;
+                    dragState.sourceSectionId = null;
+                    dragState.mode = 'copy';
+                    clearDropState();
+                });
+            }
+
+            function cloneRowForSection(sourceRow, targetSectionId) {
+                const clone = sourceRow.cloneNode(true);
+                clone.classList.remove('is-dragging');
+                clone.dataset.sectionId = String(targetSectionId);
+                clone.style.display = '';
+                bindFieldRowDragEvents(clone);
+                syncRowDisplayKey(clone);
+                return clone;
+            }
+
+            function bindCatalogDragEvents(item) {
+                item.addEventListener('dragstart', event => {
+                    const fieldId = String(item.dataset.fieldId || '').trim();
+                    const sourceSectionId = String(item.dataset.sourceSectionId || '').trim();
+                    const templateRow = document.querySelector(
+                        `#field-sections-container .field-row[data-field-id="${fieldId}"][data-section-id="${sourceSectionId}"]`
+                    ) || document.querySelector(`#field-sections-container .field-row[data-field-id="${fieldId}"]`);
+
+                    if (!templateRow) {
+                        event.preventDefault();
+                        setSaveStatus('error', 'Field template not found. Please reload page.');
+                        return;
                     }
+
+                    dragState.row = templateRow;
+                    dragState.sourceSectionId = sourceSectionId || templateRow.dataset.sectionId || null;
+                    dragState.mode = event.shiftKey ? 'move' : 'copy';
+                    dragState.snapshot = captureLayoutSnapshot();
+                    item.classList.add('is-dragging');
+                    event.dataTransfer.effectAllowed = dragState.mode === 'move' ? 'move' : 'copy';
+                    event.dataTransfer.setData('text/plain', fieldId);
+                });
+
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('is-dragging');
+                    dragState.row = null;
+                    dragState.sourceSectionId = null;
+                    dragState.mode = 'copy';
+                    clearDropState();
                 });
             }
 
@@ -1032,7 +1246,7 @@
                     const result = await response.json();
                     syncUpdatedFieldKeys(result.fields || []);
 
-                    dragState.snapshot = JSON.stringify(payload.items);
+                    dragState.snapshot = JSON.stringify(payload);
                     setSaveStatus('saved', `Saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
                 } catch (error) {
                     setSaveStatus('error', error.message || 'Unable to save mapping.');
@@ -1081,11 +1295,37 @@
                     chevron?.classList.add('fa-chevron-down');
                 }
 
-                dropzone.appendChild(dragState.row);
-                dragState.row.dataset.sectionId = dropzone.dataset.sectionId;
+                const targetSectionId = String(dropzone.dataset.sectionId || '');
+                const sourceSectionId = String(dragState.sourceSectionId || '');
+                const fieldId = String(dragState.row.dataset.fieldId || '');
+                const sameSection = sourceSectionId === targetSectionId;
+
+                if (!sameSection && dropzone.querySelector(`.field-row[data-field-id="${fieldId}"]`)) {
+                    setSaveStatus('error', 'This field already exists in the selected section.');
+                    clearDropState();
+                    return;
+                }
+
+                const shouldMove = !sameSection && dragState.mode === 'move' && dragState.sourceSectionId;
+
+                if (sameSection || shouldMove) {
+                    dropzone.appendChild(dragState.row);
+                    dragState.row.dataset.sectionId = targetSectionId;
+                    dragState.row.style.display = '';
+                    syncRowDisplayKey(dragState.row);
+                    if (shouldMove) {
+                        setSaveStatus('saving', 'Field moved to section. Saving...');
+                    }
+                } else {
+                    const clonedRow = cloneRowForSection(dragState.row, targetSectionId);
+                    dropzone.appendChild(clonedRow);
+                    setSaveStatus('saving', 'Field copied to section. Saving...');
+                }
+
+                applyFilterContextToField(fieldId);
+
                 clearDropState();
-                updateSectionEmptyStates();
-                updateSectionCounts();
+                applyFilters();
 
                 const nextSnapshot = captureLayoutSnapshot();
                 if (nextSnapshot !== dragState.snapshot) {
@@ -1161,21 +1401,8 @@
                     });
                 }
 
-                document.querySelectorAll('.field-row').forEach(row => {
-                    row.addEventListener('dragstart', event => {
-                        dragState.row = row;
-                        dragState.snapshot = captureLayoutSnapshot();
-                        row.classList.add('is-dragging');
-                        event.dataTransfer.effectAllowed = 'move';
-                        event.dataTransfer.setData('text/plain', row.dataset.fieldId || '');
-                    });
-
-                    row.addEventListener('dragend', () => {
-                        row.classList.remove('is-dragging');
-                        dragState.row = null;
-                        clearDropState();
-                    });
-                });
+                document.querySelectorAll('.field-row').forEach(bindFieldRowDragEvents);
+                document.querySelectorAll('.catalog-field-row').forEach(bindCatalogDragEvents);
 
                 document.querySelectorAll('.section-dropzone').forEach(dropzone => {
                     dropzone.addEventListener('dragover', handleDropzoneDragOver);
@@ -1192,16 +1419,53 @@
                             return;
                         }
 
-                        if (dropPlaceholder.parentNode === dropzone) {
-                            dropzone.insertBefore(dragState.row, dropPlaceholder);
-                        } else {
-                            dropzone.appendChild(dragState.row);
+                        const targetSectionId = String(dropzone.dataset.sectionId || '');
+                        const sourceSectionId = String(dragState.sourceSectionId || '');
+                        const fieldId = String(dragState.row.dataset.fieldId || '');
+                        const sameSection = sourceSectionId === targetSectionId;
+
+                        if (!sameSection && dropzone.querySelector(`.field-row[data-field-id="${fieldId}"]`)) {
+                            setSaveStatus('error', 'This field already exists in the selected section.');
+                            clearDropState();
+                            return;
                         }
 
-                        dragState.row.dataset.sectionId = dropzone.dataset.sectionId;
+                        const shouldMove = !sameSection && dragState.mode === 'move' && dragState.sourceSectionId;
+
+                        if (dropPlaceholder.parentNode === dropzone) {
+                            if (sameSection || shouldMove) {
+                                dropzone.insertBefore(dragState.row, dropPlaceholder);
+                                dragState.row.dataset.sectionId = targetSectionId;
+                                dragState.row.style.display = '';
+                                syncRowDisplayKey(dragState.row);
+                                if (shouldMove) {
+                                    setSaveStatus('saving', 'Field moved to section. Saving...');
+                                }
+                            } else {
+                                const clonedRow = cloneRowForSection(dragState.row, targetSectionId);
+                                dropzone.insertBefore(clonedRow, dropPlaceholder);
+                                setSaveStatus('saving', 'Field copied to section. Saving...');
+                            }
+                        } else {
+                            if (sameSection || shouldMove) {
+                                dropzone.appendChild(dragState.row);
+                                dragState.row.dataset.sectionId = targetSectionId;
+                                dragState.row.style.display = '';
+                                syncRowDisplayKey(dragState.row);
+                                if (shouldMove) {
+                                    setSaveStatus('saving', 'Field moved to section. Saving...');
+                                }
+                            } else {
+                                const clonedRow = cloneRowForSection(dragState.row, targetSectionId);
+                                dropzone.appendChild(clonedRow);
+                                setSaveStatus('saving', 'Field copied to section. Saving...');
+                            }
+                        }
+
+                        applyFilterContextToField(fieldId);
+
                         clearDropState();
-                        updateSectionEmptyStates();
-                        updateSectionCounts();
+                        applyFilters();
 
                         const nextSnapshot = captureLayoutSnapshot();
                         if (nextSnapshot !== dragState.snapshot) {
@@ -1286,22 +1550,49 @@
             }
 
             // Search / filter fields
-            function filterFields(query) {
-                const q = query.toLowerCase().trim();
+            function applyFilters() {
+                const q = (document.getElementById('field-search-input')?.value || '').toLowerCase().trim();
+                const selectedCountry = (document.getElementById('country-filter')?.value || '').toUpperCase();
+                const selectedAcquirer = (document.getElementById('acquirer-filter')?.value || '').toLowerCase();
+                const selectedDataType = (document.getElementById('data-type-filter')?.value || '').toLowerCase();
+
                 document.querySelectorAll('.field-row').forEach(row => {
                     const name = row.getAttribute('data-field-name') || '';
-                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                    const section = row.closest('.field-section');
+                    const sectionName = section?.getAttribute('data-section-name') || '';
+                    const rowDataType = (row.getAttribute('data-data-type') || '').toLowerCase();
+                    const rowCountries = (row.getAttribute('data-visible-countries') || '')
+                        .split(',')
+                        .map(v => v.trim())
+                        .filter(Boolean);
+                    const rowAcquirers = (row.getAttribute('data-visible-acquirers') || '')
+                        .split('|')
+                        .map(v => v.trim().toLowerCase())
+                        .filter(Boolean);
+
+                    const matchesSearch = !q || name.includes(q) || sectionName.includes(q);
+                    const matchesCountry = !selectedCountry || rowCountries.length === 0 || rowCountries.includes(selectedCountry);
+                    const matchesAcquirer = !selectedAcquirer || rowAcquirers.length === 0 || rowAcquirers.includes(selectedAcquirer);
+                    const matchesDataType = !selectedDataType || rowDataType === selectedDataType;
+
+                    row.style.display = (matchesSearch && matchesCountry && matchesAcquirer && matchesDataType) ? '' : 'none';
                 });
+
                 // Also show/hide empty sections
                 document.querySelectorAll('.field-section').forEach(section => {
-                    const visibleFields = section.querySelectorAll('.field-row[style=""], .field-row:not([style])');
+                    const visibleFields = [...section.querySelectorAll('.field-row')].filter(row => row.style.display !== 'none');
                     const sectionName = section.getAttribute('data-section-name') || '';
-                    if (!q || visibleFields.length > 0 || sectionName.includes(q)) {
-                        section.style.display = '';
-                    } else {
-                        section.style.display = 'none';
-                    }
+                    const hasContextFilter = Boolean(selectedCountry || selectedAcquirer || selectedDataType);
+                    const shouldKeepVisibleForDrop = hasContextFilter && !q;
+                    section.style.display = (visibleFields.length > 0 || shouldKeepVisibleForDrop || sectionName.includes(q)) ? '' : 'none';
                 });
+
+                updateSectionEmptyStates();
+                updateSectionCounts();
+            }
+
+            function filterFields() {
+                applyFilters();
             }
 
             // Unsaved changes indicator
@@ -1314,9 +1605,28 @@
                 cb.addEventListener('change', markUnsaved);
             });
 
+            document.getElementById('country-filter')?.addEventListener('change', applyFilters);
+            document.getElementById('acquirer-filter')?.addEventListener('change', applyFilters);
+            document.getElementById('data-type-filter')?.addEventListener('change', applyFilters);
+
+            document.getElementById('clear-top-filters')?.addEventListener('click', () => {
+                const countryFilter = document.getElementById('country-filter');
+                const acquirerFilter = document.getElementById('acquirer-filter');
+                const dataTypeFilter = document.getElementById('data-type-filter');
+                const searchInput = document.getElementById('field-search-input');
+
+                if (countryFilter) countryFilter.value = '';
+                if (acquirerFilter) acquirerFilter.value = '';
+                if (dataTypeFilter) dataTypeFilter.value = '';
+                if (searchInput) searchInput.value = '';
+
+                applyFilters();
+            });
+
             updateSectionEmptyStates();
             updateSectionCounts();
             initDragAndDrop();
+            applyFilters();
         </script>
 
     </body>

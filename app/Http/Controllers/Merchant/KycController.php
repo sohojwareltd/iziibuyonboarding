@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -81,8 +82,8 @@ class KycController extends Controller
                     $q->orWhereJsonContains('visible_acquirers', $token);
                 }
             })
-            ->orderBy('sort_order')
-            ->orderBy('id');
+            ->orderBy('k_y_c_field_masters.sort_order')
+            ->orderBy('k_y_c_field_masters.id');
     }
 
     private function buildDocumentTypeFileRules(KycSection $sectionModel): array
@@ -165,7 +166,13 @@ class KycController extends Controller
 
     private function resolveFirstSectionRedirectUrl(?string $kycLink): string
     {
-        $firstSection = KycSection::where('status', 'active')
+        $onboarding = $this->resolveOnboardingByKycLink($kycLink);
+
+        $firstSection = KycSection::query()
+            ->where('status', 'active')
+            ->whereHas('kycFields', function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
+            })
             ->orderBy('sort_order')
             ->orderBy('id')
             ->first(['slug']);
@@ -373,7 +380,7 @@ class KycController extends Controller
         ]);
     }
 
-    public function section(string $kyc_link, string $section): View
+    public function section(string $kyc_link, string $section): View|RedirectResponse
     {
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
@@ -384,10 +391,25 @@ class KycController extends Controller
             }])
             ->firstOrFail();
 
-        $sections = KycSection::where('status', 'active')
+        $sections = KycSection::query()
+            ->where('status', 'active')
+            ->whereHas('kycFields', function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
+            })
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get(['id', 'name', 'slug', 'sort_order']);
+
+        if ($sectionModel->kycFields->isEmpty()) {
+            $fallbackSection = $sections->first();
+
+            if ($fallbackSection && $fallbackSection->slug !== $sectionModel->slug) {
+                return redirect()->route('merchant.kyc.section', [
+                    'kyc_link' => $kyc_link,
+                    'section' => $fallbackSection->slug,
+                ]);
+            }
+        }
 
         $currentIndex = $sections->search(fn ($item) => $item->slug === $sectionModel->slug);
         $prevSection = $currentIndex !== false ? $sections->get($currentIndex - 1) : null;
