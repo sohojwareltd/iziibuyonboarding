@@ -700,7 +700,7 @@
                                                                     ->implode('|');
                                                                     $displayInternalKey = Str::of($section->slug)->replace('-', '_')->append('_' . $field->internal_key);
                                                             @endphp
-                                                                    <div class="field-row px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}" data-base-internal-key="{{ $field->internal_key }}" data-data-type="{{ Str::lower($field->data_type) }}" data-is-required="{{ $field->is_required ? '1' : '0' }}" data-visible-countries="{{ $visibleCountryCodes }}" data-visible-acquirers="{{ $visibleAcquirerNames }}">
+                                                                    <div class="field-row group px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}" data-base-internal-key="{{ $field->internal_key }}" data-data-type="{{ Str::lower($field->data_type) }}" data-is-required="{{ $field->is_required ? '1' : '0' }}" data-visible-countries="{{ $visibleCountryCodes }}" data-visible-acquirers="{{ $visibleAcquirerNames }}">
                                                                 <div class="w-8 flex items-center justify-center">
                                                                     <i class="fa-solid fa-grip-vertical text-gray-300 drag-handle text-xs"></i>
                                                                 </div>
@@ -722,6 +722,14 @@
                                                                         @endif
                                                                     </div>
                                                                     <div class="field-internal-key font-mono text-[11px] text-gray-400 truncate">{{ $displayInternalKey }}</div>
+                                                                    <button type="button"
+                                                                        class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700"
+                                                                        title="Remove field from this section"
+                                                                        aria-label="Remove field from this section"
+                                                                        onclick="removeFieldFromSection(this, event)">
+                                                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                                                        Remove
+                                                                    </button>
                                                                 </div>
                                                                 <div class="w-20 flex justify-center">
                                                                     <span class="data-type-badge {{ $dtStyle['bg'] }} {{ $dtStyle['text'] }}">
@@ -729,6 +737,7 @@
                                                                         {{ Str::limit($field->data_type, 8) }}
                                                                     </span>
                                                                 </div>
+                                                            
                                                                 {{-- <div class="w-52">
                                                                     <div class="requirement-toggle" data-field-id="{{ $field->id }}">
                                                                         <button class="{{ $field->is_required ? 'active' : '' }}" onclick="setRequirement(this, 'mandatory')">Mandatory</button>
@@ -1184,6 +1193,91 @@
                 bindFieldRowDragEvents(clone);
                 syncRowDisplayKey(clone);
                 return clone;
+            }
+
+            function removeFieldFromSection(button, event) {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+
+                const row = button?.closest('.field-row');
+                if (!row) {
+                    return;
+                }
+
+                const { country, acquirer } = getActiveFilterContext();
+                const section = row.closest('.field-section');
+                const fieldName = row.querySelector('.font-semibold')?.textContent?.trim() || 'this field';
+                const sectionName = section?.querySelector('.section-header .font-bold')?.textContent?.trim() || 'this section';
+                const hasScopedFilters = Boolean(country || acquirer);
+                const confirmed = window.confirm(
+                    hasScopedFilters
+                        ? `Remove "${fieldName}" for selected filters from "${sectionName}"?`
+                        : `Remove "${fieldName}" from "${sectionName}"?`
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                dragState.snapshot = captureLayoutSnapshot();
+
+                if (hasScopedFilters) {
+                    const allCountries = [...document.querySelectorAll('#country-filter option')]
+                        .map(option => String(option.value || '').toUpperCase().trim())
+                        .filter(Boolean);
+                    const allAcquirers = [...document.querySelectorAll('#acquirer-filter option')]
+                        .map(option => String(option.value || '').toLowerCase().trim())
+                        .filter(Boolean);
+
+                    let rowCountries = parseDatasetList(row.dataset.visibleCountries, ',');
+                    let rowAcquirers = parseDatasetList(row.dataset.visibleAcquirers, '|');
+
+                    if (country) {
+                        if (rowCountries.length === 0) {
+                            rowCountries = [...allCountries];
+                        }
+                        rowCountries = rowCountries.filter(code => code !== country);
+                    }
+
+                    if (acquirer) {
+                        if (rowAcquirers.length === 0) {
+                            rowAcquirers = [...allAcquirers];
+                        }
+                        rowAcquirers = rowAcquirers.filter(name => name !== acquirer);
+                    }
+
+                    const nextCountries = serializeDatasetList(rowCountries, ',');
+                    const nextAcquirers = serializeDatasetList(rowAcquirers, '|');
+                    const hadChange = nextCountries !== String(row.dataset.visibleCountries || '') ||
+                        nextAcquirers !== String(row.dataset.visibleAcquirers || '');
+
+                    if (!hadChange) {
+                        setSaveStatus('error', 'Already removed for selected country/acquirer.');
+                        return;
+                    }
+
+                    const noCountryScopeLeft = country && rowCountries.length === 0;
+                    const noAcquirerScopeLeft = acquirer && rowAcquirers.length === 0;
+
+                    if (noCountryScopeLeft || noAcquirerScopeLeft) {
+                        row.remove();
+                    } else {
+                        row.dataset.visibleCountries = nextCountries;
+                        row.dataset.visibleAcquirers = nextAcquirers;
+                    }
+                } else {
+                    row.remove();
+                }
+
+                clearDropState();
+                applyFilters();
+
+                setSaveStatus('saving', hasScopedFilters ? 'Field removed for selected filters. Saving...' : 'Field removed. Saving...');
+
+                const nextSnapshot = captureLayoutSnapshot();
+                if (nextSnapshot !== dragState.snapshot) {
+                    persistLayout();
+                }
             }
 
             function bindCatalogDragEvents(item) {
