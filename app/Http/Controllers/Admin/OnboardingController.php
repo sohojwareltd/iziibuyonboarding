@@ -248,29 +248,47 @@ class OnboardingController extends Controller
 
         // Resolve acquirer codes to AcquirerMaster records
         $acquirerRecords = collect();
-        if (!empty($onboarding->acquirers)) {
-            $acquirerRecords = AcquirerMaster::whereIn('name', $onboarding->acquirers)
-                ->orWhereIn('id', array_filter($onboarding->acquirers, 'is_numeric'))
-                ->get();
-        }
-        $acquirerTrackingMatrix = $acquirerRecords
-            ->mapWithKeys(fn ($acquirer) => [
-                strtolower((string) $acquirer->name) => $this->buildAcquirerTrackingState($acquirer, $onboarding),
-            ])
-            ->all();
+            $acquirerTrackingMatrix = [];
+        
+            if (!empty($onboarding->acquirers) && is_array($onboarding->acquirers)) {
+                $acquirerRecords = AcquirerMaster::where(function ($query) use ($onboarding) {
+                    foreach ($onboarding->acquirers as $acquirer) {
+                        if (is_numeric($acquirer)) {
+                            $query->orWhere('id', (int) $acquirer);
+                        } else {
+                            $query->orWhere('name', $acquirer);
+                        }
+                    }
+                })->get();
+
+                $acquirerTrackingMatrix = $acquirerRecords
+                    ->mapWithKeys(fn ($acquirer) => [
+                        strtolower((string) $acquirer->name) => $this->buildAcquirerTrackingState($acquirer, $onboarding),
+                    ])
+                    ->all();
+            }
 
         // Resolve country
-        $country = Country::where('code', $onboarding->country_of_operation)
-            ->orWhere('name', $onboarding->country_of_operation)
-            ->first();
+            $country = null;
+            if (!empty($onboarding->country_of_operation)) {
+                $country = Country::where('code', strtoupper($onboarding->country_of_operation))
+                    ->orWhere('name', $onboarding->country_of_operation)
+                    ->first();
+            }
 
         // Resolve payment method codes to names
         $paymentMethodNames = collect();
-        if (!empty($onboarding->payment_methods)) {
-            $paymentMethodNames = PaymentMethodMaster::whereIn('name', $onboarding->payment_methods)
-                ->orWhereIn('id', array_filter($onboarding->payment_methods, 'is_numeric'))
-                ->pluck('display_label');
-        }
+            if (!empty($onboarding->payment_methods) && is_array($onboarding->payment_methods)) {
+                $paymentMethodNames = PaymentMethodMaster::where(function ($query) use ($onboarding) {
+                    foreach ($onboarding->payment_methods as $method) {
+                        if (is_numeric($method)) {
+                            $query->orWhere('id', (int) $method);
+                        } else {
+                            $query->orWhere('name', $method)->orWhere('display_label', $method);
+                        }
+                    }
+                })->pluck('display_label', 'id');
+            }
 
         // KYC completion percentage (simple heuristic based on filled fields)
         $kycFields = ['legal_business_name', 'trading_name', 'registration_number', 'business_website',
