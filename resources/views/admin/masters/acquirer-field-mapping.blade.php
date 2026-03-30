@@ -698,7 +698,10 @@
                                                                     ->map(fn($value) => Str::lower(trim((string) $value)))
                                                                     ->filter()
                                                                     ->implode('|');
-                                                                    $displayInternalKey = Str::of($section->slug)->replace('-', '_')->append('_' . $field->internal_key);
+                                                                    $sectionSlugPrefix = Str::of($section->slug)->replace('-', '_')->toString();
+                                                                    $displayInternalKey = Str::startsWith($field->internal_key, $sectionSlugPrefix . '_')
+                                                                        ? $field->internal_key
+                                                                        : Str::of($sectionSlugPrefix)->append('_' . $field->internal_key)->toString();
                                                             @endphp
                                                                     <div class="field-row group px-3 sm:px-5 py-3.5 flex items-center gap-3 border-b border-gray-100 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50/40" draggable="true" data-field-id="{{ $field->id }}" data-section-id="{{ $section->id }}" data-field-label="{{ Str::lower($field->field_name) }}" data-field-name="{{ Str::lower($field->field_name) }} {{ Str::lower($field->internal_key) }}" data-base-internal-key="{{ $field->internal_key }}" data-data-type="{{ Str::lower($field->data_type) }}" data-is-required="{{ $field->is_required ? '1' : '0' }}" data-visible-countries="{{ $visibleCountryCodes }}" data-visible-acquirers="{{ $visibleAcquirerNames }}">
                                                                 <div class="w-8 flex items-center justify-center">
@@ -809,7 +812,10 @@
                                                     <div class="space-y-2">
                                                         @foreach ($section->kycFields as $field)
                                                             @php
-                                                                $catalogDisplayInternalKey = Str::of($section->slug)->replace('-', '_')->append('_' . $field->internal_key);
+                                                                $catalogSectionSlugPrefix = Str::of($section->slug)->replace('-', '_')->toString();
+                                                                $catalogDisplayInternalKey = Str::startsWith($field->internal_key, $catalogSectionSlugPrefix . '_')
+                                                                    ? $field->internal_key
+                                                                    : Str::of($catalogSectionSlugPrefix)->append('_' . $field->internal_key)->toString();
                                                             @endphp
                                                             <div class="catalog-field-row px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between gap-3"
                                                                 draggable="true"

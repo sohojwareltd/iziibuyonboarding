@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Merchant;
 
 use App\Facades\KycFieldData;
 use App\Http\Controllers\Controller;
+use App\Models\Country;
 use App\Models\Onboarding;
 use App\Models\KycSection;
 use App\Models\User;
@@ -28,7 +29,26 @@ class KycController extends Controller
             return null;
         }
 
-        return strtoupper((string) $onboarding->country_of_operation);
+        $rawCountry = trim((string) $onboarding->country_of_operation);
+        if ($rawCountry === '') {
+            return null;
+        }
+
+        $upperRawCountry = strtoupper($rawCountry);
+
+        if (strlen($upperRawCountry) <= 3) {
+            return $upperRawCountry;
+        }
+
+        $resolvedCountryCode = Country::query()
+            ->where('name', $rawCountry)
+            ->orWhere('name', strtoupper($rawCountry))
+            ->orWhere('name', strtolower($rawCountry))
+            ->value('code');
+
+        return $resolvedCountryCode
+            ? strtoupper((string) $resolvedCountryCode)
+            : $upperRawCountry;
     }
 
     private function normalizeOnboardingAcquirers(?Onboarding $onboarding): array
