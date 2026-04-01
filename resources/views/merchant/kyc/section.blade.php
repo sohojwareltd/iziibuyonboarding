@@ -128,11 +128,94 @@
                     .filter(Boolean);
             }
 
+            function isElementVisible(element) {
+                if (!element) {
+                    return false;
+                }
+
+                const style = window.getComputedStyle(element);
+                if (style.display === 'none' || style.visibility === 'hidden') {
+                    return false;
+                }
+
+                return element.offsetParent !== null || style.position === 'fixed';
+            }
+
+            function getFieldWrapper(control) {
+                return control.closest('.kyc-field') || control.closest('[data-file-upload]') || control;
+            }
+
+            function disableHiddenRequiredControls(form) {
+                const controls = Array.from(form.querySelectorAll('input, select, textarea'));
+                const disabledControls = [];
+
+                controls.forEach((control) => {
+                    if (!control.required || control.disabled) {
+                        return;
+                    }
+
+                    const wrapper = getFieldWrapper(control);
+                    if (isElementVisible(wrapper)) {
+                        return;
+                    }
+
+                    disabledControls.push(control);
+                    control.dataset.wasRequired = '1';
+                    control.required = false;
+                });
+
+                return () => {
+                    disabledControls.forEach((control) => {
+                        if (control.dataset.wasRequired === '1') {
+                            control.required = true;
+                            delete control.dataset.wasRequired;
+                        }
+                    });
+                };
+            }
+
+            function validateVisibleRequiredGroups(form) {
+                const wrappers = Array.from(form.querySelectorAll('.kyc-field'));
+                const errors = [];
+
+                wrappers.forEach((wrapper) => {
+                    if (!isElementVisible(wrapper)) {
+                        return;
+                    }
+
+                    const label = wrapper.querySelector('label');
+                    const hasRequiredMark = Boolean(label && label.querySelector('.text-red-500'));
+                    if (!hasRequiredMark) {
+                        return;
+                    }
+
+                    const checkboxes = Array.from(wrapper.querySelectorAll('input[type="checkbox"]'));
+                    if (checkboxes.length > 0 && !checkboxes.some((item) => item.checked)) {
+                        errors.push((label?.textContent || 'This field').replace('*', '').trim() + ' is required.');
+                    }
+                });
+
+                return errors;
+            }
+
+            function validateVisibleFields(form) {
+                const restoreRequiredState = disableHiddenRequiredControls(form);
+                const isNativeValid = form.reportValidity();
+                const groupErrors = validateVisibleRequiredGroups(form);
+                restoreRequiredState();
+
+                if (groupErrors.length > 0) {
+                    [...new Set(groupErrors)].slice(0, 2).forEach((message) => showToast(message, 'error'));
+                }
+
+                return isNativeValid && groupErrors.length === 0;
+            }
+
             async function submitSection(redirectAfterSave = false) {
                 const form = document.getElementById('kyc-form');
 
                 // Enforce native HTML required validation before continue/review.
-                if (redirectAfterSave && !form.reportValidity()) {
+                if (redirectAfterSave && !validateVisibleFields(form)) {
                     return;
                 }
 

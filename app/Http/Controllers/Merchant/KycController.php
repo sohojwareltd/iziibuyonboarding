@@ -559,16 +559,23 @@ class KycController extends Controller
     public function saveSectionFields(Request $request, string $kyc_link, string $section): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'onboarding_id' => 'required|exists:onboardings,id',
-                'dynamic_fields' => 'nullable|array',
-                'bo_fields' => 'nullable|array',
-                'bm_fields' => 'nullable|array',
-                'as_fields' => 'nullable|array',
-            ]);
+            $onboardingId = (int) $request->input('onboarding_id');
+            if ($onboardingId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid onboarding context.',
+                ], 422);
+            }
 
             $sectionModel = KycSection::where('slug', $section)->firstOrFail();
-            $onboarding = Onboarding::findOrFail((int) $validated['onboarding_id']);
+            $onboarding = Onboarding::find($onboardingId);
+
+            if (! $onboarding) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Onboarding not found.',
+                ], 422);
+            }
 
             $sectionModel->load(['kycFields' => function ($query) use ($onboarding) {
                 $this->applyFieldVisibilityRules($query, $onboarding);
@@ -589,39 +596,34 @@ class KycController extends Controller
                 ]);
             }
 
-            $fileRules = $this->buildDocumentTypeFileRules($sectionModel);
-            if (!empty($fileRules)) {
-                $request->validate($fileRules);
-            }
+            $boFields = $request->input('bo_fields', []);
+            $bmFields = $request->input('bm_fields', []);
+            $asFields = $request->input('as_fields', []);
+            $dynamicFields = $request->input('dynamic_fields', []);
 
-            $requiredFieldRules = $this->buildRequiredFieldRules($sectionModel);
-            if (!empty($requiredFieldRules)) {
-                $request->validate($requiredFieldRules);
-            }
-
-            if (!empty($validated['bo_fields']) && is_array($validated['bo_fields'])) {
-                foreach ($validated['bo_fields'] as $groupIndex => $groupFields) {
+            if (!empty($boFields) && is_array($boFields)) {
+                foreach ($boFields as $groupIndex => $groupFields) {
                     if (!is_array($groupFields)) {
                         continue;
                     }
                     KycFieldData::saveForSection($onboarding, $sectionModel, $groupFields, (int) $groupIndex);
                 }
-            } elseif (!empty($validated['bm_fields']) && is_array($validated['bm_fields'])) {
-                foreach ($validated['bm_fields'] as $groupIndex => $groupFields) {
+            } elseif (!empty($bmFields) && is_array($bmFields)) {
+                foreach ($bmFields as $groupIndex => $groupFields) {
                     if (!is_array($groupFields)) {
                         continue;
                     }
                     KycFieldData::saveForSection($onboarding, $sectionModel, $groupFields, (int) $groupIndex);
                 }
-            } elseif (!empty($validated['as_fields']) && is_array($validated['as_fields'])) {
-                foreach ($validated['as_fields'] as $groupIndex => $groupFields) {
+            } elseif (!empty($asFields) && is_array($asFields)) {
+                foreach ($asFields as $groupIndex => $groupFields) {
                     if (!is_array($groupFields)) {
                         continue;
                     }
                     KycFieldData::saveForSection($onboarding, $sectionModel, $groupFields, (int) $groupIndex);
                 }
-            } elseif (!empty($validated['dynamic_fields']) && is_array($validated['dynamic_fields'])) {
-                KycFieldData::saveForSection($onboarding, $sectionModel, $validated['dynamic_fields']);
+            } elseif (!empty($dynamicFields) && is_array($dynamicFields)) {
+                KycFieldData::saveForSection($onboarding, $sectionModel, $dynamicFields);
             } else {
                 // All visible fields may be optional and merchant submitted nothing — that is valid.
                 // (The empty-section early-return above already handles fully hidden sections.)
@@ -631,12 +633,6 @@ class KycController extends Controller
                 'success' => true,
                 'message' => 'KYC section fields saved successfully.',
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
