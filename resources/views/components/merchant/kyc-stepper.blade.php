@@ -88,6 +88,14 @@
         ->orderBy('id')
         ->get();
 
+    // Ensure "Company Information" is always first
+    $companySection = $kycSections->firstWhere('slug', 'company-information');
+    if ($companySection) {
+        $kycSections = $kycSections->filter(function ($section) {
+            return $section->slug !== 'company-information';
+        })->prepend($companySection)->values();
+    }
+
     // Build steps array from database (fully dynamic)
     $steps = [];
     $stepSlugMap = [];
@@ -97,10 +105,18 @@
         $stepNumber = $index + 1;
         $steps[$stepNumber] = $section->name;
         $stepSlugMap[$stepNumber] = $section->slug;
-        $stepLinks[$stepNumber] = route('merchant.kyc.section', [
-            'kyc_link' => $kycLink,
-            'section' => $section->slug,
-        ]);
+        
+        // Use static company route for company-information section
+        if ($section->slug === 'company-information') {
+            $stepLinks[$stepNumber] = route('merchant.kyc.company', [
+                'kyc_link' => $kycLink,
+            ]);
+        } else {
+            $stepLinks[$stepNumber] = route('merchant.kyc.section', [
+                'kyc_link' => $kycLink,
+                'section' => $section->slug,
+            ]);
+        }
     }
 
     $completedSectionIds = [];

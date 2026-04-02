@@ -220,11 +220,24 @@ class KycController extends Controller
     {
         $onboarding = $this->resolveOnboardingByKycLink($kyc_link);
 
+
         $section = KycSection::where('slug', 'company-information')
             ->with(['kycFields' => function ($query) use ($onboarding) {
                 $this->applyFieldVisibilityRules($query, $onboarding);
             }])
             ->firstOrFail();
+
+        $sections = KycSection::query()
+            ->where('status', 'active')
+            ->whereHas('kycFields', function ($query) use ($onboarding) {
+                $this->applyFieldVisibilityRules($query, $onboarding);
+            })
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['id', 'name', 'slug', 'sort_order']);
+
+        $currentIndex = $sections->search(fn ($item) => $item->slug === $section->slug);
+        $nextSection = $currentIndex !== false ? $sections->get($currentIndex + 1) : null;
 
         $savedValues = $onboarding
             ? KycFieldData::getForSection($onboarding, $section)
@@ -233,10 +246,63 @@ class KycController extends Controller
         return view('merchant.kyc.company', [
             'kyc_link' => $kyc_link,
             'onboarding_id' => $onboarding?->id,
+            'onboarding' => $onboarding,
             'section' => $section,
             'fields' => $section->kycFields,
             'savedValues' => $savedValues,
+            'nextSection' => $nextSection,
         ]);
+    }
+
+    public function saveCompany(Request $request, string $kyc_link): JsonResponse
+    {
+        try {
+            $onboardingId = (int) $request->input('onboarding_id');
+            if ($onboardingId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid onboarding context.',
+                ], 422);
+            }
+
+            $onboarding = Onboarding::find($onboardingId);
+
+            if (! $onboarding) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Onboarding not found.',
+                ], 422);
+            }
+
+            if ($onboarding->kyc_link !== $kyc_link) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Onboarding mismatch for this KYC link.',
+                ], 403);
+            }
+
+            $onboarding->update($request->only([
+                'legal_business_name',
+                'registration_number',
+                'tax_id_vat',
+                'trading_name',
+                'dba_address',
+                'dba_zip_code',
+                'dba_city',
+                'business_website',
+                'merchant_phone_number',
+            ]));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Company information saved successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving.',
+            ], 500);
+        }
     }
 
     public function beneficialOwners($kyc_link = null): View
@@ -698,6 +764,19 @@ class KycController extends Controller
                     'success' => false,
                     'message' => 'This account does not have merchant access.',
                 ], 403);
+            }
+
+            // If a kyc_link was provided, verify the authenticated user owns that onboarding
+            $kycLink = $validated['kyc_link'] ?? null;
+            if ($kycLink) {
+                $onboarding = Onboarding::where('kyc_link', $kycLink)->first();
+                if ($onboarding && (int) $onboarding->merchant_user_id !== (int) $user->id) {
+                    Auth::logout();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid email or password.',
+                    ], 401);
+                }
             }
 
             // Regenerate session to prevent fixation attacks

@@ -236,7 +236,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                                            Legal Business Name <span class="text-red-500">*</span>
+                                            Company Legal Name <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" name="legal_business_name"
                                             value="{{ old('legal_business_name', $onboarding->legal_business_name ?? '') }}"
@@ -244,19 +244,56 @@
                                             placeholder="e.g. Acme Trading Ltd">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Trading Name</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Company Registration
+                                            Number</label>
+                                        <input type="text" name="registration_number"
+                                            value="{{ old('registration_number', $onboarding->registration_number ?? '') }}"
+                                            class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+                                            placeholder="e.g. 12345678">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Company Tax ID (VAT) <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="tax_id_vat"
+                                            value="{{ old('tax_id_vat', $onboarding->tax_id_vat ?? '') }}"
+                                            class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+                                            placeholder="e.g. GB123456789">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1"> Company Name (DBA -
+                                            Doing Business As)</label>
                                         <input type="text" name="trading_name"
                                             value="{{ old('trading_name', $onboarding->trading_name ?? '') }}"
                                             class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
                                             placeholder="e.g. Acme Coffee">
                                     </div>
+
+
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Registration Number /
-                                            Org No</label>
-                                        <input type="text" name="registration_number"
-                                            value="{{ old('registration_number', $onboarding->registration_number ?? '') }}"
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Company Address (DBA) <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="dba_address"
+                                            value="{{ old('dba_address', $onboarding->dba_address ?? '') }}"
                                             class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
-                                            placeholder="e.g. 12345678">
+                                            placeholder="e.g. 123 Main Street">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Company ZIP Code
+                                            (DBA)</label>
+                                        <input type="text" name="dba_zip_code"
+                                            value="{{ old('dba_zip_code', $onboarding->dba_zip_code ?? '') }}"
+                                            class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+                                            placeholder="e.g. SW1A 1AA">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Company City
+                                            (DBA)</label>
+                                        <input type="text" name="dba_city"
+                                            value="{{ old('dba_city', $onboarding->dba_city ?? '') }}"
+                                            class="w-full h-[39px] px-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+                                            placeholder="e.g. London">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Business
@@ -273,7 +310,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                                            Merchant Contact Email <span class="text-red-500">*</span>
+                                            Company Contact Email <span class="text-red-500">*</span>
                                         </label>
                                         <div class="relative">
                                             <i
@@ -285,7 +322,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Merchant Phone
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Company Phone
                                             Number</label>
                                         <input type="tel" name="merchant_phone_number"
                                             value="{{ old('merchant_phone_number', $onboarding->merchant_phone_number ?? '') }}"
@@ -328,7 +365,8 @@
                                                 @php
                                                     $isSelected = in_array($method->name, $selectedPaymentMethods);
                                                 @endphp
-                                                <span data-pm-wrapper="{{ $method->name }}" data-pm-id="{{ $method->id }}">
+                                                <span data-pm-wrapper="{{ $method->name }}"
+                                                    data-pm-id="{{ $method->id }}">
                                                     <input type="checkbox" name="payment_methods[]"
                                                         value="{{ $method->name }}" class="hidden"
                                                         data-payment-method-input="{{ $method->name }}"
@@ -689,14 +727,14 @@
                         $pmSupportedCountries = collect($method->countries->pluck('code')->all())
                             ->merge($method->supported_countries ?? [])
                             ->filter()
-                            ->map(fn ($value) => strtolower((string) $value))
+                            ->map(fn($value) => strtolower((string) $value))
                             ->unique()
                             ->values()
                             ->all();
 
                         $pmSupportedSolutions = collect($method->supported_solutions ?? [])
                             ->filter()
-                            ->map(fn ($value) => (string) $value)
+                            ->map(fn($value) => (string) $value)
                             ->values()
                             ->all();
 
@@ -711,10 +749,10 @@
                             ->all();
                     @endphp
                     {{ $method->id }}: {
-                        supportedCountries: @json($pmSupportedCountries),
-                        supportedSolutions: @json($pmSupportedSolutions),
-                        supportedAcquirers: @json($pmSupportedAcquirers),
-                    },
+                            supportedCountries: @json($pmSupportedCountries),
+                            supportedSolutions: @json($pmSupportedSolutions),
+                            supportedAcquirers: @json($pmSupportedAcquirers),
+                        },
                 @endforeach
             };
 
@@ -923,24 +961,26 @@
                             return;
                         }
 
-                        const assignmentLevel = normalizeToken(option.getAttribute('data-assignment-level') || 'global');
+                        const assignmentLevel = normalizeToken(option.getAttribute('data-assignment-level') ||
+                            'global');
                         const assignmentRulesRaw = option.getAttribute('data-assignment-rules') || '[]';
-                        const normalizedRules = parseRules(assignmentRulesRaw).map(normalizeToken).filter(Boolean);
+                        const normalizedRules = parseRules(assignmentRulesRaw).map(normalizeToken).filter(
+                            Boolean);
 
                         let visible = true;
 
                         if (assignmentLevel === 'solution') {
-                            visible = selectedSolutionId
-                                ? normalizedRules.includes(normalizeToken(selectedSolutionId))
-                                : true;
+                            visible = selectedSolutionId ?
+                                normalizedRules.includes(normalizeToken(selectedSolutionId)) :
+                                true;
                         } else if (assignmentLevel === 'country') {
-                            visible = selectedCountryCode
-                                ? normalizedRules.includes(selectedCountryCode)
-                                : true;
+                            visible = selectedCountryCode ?
+                                normalizedRules.includes(selectedCountryCode) :
+                                true;
                         } else if (assignmentLevel === 'acquirer') {
-                            visible = selectedAcquirerTokens.length > 0
-                                ? selectedAcquirerTokens.some(token => normalizedRules.includes(token))
-                                : true;
+                            visible = selectedAcquirerTokens.length > 0 ?
+                                selectedAcquirerTokens.some(token => normalizedRules.includes(token)) :
+                                true;
                         }
 
                         if (visible) {
@@ -959,9 +999,11 @@
                                 priceLines = Object.values(priceLines || {});
                             }
 
-                            if (eligibleMethodTokens.length > 0 && Array.isArray(priceLines) && priceLines.length > 0) {
+                            if (eligibleMethodTokens.length > 0 && Array.isArray(priceLines) && priceLines
+                                .length > 0) {
                                 visible = priceLines.some(line => doesPriceLineMatchMethods(
-                                    line.payment_method || line.method || line.display_name || line.name || '',
+                                    line.payment_method || line.method || line.display_name || line
+                                    .name || '',
                                     eligibleMethodTokens
                                 ));
                             }
@@ -1081,12 +1123,15 @@
                         const paymentMethod = line.payment_method || line.method || 'Unknown';
                         const displayName = line.display_name || line.name || paymentMethod;
                         const icon = getPaymentIcon(paymentMethod);
-                        const percentageRaw = line.percent_fee ?? line.percentage_fee ?? line.mdr_rate ?? line.rate ??
+                        const percentageRaw = line.percent_fee ?? line.percentage_fee ?? line.mdr_rate ?? line
+                            .rate ??
                             line.percent;
                         const fixedFeeRaw = line.fixed_fee ?? line.transaction_fee;
-                        const percentage = percentageRaw === undefined || percentageRaw === null || percentageRaw ===
+                        const percentage = percentageRaw === undefined || percentageRaw === null ||
+                            percentageRaw ===
                             '' ? '-' : `${formatNumber(percentageRaw)}%`;
-                        const fixedFee = fixedFeeRaw === undefined || fixedFeeRaw === null || fixedFeeRaw === '' ? '-' :
+                        const fixedFee = fixedFeeRaw === undefined || fixedFeeRaw === null || fixedFeeRaw ===
+                            '' ? '-' :
                             `${currencySymbol}${formatNumber(fixedFeeRaw)}`;
                         const lineType = line.line_type || line.transaction_type || line.type || 'Card Present';
 
@@ -1308,11 +1353,11 @@
                         };
 
                         const supportedCountries = (Array.isArray(methodMeta.supportedCountries) ? methodMeta
-                            .supportedCountries : [])
+                                .supportedCountries : [])
                             .map(normalizeToken)
                             .filter(Boolean);
                         const supportedSolutions = (Array.isArray(methodMeta.supportedSolutions) ? methodMeta
-                            .supportedSolutions : [])
+                                .supportedSolutions : [])
                             .map(value => String(value))
                             .filter(Boolean);
                         const supportedAcquirers = Array.isArray(methodMeta.supportedAcquirers) ? methodMeta
@@ -1329,7 +1374,8 @@
                             supportedSolutions.includes(selectedSolutionId);
                         const matchesSolutionConstraint = !selectedSolutionId ||
                             (matchesSolutionMasterMap && matchesPaymentMethodMasterSolution);
-                        const matchesPaymentMethodCountry = selectedCountryTokens.length === 0 || supportedCountries
+                        const matchesPaymentMethodCountry = selectedCountryTokens.length === 0 ||
+                            supportedCountries
                             .length === 0 ||
                             selectedCountryTokens.some(token => supportedCountries.includes(token));
                         const matchesPaymentMethodAcquirer = (selectedAcquirerIds.length === 0 &&
@@ -1376,7 +1422,7 @@
                         } else {
                             this.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
                             this.classList.add('bg-brand-primary', 'text-white',
-                            'border-brand-primary');
+                                'border-brand-primary');
                         }
 
                         updatePriceListOptions();

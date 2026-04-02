@@ -123,6 +123,7 @@ Route::prefix('merchant')
                 Route::middleware(['merchant.role', 'merchant.kyc.gate'])->group(function () {
                     Route::post('/{kyc_link}/sections/{section}/fields', [KycController::class, 'saveSectionFields'])->name('section.fields.save');
                     Route::get('/{kyc_link}/company', [KycController::class, 'company'])->name('company');
+                    Route::post('/{kyc_link}/company', [KycController::class, 'saveCompany'])->name('company.save');
                     Route::get('/{kyc_link}/beneficial-owners', [KycController::class, 'beneficialOwners'])->name('beneficialOwners');
                     Route::get('/{kyc_link}/board-members', [KycController::class, 'boardMembers'])->name('boardMembers');
                     Route::get('/{kyc_link}/contact-person', [KycController::class, 'contactPerson'])->name('contactPerson');

@@ -61,4 +61,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+    public function onboarding()
+    {
+        return $this->hasOne(Onboarding::class, 'merchant_user_id');
+    }
 }
