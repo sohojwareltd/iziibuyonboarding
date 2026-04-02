@@ -198,6 +198,9 @@ class KycController extends Controller
             ->first(['slug']);
 
         if ($firstSection) {
+            if ($firstSection->slug === 'company-information') {
+                return route('merchant.kyc.company', ['kyc_link' => $kycLink]);
+            }
             return route('merchant.kyc.section', [
                 'kyc_link' => $kycLink,
                 'section' => $firstSection->slug,
