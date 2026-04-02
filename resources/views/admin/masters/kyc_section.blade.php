@@ -313,6 +313,18 @@
                         </div>
 
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Allow Multiple Entries</label>
+                            <label class="inline-flex items-center cursor-pointer gap-3">
+                                <div class="relative">
+                                    <input type="checkbox" name="allow_multiple" id="allow_multiple" value="1" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+                                </div>
+                                <span class="text-sm text-gray-600" id="allow_multiple_label">Disabled</span>
+                            </label>
+                            <p class="text-xs text-gray-400 mt-1">When enabled, merchants can add multiple entries for this section (shows &ldquo;Add Another&rdquo; button).</p>
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                             <textarea name="description" id="description" rows="4" class="form-input resize-y"
                                 placeholder="Short section description"></textarea>
@@ -387,6 +399,8 @@
                 form.reset();
                 document.getElementById('sort_order').value = 100;
                 document.getElementById('status').value = 'active';
+                document.getElementById('allow_multiple').checked = false;
+                document.getElementById('allow_multiple_label').textContent = 'Disabled';
             }
 
             function editSection(id) {
@@ -408,6 +422,8 @@
                         document.getElementById('description').value = section.description || '';
                         document.getElementById('sort_order').value = section.sort_order ?? 100;
                         document.getElementById('status').value = section.status || 'active';
+                        document.getElementById('allow_multiple').checked = Boolean(section.allow_multiple);
+                        document.getElementById('allow_multiple_label').textContent = section.allow_multiple ? 'Enabled' : 'Disabled';
 
                         const form = document.getElementById('section-form');
                         form.dataset.mode = 'edit';
@@ -531,6 +547,10 @@
                 params.delete('status');
                 window.location.href = `?${params.toString()}`;
             }
+
+            document.getElementById('allow_multiple').addEventListener('change', function () {
+                document.getElementById('allow_multiple_label').textContent = this.checked ? 'Enabled' : 'Disabled';
+            });
 
             if (!document.querySelector('meta[name="csrf-token"]')) {
                 const meta = document.createElement('meta');

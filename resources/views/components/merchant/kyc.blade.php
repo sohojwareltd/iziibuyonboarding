@@ -142,7 +142,7 @@
 
     <x-merchant.kyc-stepper :kycLink="$kyc_link" />
 
-    <main id="main-content" class="flex-1 h-full overflow-y-auto pb-32 sm:pb-24 w-full">
+    <main id="main-content" class="flex-1 min-h-0 overflow-y-auto pb-32 sm:pb-24 w-full">
         <div class="max-w-[900px] mx-auto bg-white p-4 sm:p-6 md:p-12 min-h-full">
 
             {{ $slot }}
@@ -159,17 +159,19 @@
         const mobileOverlay = document.getElementById('mobile-overlay');
         const sidebar = document.getElementById('kyc-sidebar');
 
-        mobileMenuBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('translate-x-0');
-            sidebar.classList.toggle('-translate-x-full');
-            mobileOverlay.classList.toggle('hidden');
-        });
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                if (sidebar) { sidebar.classList.toggle('translate-x-0'); sidebar.classList.toggle('-translate-x-full'); }
+                if (mobileOverlay) { mobileOverlay.classList.toggle('hidden'); }
+            });
+        }
 
-        mobileOverlay.addEventListener('click', function() {
-            sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('translate-x-0');
-            mobileOverlay.classList.add('hidden');
-        });
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', function() {
+                if (sidebar) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); }
+                mobileOverlay.classList.add('hidden');
+            });
+        }
 
         window.addEventListener('load', function() {
             const uploadZones = document.querySelectorAll('.upload-zone:not([data-file-upload])');

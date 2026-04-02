@@ -49,12 +49,15 @@ class KycSectionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:kyc_sections,name',
-                'slug' => 'nullable|string|max:255|unique:kyc_sections,slug',
-                'description' => 'nullable|string',
-                'sort_order' => 'required|integer|min:0',
-                'status' => 'required|in:active,inactive',
+                'name'           => 'required|string|max:255|unique:kyc_sections,name',
+                'slug'           => 'nullable|string|max:255|unique:kyc_sections,slug',
+                'description'    => 'nullable|string',
+                'sort_order'     => 'required|integer|min:0',
+                'status'         => 'required|in:active,inactive',
+                'allow_multiple' => 'nullable|boolean',
             ]);
+
+            $validated['allow_multiple'] = $request->boolean('allow_multiple');
 
             if (empty($validated['slug'])) {
                 $validated['slug'] = Str::slug($validated['name']);
@@ -136,10 +139,13 @@ class KycSectionController extends Controller
                     'max:255',
                     Rule::unique('kyc_sections', 'slug')->ignore($kycSection->id),
                 ],
-                'description' => 'nullable|string',
-                'sort_order' => 'required|integer|min:0',
-                'status' => 'required|in:active,inactive',
+                'description'    => 'nullable|string',
+                'sort_order'     => 'required|integer|min:0',
+                'status'         => 'required|in:active,inactive',
+                'allow_multiple' => 'nullable|boolean',
             ]);
+
+            $validated['allow_multiple'] = $request->boolean('allow_multiple');
 
             if (empty($validated['slug'])) {
                 $validated['slug'] = Str::slug($validated['name']);

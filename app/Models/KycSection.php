@@ -16,11 +16,13 @@ class KycSection extends Model
         'description',
         'sort_order',
         'status',
+        'allow_multiple',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'allow_multiple' => 'boolean',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
     ];
 
     /**

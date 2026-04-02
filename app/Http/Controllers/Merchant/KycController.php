@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Merchant;
 use App\Facades\KycFieldData;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
+use App\Models\Information;
 use App\Models\Onboarding;
 use App\Models\KycSection;
 use App\Models\User;
@@ -504,9 +505,21 @@ class KycController extends Controller
         $prevSection = $currentIndex !== false ? $sections->get($currentIndex - 1) : null;
         $nextSection = $currentIndex !== false ? $sections->get($currentIndex + 1) : null;
 
-        $savedValues = $onboarding
-            ? KycFieldData::getForSection($onboarding, $sectionModel)
-            : [];
+        $groupedSectionSlugs = ['beneficial-owners', 'board-members-gm', 'authorized-signatories'];
+        $isGrouped = in_array($sectionModel->slug, $groupedSectionSlugs, true);
+
+        if ($isGrouped && $onboarding) {
+            $savedGroups = KycFieldData::getGroupedForSection($onboarding, $sectionModel);
+            if (empty($savedGroups)) {
+                $savedGroups = [0 => []];
+            }
+            $savedValues = [];
+        } else {
+            $savedGroups = null;
+            $savedValues = $onboarding
+                ? KycFieldData::getForSection($onboarding, $sectionModel)
+                : [];
+        }
 
         return view('merchant.kyc.section', [
             'kyc_link' => $kyc_link,
@@ -515,6 +528,7 @@ class KycController extends Controller
             'section' => $sectionModel,
             'fields' => $sectionModel->kycFields->values(),
             'savedValues' => $savedValues,
+            'savedGroups' => $savedGroups,
             'prevSection' => $prevSection,
             'nextSection' => $nextSection,
         ]);
@@ -670,6 +684,54 @@ class KycController extends Controller
             $asFields = $request->input('as_fields', []);
             $dynamicFields = $request->input('dynamic_fields', []);
 
+            // File inputs are delivered via $_FILES (not $_POST), so $request->input()
+            // never contains them. We merge the uploaded files from $request->file()
+            // into the same array structure so saveForSection can capture them.
+            $mergeGroupedFiles = function (array $inputs, array $files): array {
+                foreach ($files as $groupIdx => $groupFiles) {
+                    if (! is_array($groupFiles)) {
+                        continue;
+                    }
+                    foreach ($groupFiles as $fieldId => $fieldData) {
+                        if (! is_array($fieldData)) {
+                            continue;
+                        }
+                        if (isset($fieldData['value'])) {
+                            $inputs[$groupIdx][$fieldId]['value'] = $fieldData['value'];
+                        }
+                    }
+                }
+                return $inputs;
+            };
+
+            $boFields     = $mergeGroupedFiles($boFields,     $request->file('bo_fields', []));
+            $bmFields     = $mergeGroupedFiles($bmFields,     $request->file('bm_fields', []));
+            $asFields     = $mergeGroupedFiles($asFields,     $request->file('as_fields', []));
+
+            // Generic grouped field key for any section with allow_multiple = true
+            // that is not one of the 3 hardcoded sections above.
+            $slugFieldKey    = str_replace('-', '_', $sectionModel->slug) . '_fields';
+            $genericFields   = $mergeGroupedFiles(
+                $request->input($slugFieldKey, []),
+                $request->file($slugFieldKey, [])
+            );
+
+            // Merge file uploads for flat (single) sections
+            foreach ($request->file('dynamic_fields', []) as $fieldId => $fieldData) {
+                if (is_array($fieldData) && isset($fieldData['value'])) {
+                    $dynamicFields[$fieldId]['value'] = $fieldData['value'];
+                }
+            }
+
+            // For grouped sections, delete all existing rows first so that any
+            // cards the merchant removed are actually purged from the DB.
+            $isGroupedSubmission = !empty($boFields) || !empty($bmFields) || !empty($asFields) || !empty($genericFields);
+            if ($isGroupedSubmission) {
+                Information::where('onboarding_id', $onboarding->id)
+                    ->where('kyc_section_id', $sectionModel->id)
+                    ->delete();
+            }
+
             if (!empty($boFields) && is_array($boFields)) {
                 foreach ($boFields as $groupIndex => $groupFields) {
                     if (!is_array($groupFields)) {
@@ -686,6 +748,13 @@ class KycController extends Controller
                 }
             } elseif (!empty($asFields) && is_array($asFields)) {
                 foreach ($asFields as $groupIndex => $groupFields) {
+                    if (!is_array($groupFields)) {
+                        continue;
+                    }
+                    KycFieldData::saveForSection($onboarding, $sectionModel, $groupFields, (int) $groupIndex);
+                }
+            } elseif (!empty($genericFields) && is_array($genericFields)) {
+                foreach ($genericFields as $groupIndex => $groupFields) {
                     if (!is_array($groupFields)) {
                         continue;
                     }
