@@ -40,6 +40,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -338,6 +341,88 @@
             overflow-x: hidden;
             max-width: 100vw;
         }
+
+        /* Select2 custom styling */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            min-height: 42px;
+            padding: 2px 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #2D3A74;
+            box-shadow: 0 0 0 2px rgba(45,58,116,0.12);
+            outline: none;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #2D3A74;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: rgba(255,255,255,0.7);
+            margin-right: 4px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #fff;
+            background: transparent;
+        }
+        .select2-dropdown {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #2D3A74;
+        }
+        .select2-container--default .select2-results__option[aria-selected="true"] {
+            background-color: #EEF2FF;
+            color: #2D3A74;
+            font-weight: 600;
+        }
+        .select2-search--dropdown .select2-search__field {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.375rem;
+            padding: 6px 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8125rem;
+        }
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            height: 42px;
+            padding: 0.5rem 0.75rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #2D3A74;
+            line-height: 1.5;
+            padding: 0;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #2D3A74;
+            box-shadow: 0 0 0 2px rgba(45,58,116,0.12);
+            outline: none;
+        }
+
+        /* Copy Modal */
+        #copy-mapping-modal {
+            transition: opacity 0.2s ease;
+        }
+        #copy-mapping-modal.hidden { opacity: 0; pointer-events: none; }
     </style>
 @endsection
 
@@ -481,11 +566,16 @@
                                     </select>
                                 </div> --}}
 
-                                <div class="w-full xl:w-auto xl:ml-auto">
+                                <div class="w-full xl:w-auto xl:ml-auto flex items-end gap-2">
                                     <button type="button" id="clear-top-filters"
                                         class="w-full xl:w-auto border border-gray-200 text-gray-600 px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors">
                                         <i class="fa-solid fa-xmark mr-1.5"></i>
                                         Clear Filters
+                                    </button>
+                                    <button type="button" id="copy-mapping-btn"
+                                        class="w-full xl:w-auto hidden items-center gap-1.5 bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow-md transition-all">
+                                        <i class="fa-solid fa-copy text-xs"></i>
+                                        Copy Mapping
                                     </button>
                                 </div>
                             </div>
@@ -845,6 +935,108 @@
                 </div>
             </div>
         </main>
+
+        <!-- Toast Notification -->
+        <div id="copy-toast" class="fixed bottom-6 right-6 z-[60] flex items-start gap-3 px-5 py-4 rounded-xl shadow-2xl border text-sm font-medium max-w-sm w-full pointer-events-none opacity-0 translate-y-4 transition-all duration-300" style="transition: opacity 0.3s ease, transform 0.3s ease;">
+            <div id="copy-toast-icon" class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"></div>
+            <div class="flex-1 min-w-0">
+                <p id="copy-toast-title" class="font-bold text-sm"></p>
+                <p id="copy-toast-message" class="text-xs mt-0.5 opacity-80"></p>
+            </div>
+            <button onclick="hideToast()" class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity pointer-events-auto">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Copy Mapping Modal -->
+        <div id="copy-mapping-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
+            <!-- Backdrop -->
+            <div id="copy-modal-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <!-- Dialog -->
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-copy text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base leading-tight">Copy Field Mapping</h3>
+                            <p class="text-xs text-white/70 mt-0.5">Duplicate visibility settings to other combinations</p>
+                        </div>
+                    </div>
+                    <button type="button" id="copy-modal-close" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="px-6 py-5 space-y-5">
+                    <!-- Source (read-only) -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                            Copy From (Source)
+                        </p>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <div class="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-blue-200 shadow-sm">
+                                <i class="fa-solid fa-globe text-brand-secondary text-xs"></i>
+                                <span class="text-sm font-semibold text-brand-primary" id="copy-source-country-label">—</span>
+                            </div>
+                            <i class="fa-solid fa-plus text-blue-300 text-xs"></i>
+                            <div class="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-blue-200 shadow-sm">
+                                <i class="fa-solid fa-building-columns text-brand-cta text-xs"></i>
+                                <span class="text-sm font-semibold text-brand-primary" id="copy-source-acquirer-label">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Targets -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-globe text-brand-secondary text-xs"></i>
+                            Target Countries <span class="text-red-500">*</span>
+                        </label>
+                        <select id="copy-target-countries" multiple class="w-full" style="width:100%">
+                            @foreach ($countries as $country)
+                                <option value="{{ strtoupper($country->code) }}">{{ $country->name }} ({{ strtoupper($country->code) }})</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-gray-400 mt-1">Select one or more countries to copy the mapping to.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-building-columns text-brand-cta text-xs"></i>
+                            Target Acquirer <span class="text-red-500">*</span>
+                        </label>
+                        <select id="copy-target-acquirer" style="width:100%">
+                            <option value="">Select acquirer...</option>
+                            @foreach ($acquirers as $acquirer)
+                                <option value="{{ Str::lower($acquirer->name) }}">{{ $acquirer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Info note -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-amber-500 text-sm mt-0.5 flex-shrink-0"></i>
+                        <p class="text-xs text-amber-700 leading-relaxed">Fields visible under the source combination will be copied to each selected target. Existing assignments are preserved — no duplicates will be created.</p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 pb-5 flex items-center justify-end gap-3">
+                    <button type="button" id="copy-modal-cancel" class="border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="button" id="copy-modal-submit" class="bg-gradient-to-r from-brand-cta to-orange-500 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-copy text-xs"></i>
+                        Copy Mapping
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Bottom Footer -->
         {{-- <div class="fixed bottom-0 left-0 md:left-[260px] right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-4 md:px-8 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-40">
@@ -1705,8 +1897,8 @@
                 cb.addEventListener('change', markUnsaved);
             });
 
-            document.getElementById('country-filter')?.addEventListener('change', applyFilters);
-            document.getElementById('acquirer-filter')?.addEventListener('change', applyFilters);
+            document.getElementById('country-filter')?.addEventListener('change', () => { applyFilters(); refreshCopyMappingBtn(); });
+            document.getElementById('acquirer-filter')?.addEventListener('change', () => { applyFilters(); refreshCopyMappingBtn(); });
             document.getElementById('data-type-filter')?.addEventListener('change', applyFilters);
 
             document.getElementById('clear-top-filters')?.addEventListener('click', () => {
@@ -1721,12 +1913,217 @@
                 if (searchInput) searchInput.value = '';
 
                 applyFilters();
+                refreshCopyMappingBtn();
             });
 
             updateSectionEmptyStates();
             updateSectionCounts();
             initDragAndDrop();
             applyFilters();
+
+            // ─── Copy Mapping: show/hide button based on filter selections ───────────
+            function refreshCopyMappingBtn() {
+                const country = (document.getElementById('country-filter')?.value || '').trim();
+                const acquirer = (document.getElementById('acquirer-filter')?.value || '').trim();
+                const btn = document.getElementById('copy-mapping-btn');
+                if (!btn) return;
+                if (country && acquirer) {
+                    btn.classList.remove('hidden');
+                    btn.classList.add('flex');
+                } else {
+                    btn.classList.add('hidden');
+                    btn.classList.remove('flex');
+                }
+            }
+
+            refreshCopyMappingBtn();
+
+            // ─── Copy Mapping Modal ───────────────────────────────────────────────────
+            $(function () {
+                // Init Select2 on modal selects
+                $('#copy-target-countries').select2({
+                    dropdownParent: $('#copy-mapping-modal'),
+                    placeholder: 'Select target countries…',
+                    allowClear: true,
+                    width: '100%',
+                });
+                $('#copy-target-acquirer').select2({
+                    dropdownParent: $('#copy-mapping-modal'),
+                    placeholder: 'Select acquirer…',
+                    allowClear: true,
+                    width: '100%',
+                });
+            });
+
+            function openCopyModal() {
+                const countryFilter = document.getElementById('country-filter');
+                const acquirerFilter = document.getElementById('acquirer-filter');
+                const sourceCountryVal = (countryFilter?.value || '').toUpperCase().trim();
+                const sourceAcquirerVal = (acquirerFilter?.value || '').toLowerCase().trim();
+
+                if (!sourceCountryVal || !sourceAcquirerVal) {
+                    setSaveStatus('error', 'Select both a Country and an Acquirer filter first.');
+                    return;
+                }
+
+                // Populate source labels
+                const sourceCountryText = countryFilter.options[countryFilter.selectedIndex]?.text || sourceCountryVal;
+                const sourceAcquirerText = acquirerFilter.options[acquirerFilter.selectedIndex]?.text || sourceAcquirerVal;
+                document.getElementById('copy-source-country-label').textContent = sourceCountryText;
+                document.getElementById('copy-source-acquirer-label').textContent = sourceAcquirerText;
+
+                // Reset Select2 selections
+                $('#copy-target-countries').val(null).trigger('change');
+                $('#copy-target-acquirer').val('').trigger('change');
+
+                // Show modal
+                const modal = document.getElementById('copy-mapping-modal');
+                modal.classList.remove('hidden');
+            }
+
+            function closeCopyModal() {
+                document.getElementById('copy-mapping-modal').classList.add('hidden');
+            }
+
+            document.getElementById('copy-mapping-btn')?.addEventListener('click', openCopyModal);
+            document.getElementById('copy-modal-close')?.addEventListener('click', closeCopyModal);
+            document.getElementById('copy-modal-cancel')?.addEventListener('click', closeCopyModal);
+            document.getElementById('copy-modal-backdrop')?.addEventListener('click', closeCopyModal);
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeCopyModal();
+            });
+
+            let toastTimer = null;
+
+            function showToast(type, title, message) {
+                const toast = document.getElementById('copy-toast');
+                const iconEl = document.getElementById('copy-toast-icon');
+                const titleEl = document.getElementById('copy-toast-title');
+                const msgEl = document.getElementById('copy-toast-message');
+                if (!toast) return;
+
+                // Reset classes
+                toast.className = 'fixed bottom-6 right-6 z-[60] flex items-start gap-3 px-5 py-4 rounded-xl shadow-2xl border text-sm font-medium max-w-sm w-full pointer-events-auto';
+
+                if (type === 'success') {
+                    toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+                    iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-100';
+                    iconEl.innerHTML = '<i class="fa-solid fa-check text-emerald-600 text-sm"></i>';
+                } else if (type === 'error') {
+                    toast.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
+                    iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-red-100';
+                    iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>';
+                } else {
+                    toast.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
+                    iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-100';
+                    iconEl.innerHTML = '<i class="fa-solid fa-circle-info text-blue-600 text-sm"></i>';
+                }
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+
+                // Animate in
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        toast.style.opacity = '1';
+                        toast.style.transform = 'translateY(0)';
+                    });
+                });
+
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(hideToast, 5000);
+            }
+
+            function hideToast() {
+                const toast = document.getElementById('copy-toast');
+                if (!toast) return;
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                toast.classList.remove('pointer-events-auto');
+                toast.classList.add('pointer-events-none');
+                if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+            }
+
+            document.getElementById('copy-modal-submit')?.addEventListener('click', function () {
+                const sourceCountry = (document.getElementById('country-filter')?.value || '').toUpperCase().trim();
+                const sourceAcquirer = (document.getElementById('acquirer-filter')?.value || '').toLowerCase().trim();
+
+                const targetCountries = ($('#copy-target-countries').val() || []).map(v => String(v).toUpperCase().trim()).filter(Boolean);
+                const targetAcquirer = String($('#copy-target-acquirer').val() || '').toLowerCase().trim();
+
+                if (!targetCountries.length) {
+                    alert('Please select at least one target country.');
+                    return;
+                }
+                if (!targetAcquirer) {
+                    alert('Please select a target acquirer.');
+                    return;
+                }
+
+                dragState.snapshot = captureLayoutSnapshot();
+
+                let copiedCount = 0;
+
+                // Iterate over all field rows in the sections container
+                document.querySelectorAll('#field-sections-container .field-row').forEach(row => {
+                    const rowCountries = parseDatasetList(row.dataset.visibleCountries, ',');
+                    const rowAcquirers = parseDatasetList(row.dataset.visibleAcquirers, '|');
+
+                    // A field is "visible" for the source if:
+                    //   - visible_countries is empty (means all) OR includes sourceCountry
+                    //   - visible_acquirers is empty (means all) OR includes sourceAcquirer
+                    const matchesSourceCountry = rowCountries.length === 0 || rowCountries.includes(sourceCountry);
+                    const matchesSourceAcquirer = rowAcquirers.length === 0 || rowAcquirers.includes(sourceAcquirer);
+
+                    if (!matchesSourceCountry || !matchesSourceAcquirer) {
+                        return; // Field not visible for source combo — skip
+                    }
+
+                    let changed = false;
+
+                    // Add target countries (avoid duplicates)
+                    targetCountries.forEach(tc => {
+                        if (!rowCountries.includes(tc)) {
+                            rowCountries.push(tc);
+                            changed = true;
+                        }
+                    });
+
+                    // Add target acquirer (avoid duplicates)
+                    if (!rowAcquirers.includes(targetAcquirer)) {
+                        rowAcquirers.push(targetAcquirer);
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        row.dataset.visibleCountries = serializeDatasetList(rowCountries, ',');
+                        row.dataset.visibleAcquirers = serializeDatasetList(rowAcquirers, '|');
+                        copiedCount++;
+                    }
+                });
+
+                closeCopyModal();
+
+                if (copiedCount > 0) {
+                    setSaveStatus('saving', `Saving copied mapping for ${copiedCount} field(s)…`);
+                    const nextSnapshot = captureLayoutSnapshot();
+                    if (nextSnapshot !== dragState.snapshot) {
+                        persistLayout().then(() => {
+                            showToast('success', 'Mapping Copied!', `${copiedCount} field(s) successfully copied to the selected target.`);
+                        }).catch(() => {
+                            showToast('error', 'Save Failed', 'Mapping was copied locally but could not be saved to the server.');
+                        });
+                    } else {
+                        showToast('info', 'Already Up to Date', 'All selected fields were already assigned to the target combination.');
+                    }
+                } else {
+                    setSaveStatus('error', 'No matching fields found for source selection.');
+                    showToast('error', 'Nothing to Copy', 'No fields found visible for the selected source country + acquirer.');
+                }
+            });
         </script>
 
     </body>
