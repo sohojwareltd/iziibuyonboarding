@@ -45,7 +45,7 @@ class PaymentMethodMasterController extends Controller
         $paymentMethods = $query->latest()->paginate(15)->withQueryString();
         $acquirers = AcquirerMaster::where('is_active', true)->get();
         $solutions = SolutionMaster::all();
-        $countryList = \App\Models\Country::orderBy('name')->get(['id','name','code']);
+        $countryList = \App\Models\Country::where('is_active', true)->orderBy('name')->get(['id','name','code']);
 
         return view('admin.masters.payment-method-master', [
             'paymentMethods' => $paymentMethods,

@@ -45,7 +45,7 @@ class AcquirerMasterController extends Controller
 
         $acquirers = $query->latest()->paginate(15);
         $solutions = SolutionMaster::all();
-        $countryMasterOptions = Country::orderBy('name')->get(['name', 'code']);
+        $countryMasterOptions = Country::where('is_active', true)->orderBy('name')->get(['name', 'code']);
         
         // Get unique countries for filter dropdown
         $countries = AcquirerMaster::whereNotNull('supported_countries')

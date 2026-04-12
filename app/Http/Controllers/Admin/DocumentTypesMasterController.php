@@ -22,7 +22,7 @@ class DocumentTypesMasterController extends Controller
         $documentTypes = DocumentTypesMaster::with('category')->orderBy('document_name')->paginate(15);
         $categories = DocumentTypeCategory::where('is_active', true)->orderBy('name')->get();
         $acquirers = AcquirerMaster::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-        $countries = Country::orderBy('name')->get(['id', 'name', 'code']);
+        $countries = Country::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
         $solutions = SolutionMaster::where('status', 'published')->orderBy('name')->get(['id', 'name', 'slug']);
         $kycSections = KycSection::active()->ordered()->get(['id', 'name', 'slug']);
 

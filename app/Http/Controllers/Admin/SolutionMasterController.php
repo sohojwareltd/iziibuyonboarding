@@ -48,7 +48,7 @@ class SolutionMasterController extends Controller
 
         $solutions = $query->paginate(10)->withQueryString();
         $categories = Category::all();
-        $countries = Country::orderBy('name')->get();
+        $countries = Country::where('is_active', true)->orderBy('name')->get();
         $paymentMethods = PaymentMethodMaster::where('is_active', true)->orderBy('name')->get();
         $acquirers = AcquirerMaster::where('is_active', true)->orderBy('name')->get();
 

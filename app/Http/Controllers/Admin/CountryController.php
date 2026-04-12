@@ -93,10 +93,12 @@ class CountryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|unique:countries|max:255',
             'code' => 'required|string|unique:countries|max:3|min:2',
+            'is_active' => 'boolean',
         ]);
 
         // Uppercase the country code
         $validated['code'] = strtoupper($validated['code']);
+        $validated['is_active'] = $request->has('is_active') ? (bool) $request->is_active : true;
 
         $country = Country::create($validated);
 
@@ -155,10 +157,12 @@ class CountryController extends Controller
                 'max:3',
                 'min:2'
             ],
+            'is_active' => 'boolean',
         ]);
 
         // Uppercase the country code
         $validated['code'] = strtoupper($validated['code']);
+        $validated['is_active'] = $request->has('is_active') ? (bool) $request->is_active : $country->is_active;
 
         $country->update($validated);
 

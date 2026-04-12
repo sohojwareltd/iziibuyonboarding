@@ -191,6 +191,34 @@
                 max-width: 100%;
             }
         }
+
+        /* Toggle switch */
+        .toggle-track {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            border-radius: 9999px;
+            background: #D1D5DB;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle-track.is-on {
+            background: #22C55E;
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .toggle-track.is-on .toggle-thumb {
+            transform: translateX(20px);
+        }
     </style>
 @endpush
 
@@ -231,13 +259,13 @@
                             <!-- Search Bar -->
                             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                                 <div class="relative flex-1 sm:max-w-[384px] w-full">
-                                    {{-- <i
-                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i> --}}
                                     <input type="text" name="search" placeholder="Search countries by name or code..."
                                         value="{{ request('search') }}"
                                         class="form-input pl-10 bg-white border-gray-200 focus:bg-white w-full">
                                 </div>
                                 <div class="flex gap-2 w-full sm:w-auto">
+                                    <!-- Status filter -->
+                                  
                                     <button type="submit"
                                         class="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-500 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none">
                                         <i class="fa-solid fa-search text-sm"></i>
@@ -252,15 +280,26 @@
                             </div>
 
                             <!-- Active Filters Display -->
-                            @if (request()->has('search') && request('search'))
+                            @if ((request()->has('search') && request('search')) || (request()->has('status') && request('status')))
                                 <div class="active-filters overflow-x-auto">
-                                    <div class="filter-badge">
-                                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                                        <span>{{ request('search') }}</span>
-                                        <button type="button" onclick="clearSearchFilter()">
-                                            <i class="fa-solid fa-xmark text-xs"></i>
-                                        </button>
-                                    </div>
+                                    @if(request('search'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                            <span>{{ request('search') }}</span>
+                                            <button type="button" onclick="clearFilter('search')">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                    @if(request('status'))
+                                        <div class="filter-badge">
+                                            <i class="fa-solid fa-circle-dot text-xs"></i>
+                                            <span>{{ ucfirst(request('status')) }}</span>
+                                            <button type="button" onclick="clearFilter('status')">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
                         </form>
@@ -281,6 +320,9 @@
                                     <th
                                         class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Country Code</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        Status</th>
                                     <th
                                         class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Created At</th>
@@ -311,6 +353,19 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
+                                            @if($country->is_active)
+                                                <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                                    Active
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                                    Inactive
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
                                             <span
                                                 class="text-gray-500 text-sm">{{ $country->created_at->format('M d, Y') }}</span>
                                         </td>
@@ -330,7 +385,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                             <i class="fa-solid fa-globe text-4xl text-gray-300 mb-3"></i>
                                             <p class="text-sm">No countries found. Add one to get started.</p>
                                         </td>
@@ -391,6 +446,17 @@
                         <input type="text" id="code" name="code" class="form-input uppercase"
                             placeholder="e.g. US" maxlength="3" required>
                         <p class="text-xs text-gray-500 mt-1">ISO 3166-1 alpha-2 or alpha-3 code (2-3 characters)</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <div class="inline-flex items-center gap-3 cursor-pointer select-none" onclick="toggleStatus()">
+                            <input type="checkbox" id="status_toggle" class="sr-only" checked>
+                            <div id="toggle-track" class="toggle-track is-on">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                            <span id="status_label" class="text-sm font-medium text-green-600">Active</span>
+                        </div>
                     </div>
                 </div>
 
@@ -489,14 +555,21 @@
     <script>
         let deleteCountryId = null;
 
-        function clearSearchFilter() {
-            window.location.href = '{{ route('admin.masters.countrys.index') }}';
+        function clearFilter(param) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(param);
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
         }
 
-        // ✅ Add এর জন্য আলাদা ফাংশন
+        function clearSearchFilter() {
+            clearFilter('search');
+        }
+
+
         function openAddCountry() {
             resetForm();
-            openDrawer(false); // drawer খুলো, কিন্তু আবার resetForm() call করবে না
+            openDrawer(false); 
             document.getElementById('drawer-title').textContent = 'Add Country';
             document.getElementById('submit-text').textContent = 'Save Country';
         }
@@ -530,6 +603,7 @@
             document.getElementById('country_id').value = '';
             document.getElementById('drawer-title').textContent = 'Add Country';
             document.getElementById('submit-text').textContent = 'Save Country';
+            setToggle(true);
         }
 
         function editCountry(id) {
@@ -565,6 +639,7 @@
             document.getElementById('country_id').value = country.id;
             document.getElementById('name').value = country.name;
             document.getElementById('code').value = country.code;
+            setToggle(!!country.is_active);
         }
 
         function deleteCountry(id, name) {
@@ -646,7 +721,8 @@
 
             const formData = {
                 name: document.getElementById('name').value,
-                code: document.getElementById('code').value.toUpperCase()
+                code: document.getElementById('code').value.toUpperCase(),
+                is_active: document.getElementById('status_toggle').checked
             };
 
             fetch(url, {
@@ -680,6 +756,27 @@
                     showNotification('Failed to save country', 'error');
                 });
         });
+
+        function setToggle(state) {
+            const checkbox = document.getElementById('status_toggle');
+            const track = document.getElementById('toggle-track');
+            const label = document.getElementById('status_label');
+            checkbox.checked = state;
+            if (state) {
+                track.classList.add('is-on');
+                label.textContent = 'Active';
+                label.className = 'text-sm font-medium text-green-600';
+            } else {
+                track.classList.remove('is-on');
+                label.textContent = 'Inactive';
+                label.className = 'text-sm font-medium text-gray-400';
+            }
+        }
+
+        function toggleStatus() {
+            const checkbox = document.getElementById('status_toggle');
+            setToggle(!checkbox.checked);
+        }
 
         // Add CSRF token to meta if not present
         if (!document.querySelector('meta[name="csrf-token"]')) {

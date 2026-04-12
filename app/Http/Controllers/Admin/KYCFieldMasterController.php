@@ -48,7 +48,7 @@ class KYCFieldMasterController extends Controller
 
         $kycFields = $query->orderBy('sort_order')->paginate(15)->withQueryString();
         $kycSections = KycSection::active()->ordered()->get();
-        $countries = Country::orderBy('name')->get(['id', 'name', 'code']);
+        $countries = Country::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
         $documentTypes = DocumentTypesMaster::query()
             ->where('status', 'active')
             ->orderBy('document_name')
