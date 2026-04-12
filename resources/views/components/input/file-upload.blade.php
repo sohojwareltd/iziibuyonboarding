@@ -25,6 +25,11 @@
         }
     }
 
+    $acceptDisplay = collect(explode(',', (string) $accept))
+        ->map(fn ($item) => strtoupper(trim((string) $item, " .\t\n\r\0\x0B")))
+        ->filter()
+        ->implode(', ');
+
     $existingValueInputName = $name ? str_replace('[value]', '[existing_value]', $name) : null;
 @endphp
 
@@ -45,7 +50,7 @@
         @endif
 
         <p class="text-xs text-gray-500">
-            Upload {{ strtoupper(str_replace(['.', ','], '', $accept)) }} (Max {{ $maxSize }})
+            Upload {{ $acceptDisplay }} (Max {{ $maxSize }})
         </p>
     </div>
     
