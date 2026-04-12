@@ -91,6 +91,31 @@
                 return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
             };
 
+            $hasDisplayableValue = function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->contains(fn ($item) => $item !== null && $item !== '');
+                }
+
+                return $value !== null && $value !== '';
+            };
+
+            $companyProfileFields = [
+                'Company Legal Name' => $onboarding->legal_business_name,
+                'Company Registration Number' => $onboarding->registration_number,
+                'Company Tax ID (VAT)' => $onboarding->tax_id_vat,
+                'Trading Name (DBA)' => $onboarding->trading_name,
+                'Company Address (DBA)' => $onboarding->dba_address,
+                'Company ZIP Code (DBA)' => $onboarding->dba_zip_code,
+                'Company City (DBA)' => $onboarding->dba_city,
+                'Business Website' => $onboarding->business_website,
+                'Company Contact Email' => $onboarding->merchant_contact_email,
+                'Company Phone Number' => $onboarding->merchant_phone_number,
+            ];
+
+            $visibleCompanyProfileFields = collect($companyProfileFields)
+                ->filter(fn ($value) => $hasDisplayableValue($value))
+                ->all();
+
             $firstSection = $kycSections->first();
         @endphp
 
@@ -328,6 +353,27 @@
                                         $sectionData = $kycSectionData[$kycSection->id] ?? ['type' => 'single', 'values' => []];
                                         $isGrouped = ($sectionData['type'] ?? 'single') === 'grouped';
                                         $sectionValues = $sectionData['values'] ?? [];
+                                        $visibleSingleFields = $kycSection->kycFields->filter(function ($field) use ($sectionValues, $hasDisplayableValue) {
+                                            return $hasDisplayableValue($sectionValues[$field->id] ?? null);
+                                        })->values();
+                                        $visibleGroupedEntries = collect($sectionValues)
+                                            ->map(function ($groupValues, $groupIndex) use ($kycSection, $hasDisplayableValue) {
+                                                $visibleFields = $kycSection->kycFields->filter(function ($field) use ($groupValues, $hasDisplayableValue) {
+                                                    return $hasDisplayableValue($groupValues[$field->id] ?? null);
+                                                })->values();
+
+                                                if ($visibleFields->isEmpty()) {
+                                                    return null;
+                                                }
+
+                                                return [
+                                                    'groupIndex' => $groupIndex,
+                                                    'groupValues' => $groupValues,
+                                                    'fields' => $visibleFields,
+                                                ];
+                                            })
+                                            ->filter()
+                                            ->values();
                                     @endphp
                                     <div id="content-section-{{ $kycSection->id }}" class="tab-content {{ $loop->first ? 'block' : 'hidden' }} bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
                                         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
@@ -340,19 +386,46 @@
                                             </a> --}}
                                         </div>
 
-                                        @if($kycSection->kycFields->isEmpty())
+                                        @if($kycSection->slug === 'company-information')
+                                            @if(!empty($visibleCompanyProfileFields))
+                                                <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                                                    @foreach($visibleCompanyProfileFields as $label => $value)
+                                                        <div class="{{ in_array($label, ['Company Address (DBA)', 'Business Website'], true) ? 'sm:col-span-2' : '' }}">
+                                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $label }}</label>
+                                                            <div class="text-gray-900 font-medium break-words">
+                                                                {{ $value }}
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            @if($visibleSingleFields->isNotEmpty())
+                                                <div class="border-t border-gray-100 pt-6 mb-6">
+                                                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Additional Company Fields</p>
+                                                </div>
+                                            @endif
+                                        @endif
+
+                                        @if($kycSection->slug === 'company-information' && $visibleSingleFields->isEmpty())
+                                            @if(empty($visibleCompanyProfileFields))
+                                                <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
+                                                    No data provided for this section.
+                                                </div>
+                                            @endif
+                                        @elseif($kycSection->kycFields->isEmpty())
                                             <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
                                                 No fields configured for this section.
                                             </div>
                                         @elseif($isGrouped)
                                             <div class="space-y-4">
-                                                @forelse($sectionValues as $groupIndex => $groupValues)
+                                                @forelse($visibleGroupedEntries as $groupEntry)
                                                     <div class="border border-gray-200 rounded-xl p-5">
-                                                        <h4 class="text-sm font-semibold text-brand-primary mb-4">Entry #{{ (int) $groupIndex + 1 }}</h4>
+                                                        <h4 class="text-sm font-semibold text-brand-primary mb-4">Entry #{{ (int) $groupEntry['groupIndex'] + 1 }}</h4>
                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                                                            @foreach($kycSection->kycFields as $field)
+                                                            @foreach($groupEntry['fields'] as $field)
                                                                 @php
-                                                                    $fieldValue = $groupValues[$field->id] ?? null;
+                                                                    $fieldValue = $groupEntry['groupValues'][$field->id] ?? null;
                                                                     $displayValue = $formatKycValue($field, $fieldValue);
                                                                     $fileUrl = $field->data_type === 'file' ? $resolveKycFileUrl($fieldValue) : null;
                                                                     $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
@@ -380,29 +453,35 @@
                                                 @endforelse
                                             </div>
                                         @else
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                                                @foreach($kycSection->kycFields as $field)
-                                                    @php
-                                                        $fieldValue = $sectionValues[$field->id] ?? null;
-                                                        $displayValue = $formatKycValue($field, $fieldValue);
-                                                        $fileUrl = $field->data_type === 'file' ? $resolveKycFileUrl($fieldValue) : null;
-                                                        $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
-                                                    @endphp
-                                                    <div class="{{ $colSpan }}">
-                                                        <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
-                                                        <div class="text-gray-900 font-medium break-words">
-                                                            @if($fileUrl)
-                                                                <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center gap-2 text-accent hover:underline">
-                                                                    <i class="fa-solid fa-paperclip text-xs"></i>
-                                                                    <span>{{ $displayValue }}</span>
-                                                                </a>
-                                                            @else
-                                                                {{ $displayValue }}
-                                                            @endif
+                                            @if($visibleSingleFields->isNotEmpty())
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                                                    @foreach($visibleSingleFields as $field)
+                                                        @php
+                                                            $fieldValue = $sectionValues[$field->id] ?? null;
+                                                            $displayValue = $formatKycValue($field, $fieldValue);
+                                                            $fileUrl = $field->data_type === 'file' ? $resolveKycFileUrl($fieldValue) : null;
+                                                            $colSpan = in_array($field->data_type, ['textarea', 'address', 'file']) ? 'sm:col-span-2' : '';
+                                                        @endphp
+                                                        <div class="{{ $colSpan }}">
+                                                            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $field->field_name }}</label>
+                                                            <div class="text-gray-900 font-medium break-words">
+                                                                @if($fileUrl)
+                                                                    <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center gap-2 text-accent hover:underline">
+                                                                        <i class="fa-solid fa-paperclip text-xs"></i>
+                                                                        <span>{{ $displayValue }}</span>
+                                                                    </a>
+                                                                @else
+                                                                    {{ $displayValue }}
+                                                                @endif
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center text-sm text-gray-500">
+                                                    No data provided for this section.
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                 @empty
