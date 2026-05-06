@@ -35,6 +35,9 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -97,6 +100,11 @@
             background-size: 1.5em 1.5em;
         }
 
+        select[multiple] {
+            background-image: none;
+            padding-right: 1rem;
+        }
+
         .form-input {
             width: 100%;
             border: 1px solid #D1D5DB;
@@ -110,6 +118,43 @@
         .form-input:focus {
             border-color: #2D3A74;
             box-shadow: 0 0 0 1px #2D3A74;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.375rem;
+            min-height: 42px;
+            padding: 0.35rem 0.5rem;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #2D3A74;
+            box-shadow: 0 0 0 1px #2D3A74;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #EEF2FF;
+            border: 1px solid #CBD5E1;
+            border-radius: 9999px;
+            color: #2D3A74;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+            padding: 0.1rem 0.45rem;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #64748B;
+            margin-right: 0.25rem;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            overflow: hidden;
         }
 
         .toggle-switch {
@@ -992,6 +1037,28 @@
                 renderSupportedCountries();
             }
 
+            function initSupportedSolutionsSelect2() {
+                const selectElement = document.getElementById('supported-solutions-select');
+                const drawerElement = document.getElementById('acquirer-drawer');
+
+                if (!selectElement || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+                    return;
+                }
+
+                const $select = window.jQuery(selectElement);
+
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+
+                $select.select2({
+                    width: '100%',
+                    placeholder: 'Select supported solutions',
+                    closeOnSelect: false,
+                    dropdownParent: drawerElement ? window.jQuery(drawerElement) : undefined
+                });
+            }
+
             function openDrawer() {
                 resetForm();
                 document.getElementById('drawer-title').textContent = 'Add Acquirer';
@@ -1000,6 +1067,7 @@
                 document.getElementById('acquirer-drawer').classList.remove('drawer-closed');
                 document.getElementById('acquirer-drawer').classList.add('drawer-open');
                 document.getElementById('drawer-overlay').classList.remove('hidden');
+                initSupportedSolutionsSelect2();
             }
 
             function closeDrawer() {
@@ -1023,6 +1091,15 @@
                 document.getElementById('status-label').textContent = 'Active';
                 document.getElementById('is_active').value = '1';
                 document.getElementById('requires_signatories').checked = true;
+                const solutionsSelect = document.getElementById('supported-solutions-select');
+                if (solutionsSelect) {
+                    Array.from(solutionsSelect.options).forEach(option => {
+                        option.selected = false;
+                    });
+                    if (window.jQuery && window.jQuery.fn && window.jQuery.fn.select2) {
+                        window.jQuery(solutionsSelect).trigger('change');
+                    }
+                }
                 toggleModeFields();
             }
 
@@ -1131,6 +1208,9 @@
                     Array.from(solutionsSelect.options).forEach(option => {
                         option.selected = solutionIds.includes(option.value);
                     });
+                    if (window.jQuery && window.jQuery.fn && window.jQuery.fn.select2) {
+                        window.jQuery(solutionsSelect).trigger('change');
+                    }
                 }
 
                 toggleModeFields();
@@ -1298,6 +1378,10 @@
                 meta.setAttribute('content', '{{ csrf_token() }}');
                 document.head.appendChild(meta);
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                initSupportedSolutionsSelect2();
+            });
         </script>
 
     </body>
