@@ -16,6 +16,7 @@ class KYCFieldMaster extends Model
         'data_type',
         'document_type_id',
         'options',
+        'default_value',
         'is_required',
         'sensitivity_level',
         'visible_to_merchant',

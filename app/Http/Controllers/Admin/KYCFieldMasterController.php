@@ -77,6 +77,7 @@ class KYCFieldMasterController extends Controller
                 'options' => 'nullable|array',
                 'options.*.label' => 'required_with:options|string|max:255',
                 'options.*.value' => 'required_with:options|string|max:255',
+                'default_value' => 'nullable',
                 'is_required' => 'boolean',
                 'sensitivity_level' => 'required|in:normal,sensitive,highly-sensitive',
                 'visible_to_merchant' => 'boolean',
@@ -98,6 +99,12 @@ class KYCFieldMasterController extends Controller
             if (($validated['data_type'] ?? null) !== 'file') {
                 $validated['document_type_id'] = null;
             }
+
+            $validated['default_value'] = $this->normalizeDefaultValue(
+                $validated['data_type'],
+                $validated['default_value'] ?? null,
+                $validated['options'] ?? []
+            );
 
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));
             if (empty($validated['visible_countries'])) {
@@ -154,6 +161,7 @@ class KYCFieldMasterController extends Controller
                 'options' => 'nullable|array',
                 'options.*.label' => 'required_with:options|string|max:255',
                 'options.*.value' => 'required_with:options|string|max:255',
+                'default_value' => 'nullable',
                 'is_required' => 'boolean',
                 'sensitivity_level' => 'required|in:normal,sensitive,highly-sensitive',
                 'visible_to_merchant' => 'boolean',
@@ -175,6 +183,12 @@ class KYCFieldMasterController extends Controller
             if (($validated['data_type'] ?? null) !== 'file') {
                 $validated['document_type_id'] = null;
             }
+
+            $validated['default_value'] = $this->normalizeDefaultValue(
+                $validated['data_type'],
+                $validated['default_value'] ?? null,
+                $validated['options'] ?? []
+            );
 
             $validated['visible_countries'] = array_values($request->input('visible_countries', []));
             if (empty($validated['visible_countries'])) {
@@ -216,6 +230,107 @@ class KYCFieldMasterController extends Controller
 
         return redirect()->route('admin.masters.kyc-field-master')
             ->with('success', 'KYC Field deleted successfully');
+    }
+
+    /**
+     * Normalize incoming default value by data type before persistence.
+     */
+    private function normalizeDefaultValue(string $dataType, $defaultValue, array $options = []): ?string
+    {
+        $choiceTypes = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+        $singleChoiceTypes = ['dropdown', 'radio'];
+        $blockedTypes = ['file', 'signature'];
+
+        if (in_array($dataType, $blockedTypes, true)) {
+            return null;
+        }
+
+        if (!in_array($dataType, $choiceTypes, true)) {
+            if ($defaultValue === null) {
+                return null;
+            }
+
+            $textValue = trim((string) $defaultValue);
+            return $textValue === '' ? null : $textValue;
+        }
+
+        $normalized = $this->parseDefaultChoiceValues($defaultValue);
+
+        $allowedOptionValues = collect($options)
+            ->pluck('value')
+            ->map(fn ($value) => (string) $value)
+            ->filter(fn ($value) => $value !== '')
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($allowedOptionValues)) {
+            $allowedLookup = array_flip($allowedOptionValues);
+            $normalized = array_values(array_filter($normalized, fn ($value) => isset($allowedLookup[$value])));
+        }
+
+        if (in_array($dataType, $singleChoiceTypes, true)) {
+            $normalized = array_slice($normalized, 0, 1);
+        }
+
+        if (empty($normalized)) {
+            return null;
+        }
+
+        return json_encode($normalized);
+    }
+
+    /**
+     * Parse default choice values from JSON, CSV-like string, or scalar value.
+     */
+    private function parseDefaultChoiceValues($defaultValue): array
+    {
+        if (is_array($defaultValue)) {
+            return collect($defaultValue)
+                ->map(fn ($value) => trim((string) $value))
+                ->filter(fn ($value) => $value !== '')
+                ->unique()
+                ->values()
+                ->all();
+        }
+
+        if ($defaultValue === null) {
+            return [];
+        }
+
+        $raw = trim((string) $defaultValue);
+        if ($raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            if (is_array($decoded)) {
+                return collect($decoded)
+                    ->map(fn ($value) => trim((string) $value))
+                    ->filter(fn ($value) => $value !== '')
+                    ->unique()
+                    ->values()
+                    ->all();
+            }
+
+            if ($decoded !== null && $decoded !== '') {
+                return [trim((string) $decoded)];
+            }
+
+            return [];
+        }
+
+        if (str_contains($raw, ',')) {
+            return collect(explode(',', $raw))
+                ->map(fn ($value) => trim((string) $value))
+                ->filter(fn ($value) => $value !== '')
+                ->unique()
+                ->values()
+                ->all();
+        }
+
+        return [$raw];
     }
 
     /**

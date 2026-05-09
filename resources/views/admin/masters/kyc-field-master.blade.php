@@ -893,6 +893,25 @@
                                 <div class="text-xs text-gray-400 -mt-1">Define label (shown to user) and value (stored internally).</div>
                                 <div id="options-list" class="space-y-2"></div>
                             </div>
+
+                            <!-- Default Value Configuration -->
+                            <div id="default-value-section" class="hidden space-y-3">
+                                <label class="block text-sm font-medium text-gray-700">Default Value</label>
+
+                                <div id="default-value-text-wrapper" class="hidden">
+                                    <input type="text" id="default-value-text" class="form-input"
+                                        placeholder="Enter default value" oninput="syncDefaultValueToHidden()">
+                                </div>
+
+                                <div id="default-value-choice-wrapper" class="hidden">
+                                    <div class="text-xs text-gray-500">Select one or more options as default value.</div>
+                                    <div id="default-value-choice-list"
+                                        class="max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-white">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="default-value" name="default_value" value="">
+                            </div>
                         </div>
 
                         <!-- Divider -->
@@ -1303,6 +1322,12 @@
         document.getElementById('document-type-section').classList.add('hidden');
         document.getElementById('document-type-id').required = false;
         document.getElementById('document-type-id').value = '';
+        document.getElementById('default-value-section').classList.add('hidden');
+        document.getElementById('default-value-text-wrapper').classList.add('hidden');
+        document.getElementById('default-value-choice-wrapper').classList.add('hidden');
+        document.getElementById('default-value-text').value = '';
+        document.getElementById('default-value-choice-list').innerHTML = '';
+        document.getElementById('default-value').value = '';
     }
 
     function toggleRequired() {
@@ -1318,6 +1343,7 @@
     }
 
     const CHOICE_TYPES = ['dropdown', 'multi-select', 'checkbox', 'radio'];
+    const SINGLE_DEFAULT_CHOICE_TYPES = ['dropdown', 'radio'];
 
     function handleDataTypeChange(type) {
         const section = document.getElementById('options-section');
@@ -1341,6 +1367,187 @@
         } else {
             section.classList.add('hidden');
         }
+
+        updateDefaultValueSection(type);
+    }
+
+    function supportsTextDefault(type) {
+        return !!type && !CHOICE_TYPES.includes(type) && !['file', 'signature'].includes(type);
+    }
+
+    function normalizeDefaultValueToArray(value) {
+        if (Array.isArray(value)) {
+            return value.map(item => String(item)).filter(Boolean);
+        }
+
+        if (value === null || value === undefined || value === '') {
+            return [];
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+
+            if (!trimmed) {
+                return [];
+            }
+
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.map(item => String(item)).filter(Boolean);
+                }
+
+                if (parsed !== null && parsed !== undefined && parsed !== '') {
+                    return [String(parsed)];
+                }
+            } catch (error) {
+                // Keep plain string fallback.
+            }
+
+            if (trimmed.includes(',')) {
+                return trimmed.split(',').map(item => item.trim()).filter(Boolean);
+            }
+
+            return [trimmed];
+        }
+
+        return [String(value)];
+    }
+
+    function getChoiceOptionsFromRows() {
+        return Array.from(document.querySelectorAll('#options-list .option-row')).map(row => {
+            const label = row.querySelector('input[name*="[label]"]')?.value?.trim() || '';
+            const value = row.querySelector('input[name*="[value]"]')?.value?.trim() || '';
+            return {
+                label,
+                value,
+            };
+        }).filter(option => option.value !== '');
+    }
+
+    function renderDefaultChoiceList(selectedValues = null) {
+        const dataType = document.getElementById('data-type').value;
+        const list = document.getElementById('default-value-choice-list');
+        const defaultValueInput = document.getElementById('default-value');
+
+        if (!list) {
+            return;
+        }
+
+        const options = getChoiceOptionsFromRows();
+        const selected = selectedValues || normalizeDefaultValueToArray(defaultValueInput.value);
+
+        if (options.length === 0) {
+            list.innerHTML = '<div class="text-xs text-gray-400 px-1 py-1">Add options first to set default value.</div>';
+            defaultValueInput.value = '';
+            return;
+        }
+
+        const isSingleSelection = SINGLE_DEFAULT_CHOICE_TYPES.includes(dataType);
+        list.innerHTML = options.map((option, index) => {
+            const checked = selected.includes(option.value) ? 'checked' : '';
+            const caption = option.label || option.value;
+            return `
+                <label class="flex items-center gap-2 cursor-pointer px-1 py-1 rounded hover:bg-gray-50">
+                    <input type="checkbox" value="${escapeHtml(option.value)}" ${checked}
+                        class="w-4 h-4 border-gray-400 rounded text-blue-600 default-choice-checkbox"
+                        onchange="onDefaultChoiceChange(this, ${isSingleSelection ? 'true' : 'false'})">
+                    <span class="text-sm text-gray-700">${escapeHtml(caption)}</span>
+                </label>
+            `;
+        }).join('');
+
+        if (isSingleSelection) {
+            const checkedBoxes = list.querySelectorAll('.default-choice-checkbox:checked');
+            checkedBoxes.forEach((checkbox, idx) => {
+                if (idx > 0) {
+                    checkbox.checked = false;
+                }
+            });
+        }
+
+        syncDefaultValueToHidden();
+    }
+
+    function onDefaultChoiceChange(changedCheckbox, singleSelectionOnly) {
+        if (singleSelectionOnly && changedCheckbox.checked) {
+            document.querySelectorAll('#default-value-choice-list .default-choice-checkbox').forEach(checkbox => {
+                if (checkbox !== changedCheckbox) {
+                    checkbox.checked = false;
+                }
+            });
+        }
+
+        syncDefaultValueToHidden();
+    }
+
+    function updateDefaultValueSection(type) {
+        const section = document.getElementById('default-value-section');
+        const textWrapper = document.getElementById('default-value-text-wrapper');
+        const choiceWrapper = document.getElementById('default-value-choice-wrapper');
+        const defaultValueInput = document.getElementById('default-value');
+
+        if (CHOICE_TYPES.includes(type)) {
+            section.classList.remove('hidden');
+            textWrapper.classList.add('hidden');
+            choiceWrapper.classList.remove('hidden');
+            renderDefaultChoiceList();
+            return;
+        }
+
+        if (supportsTextDefault(type)) {
+            section.classList.remove('hidden');
+            textWrapper.classList.remove('hidden');
+            choiceWrapper.classList.add('hidden');
+            syncDefaultValueToHidden();
+            return;
+        }
+
+        section.classList.add('hidden');
+        textWrapper.classList.add('hidden');
+        choiceWrapper.classList.add('hidden');
+        defaultValueInput.value = '';
+    }
+
+    function syncDefaultValueToHidden() {
+        const dataType = document.getElementById('data-type').value;
+        const defaultValueInput = document.getElementById('default-value');
+
+        if (CHOICE_TYPES.includes(dataType)) {
+            const selectedValues = Array.from(document.querySelectorAll('#default-value-choice-list .default-choice-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            defaultValueInput.value = selectedValues.length ? JSON.stringify(selectedValues) : '';
+            return;
+        }
+
+        if (supportsTextDefault(dataType)) {
+            defaultValueInput.value = document.getElementById('default-value-text').value;
+            return;
+        }
+
+        defaultValueInput.value = '';
+    }
+
+    function applyDefaultValueToUI(defaultValue) {
+        const dataType = document.getElementById('data-type').value;
+
+        if (CHOICE_TYPES.includes(dataType)) {
+            const selectedValues = normalizeDefaultValueToArray(defaultValue);
+            document.getElementById('default-value').value = selectedValues.length ? JSON.stringify(selectedValues) : '';
+            renderDefaultChoiceList(selectedValues);
+            return;
+        }
+
+        if (supportsTextDefault(dataType)) {
+            const textValue = defaultValue === null || defaultValue === undefined
+                ? ''
+                : String(defaultValue);
+            document.getElementById('default-value-text').value = textValue;
+            document.getElementById('default-value').value = textValue;
+            return;
+        }
+
+        document.getElementById('default-value').value = '';
     }
 
     let optionRowIndex = 0;
@@ -1361,6 +1568,12 @@
             </button>
         `;
         list.appendChild(row);
+
+        const labelInput = row.querySelector(`input[name="options[${idx}][label]"]`);
+        const valueInput = row.querySelector(`input[name="options[${idx}][value]"]`);
+        labelInput?.addEventListener('input', () => renderDefaultChoiceList());
+        valueInput?.addEventListener('input', () => renderDefaultChoiceList());
+        renderDefaultChoiceList();
     }
 
     function autoFillOptionValue(labelInput, idx) {
@@ -1378,7 +1591,10 @@
         // Ensure at least one row remains for choice types
         if (list.children.length === 0 && CHOICE_TYPES.includes(document.getElementById('data-type').value)) {
             addOptionRow();
+            return;
         }
+
+        renderDefaultChoiceList();
     }
 
     function escapeHtml(str) {
@@ -1393,6 +1609,8 @@
         } else {
             addOptionRow();
         }
+
+        renderDefaultChoiceList();
     }
 
     const FRIENDLY_FIELD_LABELS = {
@@ -1520,6 +1738,7 @@
                     document.getElementById('options-section').classList.add('hidden');
                     document.getElementById('options-list').innerHTML = '';
                 }
+                applyDefaultValueToUI(data.default_value);
                 document.getElementById('sort-order').value = data.sort_order;
 
                 // Toggle required
@@ -1645,6 +1864,8 @@
         formData.set('visible_to_partner', visiblePartner ? (visiblePartner.checked ? '1' : '0') : '0');
         formData.set('status', document.getElementById('status-toggle').classList.contains('active') ?
             'active' : 'draft');
+        syncDefaultValueToHidden();
+        formData.set('default_value', document.getElementById('default-value').value);
 
         // Debug: Log form data
         console.log('Form Mode:', mode);
