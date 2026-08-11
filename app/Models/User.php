@@ -55,6 +55,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Normalize email before saving so duplicates differ only by case/spacing cannot be created.
+     */
+    public function setEmailAttribute(?string $value): void
+    {
+        $this->attributes['email'] = $value === null
+            ? null
+            : strtolower(trim($value));
+    }
+
+    /**
      * Get the role that owns the user.
      */
     public function role()

@@ -60,11 +60,20 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
+            $request->merge([
+                'email' => strtolower(trim((string) $request->input('email'))),
+            ]);
+
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'role_id' => 'required|exists:roles,id',
-                'email' => 'required|email|unique:users,email',
+                'email' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email'),
+                ],
                 'password' => 'required|string|min:8|confirmed',
                 'phone' => 'nullable|string|max:20',
                 'address' => 'nullable|string|max:255',
@@ -72,6 +81,8 @@ class UserController extends Controller
                 'state' => 'nullable|string|max:100',
                 'postal_code' => 'nullable|string|max:20',
                 'country' => 'nullable|string|max:100',
+            ], [
+                'email.unique' => 'A user with this email already exists.',
             ]);
 
             $validated['password'] = Hash::make($validated['password']);
@@ -132,11 +143,20 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         try {
+            $request->merge([
+                'email' => strtolower(trim((string) $request->input('email'))),
+            ]);
+
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'role_id' => 'required|exists:roles,id',
-                'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email')->ignore($user->id),
+                ],
                 'password' => 'nullable|string|min:8|confirmed',
                 'phone' => 'nullable|string|max:20',
                 'address' => 'nullable|string|max:255',
@@ -144,6 +164,8 @@ class UserController extends Controller
                 'state' => 'nullable|string|max:100',
                 'postal_code' => 'nullable|string|max:20',
                 'country' => 'nullable|string|max:100',
+            ], [
+                'email.unique' => 'A user with this email already exists.',
             ]);
 
             if (!empty($validated['password'])) {

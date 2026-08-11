@@ -67,6 +67,10 @@ class OnboardingController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'merchant_contact_email' => strtolower(trim((string) $request->input('merchant_contact_email'))),
+        ]);
+
         $validated = $request->validate([
             'solution_id' => ['required', 'exists:solution_masters,id'],
             'partner_id' => ['nullable', 'exists:partners,id'],
@@ -170,6 +174,10 @@ class OnboardingController extends Controller
 
     public function update(Request $request, Onboarding $onboarding)
     {
+        $request->merge([
+            'merchant_contact_email' => strtolower(trim((string) $request->input('merchant_contact_email'))),
+        ]);
+
         $validated = $request->validate([
             'solution_id' => ['required', 'exists:solution_masters,id'],
             'partner_id' => ['nullable', 'exists:partners,id'],
@@ -406,8 +414,9 @@ class OnboardingController extends Controller
             ['description' => 'Merchant user']
         );
         $merchantPassword = Str::password(length: 20, letters: true, numbers: true, symbols: true, spaces: false);
+        $merchantEmail = strtolower(trim($validated['merchant_contact_email']));
         $merchantUser = User::firstOrCreate(
-            ['email' => $validated['merchant_contact_email']],
+            ['email' => $merchantEmail],
             [
                 'name' => $validated['legal_business_name'],
                 'role_id' => $merchantRole->id,
