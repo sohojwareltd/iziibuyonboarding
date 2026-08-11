@@ -31,7 +31,8 @@
         <!-- Admin Profile -->
         <div class="relative">
             <div class="flex items-center gap-3 cursor-pointer group" id="profileDropdownToggle">
-                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Admin Avatar"
+                <img src="
+                {{ Auth::user()->avatar ?? 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original' }}" alt="Admin Avatar"
                     class="w-8 h-8 rounded-full object-cover">
                 <i
                     class="fa-solid fa-chevron-down text-xs text-brand-text group-hover:text-brand-primary transition-colors"></i>
